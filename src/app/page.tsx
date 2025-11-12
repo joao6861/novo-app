@@ -228,11 +228,13 @@ export default function TureggonPage() {
       <header className="bg-black py-6 border-b border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex justify-center mb-6">
-            <img 
-              src="https://k6hrqrxuu8obbfwn.public.blob.vercel-storage.com/temp/a35d4fdc-ff2d-4d43-adae-18261b1533b1.png" 
-              alt="Tureggon Logo" 
-              className="h-16 w-auto"
-            />
+            <a href="https://tureggon.com/" target="_blank" rel="noopener noreferrer">
+              <img 
+                src="https://k6hrqrxuu8obbfwn.public.blob.vercel-storage.com/temp/a35d4fdc-ff2d-4d43-adae-18261b1533b1.png" 
+                alt="Tureggon Logo" 
+                className="h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </a>
           </div>
 
           {/* Botões de Modo de Busca */}
@@ -710,11 +712,13 @@ export default function TureggonPage() {
       <footer className="bg-black text-white py-8 border-t border-gray-800">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center mb-4">
-            <img 
-              src="https://k6hrqrxuu8obbfwn.public.blob.vercel-storage.com/temp/a35d4fdc-ff2d-4d43-adae-18261b1533b1.png" 
-              alt="Tureggon Logo" 
-              className="h-12 w-auto"
-            />
+            <a href="https://tureggon.com/" target="_blank" rel="noopener noreferrer">
+              <img 
+                src="https://k6hrqrxuu8obbfwn.public.blob.vercel-storage.com/temp/a35d4fdc-ff2d-4d43-adae-18261b1533b1.png" 
+                alt="Tureggon Logo" 
+                className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </a>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-800 text-gray-400 text-sm">
             <p>&copy; 2024 Tureggon. Todos os direitos reservados.</p>

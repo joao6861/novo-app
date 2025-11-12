@@ -5,8 +5,14 @@ let supabaseInstance: SupabaseClient | null = null
 
 /**
  * Retorna o cliente Supabase (cria apenas quando necessário)
+ * IMPORTANTE: Só funciona no lado do cliente (browser)
  */
 export function getSupabaseClient() {
+  // Verifica se está no lado do servidor (build time)
+  if (typeof window === 'undefined') {
+    return null
+  }
+
   // Se já existe instância, retorna
   if (supabaseInstance) {
     return supabaseInstance
