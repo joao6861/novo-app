@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Car, Shield, Clock, Droplet, Filter, Wrench, List, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,95 +13,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { consultarPlaca, validarPlaca, type VehicleData } from '@/lib/placa-api'
+import { consultarPlacaFipe, validarPlacaBrasileira } from '@/lib/placafipe-api'
+import { 
+  loginAutoOleo, 
+  fetchAutoOleoBrands, 
+  fetchAutoOleoModels, 
+  fetchAutoOleoYears, 
+  fetchAutoOleoMotors,
+  fetchAutoOleoVehicleInfo,
+  type AutoOleoVehicle 
+} from '@/lib/autooleo-scraper'
 
-// Dados mock para demonstração da busca manual (sem placa)
-const mockVehicles: VehicleData[] = [
-  {
-    placa: 'DEMO001',
-    marca: 'Toyota',
-    modelo: 'Corolla',
-    ano: '2020',
-    motor: '2.0 16V Flex',
-    oleo_motor: 'SAE 5W-30 API SN',
-    capacidade_oleo_motor: '4.2 litros',
-    oleo_cambio_manual: 'SAE 75W-85 API GL-4',
-    capacidade_cambio_manual: '2.0 litros',
-    oleo_cambio_automatico: 'ATF WS',
-    capacidade_cambio_automatico: '6.9 litros',
-    oleo_diferencial_dianteiro: 'N/A',
-    capacidade_diferencial_dianteiro: 'N/A',
-    oleo_diferencial_traseiro: 'SAE 80W-90 API GL-5',
-    capacidade_diferencial_traseiro: '1.3 litros',
-    oleo_caixa_transferencia: 'N/A',
-    filtro_oleo: '04152-YZZA6',
-    filtro_ar: '17801-21050',
-    filtro_combustivel: '23300-21010',
-    filtro_cabine: '87139-02090',
-    filtro_oleo_cambio: '35330-60050',
-    fluido_direcao: 'ATF Dexron III',
-    fluido_freio: 'DOT 3',
-    torque_aperto: '29 Nm (filtro de óleo)',
-    palhetas_limpador: '24" / 16"',
-    aditivo_radiador: 'Etilenoglicol 50%'
-  },
-  {
-    placa: 'DEMO002',
-    marca: 'Honda',
-    modelo: 'Civic',
-    ano: '2019',
-    motor: '2.0 16V Flex',
-    oleo_motor: 'SAE 0W-20 API SN',
-    capacidade_oleo_motor: '3.7 litros',
-    oleo_cambio_manual: 'MTF-3',
-    capacidade_cambio_manual: '1.9 litros',
-    oleo_cambio_automatico: 'ATF DW-1',
-    capacidade_cambio_automatico: '6.2 litros',
-    oleo_diferencial_dianteiro: 'N/A',
-    capacidade_diferencial_dianteiro: 'N/A',
-    oleo_diferencial_traseiro: 'N/A',
-    capacidade_diferencial_traseiro: 'N/A',
-    oleo_caixa_transferencia: 'N/A',
-    filtro_oleo: '15400-RTA-003',
-    filtro_ar: '17220-R1A-A01',
-    filtro_combustivel: '16010-ST5-E02',
-    filtro_cabine: '80292-TF0-G01',
-    filtro_oleo_cambio: '25430-PLR-003',
-    fluido_direcao: 'Honda PSF',
-    fluido_freio: 'DOT 4',
-    torque_aperto: '33 Nm (filtro de óleo)',
-    palhetas_limpador: '26" / 18"',
-    aditivo_radiador: 'Honda Type 2'
-  },
-  {
-    placa: 'DEMO003',
-    marca: 'BMW',
-    modelo: 'X3',
-    ano: '2021',
-    motor: '2.0 Turbo 16V',
-    oleo_motor: 'SAE 5W-30 BMW Longlife-04',
-    capacidade_oleo_motor: '5.2 litros',
-    oleo_cambio_manual: 'N/A',
-    capacidade_cambio_manual: 'N/A',
-    oleo_cambio_automatico: 'ATF ZF Lifeguard 8',
-    capacidade_cambio_automatico: '8.5 litros',
-    oleo_diferencial_dianteiro: 'SAE 75W-90 API GL-5',
-    capacidade_diferencial_dianteiro: '1.1 litros',
-    oleo_diferencial_traseiro: 'SAE 75W-90 API GL-5',
-    capacidade_diferencial_traseiro: '1.2 litros',
-    oleo_caixa_transferencia: 'ATF ZF Lifeguard 8',
-    filtro_oleo: '11427953129',
-    filtro_ar: '13717602643',
-    filtro_combustivel: '16117373814',
-    filtro_cabine: '64319313519',
-    filtro_oleo_cambio: '24117571227',
-    fluido_direcao: 'Pentosin CHF 11S',
-    fluido_freio: 'DOT 4 Low Viscosity',
-    torque_aperto: '25 Nm (filtro de óleo)',
-    palhetas_limpador: '24" / 20"',
-    aditivo_radiador: 'BMW Coolant'
-  }
-]
+// Interface para dados do veículo (compatível com mock e API)
+interface VehicleData {
+  placa: string
+  marca: string
+  modelo: string
+  ano: string
+  motor?: string
+  cor?: string
+  municipio?: string
+  uf?: string
+  oleo_motor?: string
+  capacidade_oleo_motor?: string
+  oleo_cambio_manual?: string
+  capacidade_cambio_manual?: string
+  oleo_cambio_automatico?: string
+  capacidade_cambio_automatico?: string
+  oleo_diferencial_dianteiro?: string
+  capacidade_diferencial_dianteiro?: string
+  oleo_diferencial_traseiro?: string
+  capacidade_diferencial_traseiro?: string
+  oleo_caixa_transferencia?: string
+  filtro_oleo?: string
+  filtro_ar?: string
+  filtro_combustivel?: string
+  filtro_cabine?: string
+  filtro_oleo_cambio?: string
+  fluido_direcao?: string
+  fluido_freio?: string
+  torque_aperto?: string
+  palhetas_limpador?: string
+  aditivo_radiador?: string
+}
+
+const AUTOOLEO_CREDENTIALS = {
+  email: 'contatoaldoscenter@gmail.com',
+  password: '12345'
+}
 
 export default function TureggonPage() {
   const [searchPlate, setSearchPlate] = useState('')
@@ -116,24 +75,96 @@ export default function TureggonPage() {
   const [selectedModel, setSelectedModel] = useState('')
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedMotor, setSelectedMotor] = useState('')
-
-  // Extrair marcas únicas
-  const brands = Array.from(new Set(mockVehicles.map(v => v.marca))).sort()
   
-  // Filtrar modelos baseado na marca selecionada
-  const models = selectedBrand 
-    ? Array.from(new Set(mockVehicles.filter(v => v.marca === selectedBrand).map(v => v.modelo))).sort()
-    : []
-  
-  // Filtrar anos baseado na marca e modelo selecionados
-  const years = selectedBrand && selectedModel
-    ? Array.from(new Set(mockVehicles.filter(v => v.marca === selectedBrand && v.modelo === selectedModel).map(v => v.ano))).sort((a, b) => parseInt(b) - parseInt(a))
-    : []
+  // Estados para dados do AutoOleo
+  const [autoOleoToken, setAutoOleoToken] = useState<string | null>(null)
+  const [brands, setBrands] = useState<string[]>([])
+  const [models, setModels] = useState<string[]>([])
+  const [years, setYears] = useState<string[]>([])
+  const [motors, setMotors] = useState<string[]>([])
+  const [isLoadingBrands, setIsLoadingBrands] = useState(false)
+  const [isLoadingModels, setIsLoadingModels] = useState(false)
+  const [isLoadingYears, setIsLoadingYears] = useState(false)
+  const [isLoadingMotors, setIsLoadingMotors] = useState(false)
 
-  // Filtrar motores baseado na marca, modelo e ano selecionados
-  const motors = selectedBrand && selectedModel && selectedYear
-    ? Array.from(new Set(mockVehicles.filter(v => v.marca === selectedBrand && v.modelo === selectedModel && v.ano === selectedYear).map(v => v.motor || 'N/A'))).sort()
-    : []
+  // Fazer login no AutoOleo ao carregar a página
+  useEffect(() => {
+    const initAutoOleo = async () => {
+      try {
+        setIsLoadingBrands(true)
+        const token = await loginAutoOleo(AUTOOLEO_CREDENTIALS)
+        if (token) {
+          setAutoOleoToken(token)
+          // Buscar marcas imediatamente após login
+          const brandsData = await fetchAutoOleoBrands(token)
+          setBrands(brandsData)
+        }
+      } catch (error) {
+        console.error('Erro ao inicializar AutoOleo:', error)
+      } finally {
+        setIsLoadingBrands(false)
+      }
+    }
+
+    initAutoOleo()
+  }, [])
+
+  // Buscar modelos quando marca for selecionada
+  useEffect(() => {
+    const loadModels = async () => {
+      if (!selectedBrand || !autoOleoToken) return
+      
+      try {
+        setIsLoadingModels(true)
+        const modelsData = await fetchAutoOleoModels(autoOleoToken, selectedBrand)
+        setModels(modelsData)
+      } catch (error) {
+        console.error('Erro ao buscar modelos:', error)
+      } finally {
+        setIsLoadingModels(false)
+      }
+    }
+
+    loadModels()
+  }, [selectedBrand, autoOleoToken])
+
+  // Buscar anos quando modelo for selecionado
+  useEffect(() => {
+    const loadYears = async () => {
+      if (!selectedBrand || !selectedModel || !autoOleoToken) return
+      
+      try {
+        setIsLoadingYears(true)
+        const yearsData = await fetchAutoOleoYears(autoOleoToken, selectedBrand, selectedModel)
+        setYears(yearsData)
+      } catch (error) {
+        console.error('Erro ao buscar anos:', error)
+      } finally {
+        setIsLoadingYears(false)
+      }
+    }
+
+    loadYears()
+  }, [selectedBrand, selectedModel, autoOleoToken])
+
+  // Buscar motores quando ano for selecionado
+  useEffect(() => {
+    const loadMotors = async () => {
+      if (!selectedBrand || !selectedModel || !selectedYear || !autoOleoToken) return
+      
+      try {
+        setIsLoadingMotors(true)
+        const motorsData = await fetchAutoOleoMotors(autoOleoToken, selectedBrand, selectedModel, selectedYear)
+        setMotors(motorsData)
+      } catch (error) {
+        console.error('Erro ao buscar motores:', error)
+      } finally {
+        setIsLoadingMotors(false)
+      }
+    }
+
+    loadMotors()
+  }, [selectedBrand, selectedModel, selectedYear, autoOleoToken])
 
   const handleSearch = async () => {
     if (!searchPlate.trim()) return
@@ -143,15 +174,49 @@ export default function TureggonPage() {
     
     try {
       // Validar formato da placa
-      if (!validarPlaca(searchPlate)) {
+      if (!validarPlacaBrasileira(searchPlate)) {
         setError('Formato de placa inválido. Use ABC1234 ou ABC1D23')
         setSearchResult(null)
         setIsSearching(false)
         return
       }
 
-      // Consultar API real
-      const vehicle = await consultarPlaca(searchPlate)
+      // Consultar API real do PlacaFIPE
+      const placaData = await consultarPlacaFipe(searchPlate)
+      
+      // Converter dados da API para formato VehicleData
+      const vehicle: VehicleData | null = placaData ? {
+        placa: placaData.placa,
+        marca: placaData.marca,
+        modelo: placaData.modelo,
+        ano: placaData.ano,
+        motor: placaData.motor || 'N/A',
+        cor: placaData.cor,
+        municipio: placaData.municipio,
+        uf: placaData.uf,
+        // Dados de manutenção virão do AutoOleo posteriormente
+        oleo_motor: 'Consulte manual do veículo',
+        capacidade_oleo_motor: 'N/A',
+        oleo_cambio_manual: 'N/A',
+        capacidade_cambio_manual: 'N/A',
+        oleo_cambio_automatico: 'N/A',
+        capacidade_cambio_automatico: 'N/A',
+        oleo_diferencial_dianteiro: 'N/A',
+        capacidade_diferencial_dianteiro: 'N/A',
+        oleo_diferencial_traseiro: 'N/A',
+        capacidade_diferencial_traseiro: 'N/A',
+        oleo_caixa_transferencia: 'N/A',
+        filtro_oleo: 'N/A',
+        filtro_ar: 'N/A',
+        filtro_combustivel: 'N/A',
+        filtro_cabine: 'N/A',
+        filtro_oleo_cambio: 'N/A',
+        fluido_direcao: 'N/A',
+        fluido_freio: 'N/A',
+        torque_aperto: 'N/A',
+        palhetas_limpador: 'N/A',
+        aditivo_radiador: 'N/A',
+      } : null
       
       if (vehicle) {
         setSearchResult(vehicle)
@@ -173,25 +238,55 @@ export default function TureggonPage() {
   }
 
   const handleManualSearch = async () => {
-    if (!selectedBrand || !selectedModel || !selectedYear || !selectedMotor) return
+    if (!selectedBrand || !selectedModel || !selectedYear || !selectedMotor || !autoOleoToken) return
 
     setIsSearching(true)
     setError(null)
     
-    // Simular delay de busca
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
     try {
-      // Buscar nos dados mock
-      const vehicle = mockVehicles.find(v => 
-        v.marca === selectedBrand && 
-        v.modelo === selectedModel && 
-        v.ano === selectedYear &&
-        v.motor === selectedMotor
+      // Buscar informações completas do veículo no AutoOleo
+      const vehicleInfo = await fetchAutoOleoVehicleInfo(
+        autoOleoToken,
+        selectedBrand,
+        selectedModel,
+        selectedYear,
+        selectedMotor
       )
       
-      setSearchResult(vehicle || null)
-      if (!vehicle) {
+      if (vehicleInfo) {
+        // Converter AutoOleoVehicle para VehicleData
+        const vehicle: VehicleData = {
+          placa: 'SEM PLACA',
+          marca: vehicleInfo.marca,
+          modelo: vehicleInfo.modelo,
+          ano: vehicleInfo.ano,
+          motor: vehicleInfo.motor,
+          oleo_motor: vehicleInfo.oleo_motor || 'N/A',
+          capacidade_oleo_motor: vehicleInfo.capacidade_oleo_motor || 'N/A',
+          oleo_cambio_manual: vehicleInfo.oleo_cambio_manual || 'N/A',
+          capacidade_cambio_manual: vehicleInfo.capacidade_cambio_manual || 'N/A',
+          oleo_cambio_automatico: vehicleInfo.oleo_cambio_automatico || 'N/A',
+          capacidade_cambio_automatico: vehicleInfo.capacidade_cambio_automatico || 'N/A',
+          oleo_diferencial_dianteiro: vehicleInfo.oleo_diferencial_dianteiro || 'N/A',
+          capacidade_diferencial_dianteiro: vehicleInfo.capacidade_diferencial_dianteiro || 'N/A',
+          oleo_diferencial_traseiro: vehicleInfo.oleo_diferencial_traseiro || 'N/A',
+          capacidade_diferencial_traseiro: vehicleInfo.capacidade_diferencial_traseiro || 'N/A',
+          oleo_caixa_transferencia: vehicleInfo.oleo_caixa_transferencia || 'N/A',
+          filtro_oleo: vehicleInfo.filtro_oleo || 'N/A',
+          filtro_ar: vehicleInfo.filtro_ar || 'N/A',
+          filtro_combustivel: vehicleInfo.filtro_combustivel || 'N/A',
+          filtro_cabine: vehicleInfo.filtro_cabine || 'N/A',
+          filtro_oleo_cambio: vehicleInfo.filtro_oleo_cambio || 'N/A',
+          fluido_direcao: vehicleInfo.fluido_direcao || 'N/A',
+          fluido_freio: vehicleInfo.fluido_freio || 'N/A',
+          torque_aperto: vehicleInfo.torque_aperto || 'N/A',
+          palhetas_limpador: vehicleInfo.palhetas_limpador || 'N/A',
+          aditivo_radiador: vehicleInfo.aditivo_radiador || 'N/A',
+        }
+        
+        setSearchResult(vehicle)
+      } else {
+        setSearchResult(null)
         setError('Veículo não encontrado na base de dados')
       }
     } catch (err) {
@@ -360,10 +455,13 @@ export default function TureggonPage() {
                         setSelectedModel('')
                         setSelectedYear('')
                         setSelectedMotor('')
+                        setModels([])
+                        setYears([])
+                        setMotors([])
                         setError(null)
                       }}>
                         <SelectTrigger className="w-full border-2 border-[#00B8FF] bg-gray-800 text-white">
-                          <SelectValue placeholder="Selecione a marca" />
+                          <SelectValue placeholder={isLoadingBrands ? "Carregando marcas..." : "Selecione a marca"} />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-[#00B8FF]">
                           {brands.map(brand => (
@@ -373,6 +471,9 @@ export default function TureggonPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {isLoadingBrands && (
+                        <p className="text-xs text-[#00B8FF] mt-1">🔄 Carregando marcas do AutoOleo...</p>
+                      )}
                     </div>
 
                     <div>
@@ -383,12 +484,14 @@ export default function TureggonPage() {
                           setSelectedModel(value)
                           setSelectedYear('')
                           setSelectedMotor('')
+                          setYears([])
+                          setMotors([])
                           setError(null)
                         }}
-                        disabled={!selectedBrand}
+                        disabled={!selectedBrand || isLoadingModels}
                       >
                         <SelectTrigger className="w-full border-2 border-[#00B8FF] bg-gray-800 text-white disabled:opacity-50">
-                          <SelectValue placeholder="Selecione o modelo" />
+                          <SelectValue placeholder={isLoadingModels ? "Carregando modelos..." : "Selecione o modelo"} />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-[#00B8FF]">
                           {models.map(model => (
@@ -398,6 +501,9 @@ export default function TureggonPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {isLoadingModels && (
+                        <p className="text-xs text-[#00B8FF] mt-1">🔄 Carregando modelos...</p>
+                      )}
                     </div>
 
                     <div>
@@ -407,12 +513,13 @@ export default function TureggonPage() {
                         onValueChange={(value) => {
                           setSelectedYear(value)
                           setSelectedMotor('')
+                          setMotors([])
                           setError(null)
                         }}
-                        disabled={!selectedModel}
+                        disabled={!selectedModel || isLoadingYears}
                       >
                         <SelectTrigger className="w-full border-2 border-[#00B8FF] bg-gray-800 text-white disabled:opacity-50">
-                          <SelectValue placeholder="Selecione o ano" />
+                          <SelectValue placeholder={isLoadingYears ? "Carregando anos..." : "Selecione o ano"} />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-[#00B8FF]">
                           {years.map(year => (
@@ -422,6 +529,9 @@ export default function TureggonPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {isLoadingYears && (
+                        <p className="text-xs text-[#00B8FF] mt-1">🔄 Carregando anos...</p>
+                      )}
                     </div>
 
                     <div>
@@ -432,10 +542,10 @@ export default function TureggonPage() {
                           setSelectedMotor(value)
                           setError(null)
                         }}
-                        disabled={!selectedYear}
+                        disabled={!selectedYear || isLoadingMotors}
                       >
                         <SelectTrigger className="w-full border-2 border-[#00B8FF] bg-gray-800 text-white disabled:opacity-50">
-                          <SelectValue placeholder="Selecione o motor" />
+                          <SelectValue placeholder={isLoadingMotors ? "Carregando motores..." : "Selecione o motor"} />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-[#00B8FF]">
                           {motors.map(motor => (
@@ -445,6 +555,9 @@ export default function TureggonPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {isLoadingMotors && (
+                        <p className="text-xs text-[#00B8FF] mt-1">🔄 Carregando motores...</p>
+                      )}
                     </div>
 
                     {error && (
