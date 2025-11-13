@@ -10,6 +10,14 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verifica se a API key está disponível
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        { success: false, error: 'OPENAI_API_KEY não configurada' },
+        { status: 500 }
+      )
+    }
+
     // Instancia o cliente OpenAI apenas em runtime
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
