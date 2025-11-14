@@ -44,6 +44,8 @@ const AUTOOLEO_LOGIN_URL = `${AUTOOLEO_BASE_URL}/app/login.html`
  */
 export async function loginAutoOleo(credentials: AutoOleoCredentials): Promise<string | null> {
   try {
+    console.log('[AutoOleo Client] Iniciando login...')
+    
     const response = await fetch('/api/autooleo/login', {
       method: 'POST',
       headers: {
@@ -52,14 +54,36 @@ export async function loginAutoOleo(credentials: AutoOleoCredentials): Promise<s
       body: JSON.stringify(credentials),
     })
 
+    console.log('[AutoOleo Client] Status da resposta:', response.status)
+
     if (!response.ok) {
-      throw new Error('Falha no login do AutoOleo')
+      const errorData = await response.json().catch(() => ({ 
+        error: 'Erro desconhecido', 
+        details: 'Sem detalhes' 
+      }))
+      
+      console.warn('[AutoOleo Client] Falha no login:', {
+        status: response.status,
+        error: errorData.error,
+        details: errorData.details
+      })
+      
+      // Retorna null em vez de lançar erro para não quebrar a aplicação
+      return null
     }
 
     const data = await response.json()
-    return data.token || null
+    
+    if (!data.success || !data.token) {
+      console.warn('[AutoOleo Client] Login sem token válido')
+      return null
+    }
+
+    console.log('[AutoOleo Client] ✓ Login bem-sucedido!')
+    return data.token
   } catch (error) {
-    console.error('Erro ao fazer login no AutoOleo:', error)
+    console.error('[AutoOleo Client] Erro ao fazer login:', error instanceof Error ? error.message : 'Erro desconhecido')
+    // Retorna null em vez de lançar erro
     return null
   }
 }

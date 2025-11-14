@@ -47,6 +47,8 @@ export async function consultarPlacaFipe(placa: string): Promise<PlacaFipeVehicl
       throw new Error('Formato de placa inválido')
     }
 
+    console.log('[PlacaFIPE] Consultando placa:', placa)
+
     const response = await fetch('/api/placafipe/consulta', {
       method: 'POST',
       headers: {
@@ -56,7 +58,22 @@ export async function consultarPlacaFipe(placa: string): Promise<PlacaFipeVehicl
     })
 
     if (!response.ok) {
-      throw new Error('Falha ao consultar placa')
+      const errorData = await response.json().catch(() => ({ 
+        error: 'Erro ao consultar placa', 
+        details: 'Sem detalhes disponíveis' 
+      }))
+      
+      // Mensagem amigável baseada no status
+      if (response.status === 404) {
+        // Não loga erro para 404 - é esperado quando placa não existe
+        throw new Error('Placa não encontrada. Verifique se digitou corretamente.')
+      } else if (response.status === 500) {
+        console.error('[PlacaFIPE] Erro no servidor:', errorData.details)
+        throw new Error('Serviço temporariamente indisponível. Tente novamente em alguns instantes.')
+      } else {
+        console.error('[PlacaFIPE] Erro na consulta:', errorData)
+        throw new Error(errorData.error || 'Falha ao consultar placa')
+      }
     }
 
     const data = await response.json()
@@ -65,10 +82,11 @@ export async function consultarPlacaFipe(placa: string): Promise<PlacaFipeVehicl
       return null
     }
 
+    console.log('[PlacaFIPE] ✓ Consulta bem-sucedida via', data.source || 'fonte desconhecida')
     return data.vehicle
   } catch (error) {
-    console.error('Erro ao consultar PlacaFIPE:', error)
-    return null
+    // Re-throw para o componente tratar, mas sem logar novamente
+    throw error
   }
 }
 
