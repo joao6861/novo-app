@@ -62,3 +62,32 @@ export const citiesByState: Record<string, string[]> = {
 export function getCitiesByState(stateValue: string): string[] {
   return citiesByState[stateValue] || [];
 }
+
+// Marcas de veículos populares no Brasil
+export const vehicleBrands = [
+  "Chevrolet",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Jeep",
+  "Nissan",
+  "Peugeot",
+  "Renault",
+  "Toyota",
+  "Volkswagen",
+  "Citroën",
+  "Mitsubishi",
+  "BMW",
+  "Mercedes-Benz",
+  "Audi",
+  "Volvo",
+  "Land Rover",
+  "Porsche",
+  "Kia",
+  "Suzuki",
+  "Subaru",
+  "Chery",
+  "JAC",
+  "Caoa Chery",
+];
