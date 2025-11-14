@@ -29,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <Script src="/lasy-bridge.js" strategy="beforeInteractive" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
