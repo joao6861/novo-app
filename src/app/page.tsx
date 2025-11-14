@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Car,
   Wrench,
@@ -23,8 +22,7 @@ import {
   Mail,
   Star,
 } from "lucide-react";
-
-import { VEHICLE_BRANDS } from "@/lib/vehicle-brands"; // CORRIGIDO
+import { vehicleBrands } from "@/lib/vehicle-brands";
 import { brazilStates, getCitiesByState } from "@/lib/brazil-locations";
 
 export default function Home() {
@@ -40,7 +38,7 @@ export default function Home() {
     setAvailableCities(cities);
   };
 
-  // Oficinas de exemplo
+  // Oficinas de exemplo (filtradas por estado e cidade)
   const workshops = [
     {
       id: 1,
@@ -84,14 +82,11 @@ export default function Home() {
       city: "Rio de Janeiro",
       state: "RJ",
       phone: "(21) 98888-7777",
-      specialties: [
-        "Diagnóstico",
-        "Injeção Eletrônica",
-        "Ar Condicionado",
-      ],
+      specialties: ["Diagnóstico", "Injeção Eletrônica", "Ar Condicionado"],
     },
   ];
 
+  // Filtrar oficinas por estado e cidade selecionados
   const filteredWorkshops = workshops.filter((workshop) => {
     if (selectedState && workshop.state !== selectedState) return false;
     if (selectedCity && workshop.city !== selectedCity) return false;
@@ -125,7 +120,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="container mx-auto px-4 py-12">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -135,11 +130,12 @@ export default function Home() {
             </span>
           </h2>
           <p className="text-lg text-gray-600">
-            Conectamos você com oficinas qualificadas da sua região.
+            Conectamos você com as melhores oficinas da sua região. Rápido,
+            confiável e transparente.
           </p>
         </div>
 
-        {/* Busca */}
+        {/* Busca Rápida */}
         <Card className="max-w-4xl mx-auto shadow-xl border-0 bg-white/80 backdrop-blur">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -149,8 +145,6 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* CORRIGIDO */}
               <div className="space-y-2">
                 <Label htmlFor="brand">Marca do Veículo</Label>
                 <Select value={selectedBrand} onValueChange={setSelectedBrand}>
@@ -158,9 +152,9 @@ export default function Home() {
                     <SelectValue placeholder="Selecione a marca" />
                   </SelectTrigger>
                   <SelectContent>
-                    {VEHICLE_BRANDS.map((brand) => (
-                      <SelectItem key={brand} value={brand}>
-                        {brand}
+                    {vehicleBrands.map((brand) => (
+                      <SelectItem key={brand.value} value={brand.value}>
+                        {brand.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -169,12 +163,21 @@ export default function Home() {
 
               <div className="space-y-2">
                 <Label htmlFor="model">Modelo</Label>
-                <Input id="model" placeholder="Ex: Civic, Gol, Corolla..." />
+                <Input
+                  id="model"
+                  placeholder="Ex: Civic, Gol, Corolla..."
+                  className="w-full"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="year">Ano</Label>
-                <Input id="year" type="number" placeholder="Ex: 2020" />
+                <Input
+                  id="year"
+                  type="number"
+                  placeholder="Ex: 2020"
+                  className="w-full"
+                />
               </div>
 
               <div className="space-y-2">
@@ -193,7 +196,6 @@ export default function Home() {
                   </SelectContent>
                 </Select>
               </div>
-
             </div>
 
             <Button className="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg py-6">
@@ -206,20 +208,19 @@ export default function Home() {
 
       {/* Oficinas Próximas */}
       <section className="container mx-auto px-4 py-12">
-
         <div className="mb-8">
           <h3 className="text-3xl font-bold text-gray-900 mb-2">
             Oficinas Próximas
           </h3>
           <p className="text-gray-600">
-            Selecione o estado e cidade para filtrar
+            Selecione o estado e cidade para filtrar as oficinas
           </p>
         </div>
 
+        {/* Filtros de Localização */}
         <Card className="mb-8 shadow-lg border-0 bg-white/80 backdrop-blur">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
               <div className="space-y-2">
                 <Label htmlFor="state" className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-blue-600" />
@@ -267,12 +268,23 @@ export default function Home() {
                   </SelectContent>
                 </Select>
               </div>
-
             </div>
+
+            {selectedState && (
+              <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                <MapPin className="w-4 h-4" />
+                <span>
+                  Mostrando oficinas em{" "}
+                  {selectedCity
+                    ? `${selectedCity} - ${selectedState}`
+                    : selectedState}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Lista */}
+        {/* Lista de Oficinas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorkshops.length > 0 ? (
             filteredWorkshops.map((workshop) => (
@@ -297,15 +309,12 @@ export default function Home() {
                     </div>
                   </div>
                 </CardHeader>
-
                 <CardContent className="space-y-4">
-
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <MapPin className="w-4 h-4" />
                       <span>
-                        {workshop.address} - {workshop.city}/
-                        {workshop.state}
+                        {workshop.address} - {workshop.city}/{workshop.state}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
@@ -340,7 +349,6 @@ export default function Home() {
                       Ligar
                     </Button>
                   </div>
-
                 </CardContent>
               </Card>
             ))
@@ -352,8 +360,8 @@ export default function Home() {
               </h4>
               <p className="text-gray-600">
                 {selectedState
-                  ? "Tente selecionar outra cidade"
-                  : "Selecione um estado para ver as oficinas"}
+                  ? "Tente selecionar outra localização"
+                  : "Selecione um estado para ver as oficinas disponíveis"}
               </p>
             </div>
           )}
@@ -363,7 +371,6 @@ export default function Home() {
       {/* Features */}
       <section className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
           <Card className="text-center border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
             <CardContent className="pt-6">
               <div className="bg-gradient-to-br from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -371,7 +378,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold mb-2">Agendamento Rápido</h3>
               <p className="text-gray-600">
-                Agende seu serviço rapidamente e sem complicação.
+                Agende seu serviço em poucos cliques e economize tempo
               </p>
             </CardContent>
           </Card>
@@ -383,7 +390,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold mb-2">Oficinas Verificadas</h3>
               <p className="text-gray-600">
-                Oficinas avaliadas e testadas por clientes reais.
+                Todas as oficinas são avaliadas e verificadas por clientes reais
               </p>
             </CardContent>
           </Card>
@@ -395,11 +402,10 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold mb-2">Suporte Dedicado</h3>
               <p className="text-gray-600">
-                Atendimento rápido, humano e sempre disponível.
+                Nossa equipe está pronta para ajudar você a qualquer momento
               </p>
             </CardContent>
           </Card>
-
         </div>
       </section>
 
@@ -412,24 +418,28 @@ export default function Home() {
             </div>
             <h3 className="text-2xl font-bold">AutoCare</h3>
           </div>
-
           <p className="text-gray-400 mb-4">
-            Conectando você às melhores oficinas do Brasil
+            Conectando você com as melhores oficinas do Brasil
           </p>
-
           <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
-            <a href="#" className="hover:text-white">Sobre</a>
-            <a href="#" className="hover:text-white">Termos</a>
-            <a href="#" className="hover:text-white">Privacidade</a>
-            <a href="#" className="hover:text-white">Contato</a>
+            <a href="#" className="hover:text-white transition-colors">
+              Sobre
+            </a>
+            <a href="#" className="hover:text-white transition-colors">
+              Termos
+            </a>
+            <a href="#" className="hover:text-white transition-colors">
+              Privacidade
+            </a>
+            <a href="#" className="hover:text-white transition-colors">
+              Contato
+            </a>
           </div>
-
           <p className="text-gray-500 text-sm mt-6">
             © 2024 AutoCare. Todos os direitos reservados.
           </p>
         </div>
       </footer>
-
     </div>
   );
 }
