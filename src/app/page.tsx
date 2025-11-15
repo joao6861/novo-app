@@ -80,7 +80,7 @@ export default function Home() {
                 <SelectValue placeholder="Selecione a marca" />
               </SelectTrigger>
               <SelectContent>
-                {vehicleBrands.map((brand) => (
+                {VEHICLE_BRANDS.map((brand) => (
                   <SelectItem key={brand} value={brand}>
                     {brand}
                   </SelectItem>
