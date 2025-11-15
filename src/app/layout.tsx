@@ -1,11 +1,14 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: "#00B8FF",
+};
 
 export const metadata: Metadata = {
   title: "Tureggon Store",
   description: "Sistema e aplicativo oficial da Tureggon Store",
   manifest: "/site.webmanifest",
-  themeColor: "#00B8FF",
   icons: {
     icon: [
       { url: "/favicon.png", sizes: "32x32", type: "image/png" },
@@ -17,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tureggon Store",
     description: "Sistema e aplicativo oficial da Tureggon Store",
-    url: "https://novo-app-inky.vercel.app", // 🟦 Coloque seu domínio aqui
+    url: "https://tureggon.store",
     siteName: "Tureggon Store",
     images: [
       {
@@ -38,11 +41,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <body>{children}</body>
