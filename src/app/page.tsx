@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, Car, Wrench, Star, Phone } from "lucide-react";
-import { vehicleBrands } from "@/lib/vehicle-brands";
+import { VEHICLE_BRANDS } from "@/lib/vehicle-brands";
 import { brazilStates, getCitiesByState } from "@/lib/brazil-locations";
 
 export default function Home() {
