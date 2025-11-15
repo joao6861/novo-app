@@ -1,11 +1,12 @@
 {
   "name": "Tureggon Store",
   "short_name": "Tureggon",
+  "description": "App e sistema da Tureggon Store",
+  "start_url": "/",
+  "display": "standalone",
   "background_color": "#00B8FF",
   "theme_color": "#00B8FF",
-  "display": "standalone",
   "orientation": "portrait",
-  "start_url": "/",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -20,8 +21,7 @@
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
