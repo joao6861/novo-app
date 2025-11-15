@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tureggon Store",
     description: "Sistema e aplicativo oficial da Tureggon Store",
-    url: "https://seusite.com", // 🟦 Coloque seu domínio aqui
+    url: "https://tureggon.store", // 🟦 Coloque seu domínio aqui
     siteName: "Tureggon Store",
     images: [
       {
