@@ -36,22 +36,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: 24,
     fontSize: 13,
   },
+  // aqui vira texto simples, sem “botão”
   navStrong: {
     display: "inline-block",
-    margin: "0 8px",
-    padding: "4px 10px",
-    borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.7)",
-    background: "rgba(0,0,0,0.18)",
-    fontSize: 12,
+    margin: "0 12px",
+    fontSize: 13,
+    fontWeight: 500,
   },
+  // “Buscar” também bem simples
   heroSearchBtn: {
     display: "inline-block",
     marginBottom: 18,
-    padding: "6px 26px",
-    borderRadius: 999,
+    padding: "4px 18px",
+    borderRadius: 4,
     border: "1px solid rgba(255,255,255,0.7)",
-    background: "rgba(0,0,0,0.2)",
+    background: "transparent",
     color: "#ffffff",
     fontSize: 13,
     letterSpacing: "0.16em",
@@ -59,7 +58,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
   },
   heroKicker: {
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: "0.18em",
     textTransform: "uppercase",
     margin: "0 0 8px 0",
@@ -130,7 +129,7 @@ export default function Home() {
           <p style={styles.logoSubtitle}>Sistema Online</p>
         </div>
 
-        {/* LINHA COM AS OPÇÕES (texto bem simples) */}
+        {/* LINHA COM AS OPÇÕES (texto simples, igual na Lasy) */}
         <p style={styles.navLine}>
           <span style={styles.navStrong}>Buscar por Placa</span>
           <span style={styles.navStrong}>Buscar sem Placa</span>
