@@ -227,9 +227,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   manualSelect: {
     borderRadius: 8,
-    border: "1px solid rgba(255,255,255,0.6)",
-    background: "rgba(255,255,255,0.12)",
-    color: "#ffffff",
+    border: "1px solid #d1d5db",
+    background: "#ffffff",
+    color: "#111827", // ← letras pretas
     padding: "8px 10px",
     fontSize: 12,
   },
