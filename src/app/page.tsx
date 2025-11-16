@@ -12,29 +12,29 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: "border-box",
   },
 
-  // TOPO (logo + sistema online + cartões + barra de busca)
+  /* TOPO (logo + sistema + cards + barra de placa) */
   topArea: {
-    padding: "24px 16px 12px",
+    padding: "24px 16px 0",
   },
   topInner: {
     width: "100%",
-    maxWidth: 1100,
+    maxWidth: 1200,
     margin: "0 auto",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   logoBlock: {
     display: "flex",
     flexDirection: "column",
   },
   logoMain: {
-    fontWeight: 800,
+    fontWeight: 900,
     letterSpacing: "0.08em",
-    fontSize: 20,
+    fontSize: 22,
   },
   logoSub: {
     fontSize: 10,
@@ -43,8 +43,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   systemButton: {
     borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.7)",
-    padding: "6px 16px",
+    border: "1px solid rgba(255,255,255,0.75)",
+    padding: "8px 18px",
     fontSize: 11,
     background: "rgba(0,0,0,0.18)",
     cursor: "pointer",
@@ -53,26 +53,26 @@ const styles: { [key: string]: React.CSSProperties } = {
   cardsRow: {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 10,
-    marginTop: 16,
+    gap: 12,
+    marginTop: 18,
     marginBottom: 10,
   },
   card: {
     background: "#ffffff",
     color: "#0f172a",
-    borderRadius: 8,
-    padding: "10px 14px",
+    borderRadius: 10,
+    padding: "12px 18px",
     display: "flex",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     fontSize: 13,
     cursor: "pointer",
-    boxShadow: "0 6px 14px rgba(15,23,42,0.18)",
+    boxShadow: "0 8px 18px rgba(15,23,42,0.18)",
   },
   cardIcon: {
     width: 18,
     textAlign: "center",
-    opacity: 0.8,
+    opacity: 0.75,
   },
   cardLabel: {
     fontWeight: 500,
@@ -82,38 +82,38 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: 8,
-    marginBottom: 12,
-    marginTop: 6,
+    marginBottom: 28,
+    marginTop: 8,
   },
   searchInput: {
     width: "100%",
-    borderRadius: 6,
-    border: "1px solid rgba(255,255,255,0.7)",
-    background: "rgba(0,0,0,0.05)",
+    borderRadius: 8,
+    border: "1px solid rgba(255,255,255,0.6)",
+    background: "rgba(255,255,255,0.12)",
     color: "#ffffff",
-    padding: "10px 14px",
+    padding: "10px 16px",
     fontSize: 13,
   },
   searchBtn: {
-    borderRadius: 6,
+    borderRadius: 8,
     border: "1px solid rgba(255,255,255,0.7)",
-    padding: "0 18px",
+    padding: "0 22px",
     background: "rgba(0,0,0,0.18)",
     color: "#ffffff",
     fontSize: 13,
     cursor: "pointer",
   },
 
-  // HERO ESCURO EM LARGURA TOTAL
+  /* HERO ESCURO EM LARGURA TOTAL */
   heroOuter: {
     background:
-      "radial-gradient(circle at top, #101827 0%, #020617 40%, #020617 100%)",
-    padding: "56px 16px 44px",
-    boxShadow: "0 -10px 30px rgba(0,0,0,0.45)",
+      "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
+    padding: "56px 16px 48px",
+    boxShadow: "0 -12px 32px rgba(0,0,0,0.45)",
   },
   heroInner: {
     width: "100%",
-    maxWidth: 1100,
+    maxWidth: 1200,
     margin: "0 auto",
     textAlign: "center",
   },
@@ -122,12 +122,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     gap: 8,
     borderRadius: 999,
-    border: "1px solid rgba(56,189,248,0.6)",
-    padding: "6px 16px",
+    border: "1px solid rgba(56,189,248,0.7)",
+    padding: "7px 20px",
     fontSize: 11,
-    marginBottom: 24,
+    marginBottom: 26,
     background:
-      "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(8,47,73,0.9))",
+      "linear-gradient(135deg, rgba(15,23,42,0.95), rgba(8,47,73,0.95))",
   },
   heroBadgeIcon: {
     fontSize: 13,
@@ -138,27 +138,27 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.9,
   },
   heroTitleLine1: {
-    fontSize: 40,
+    fontSize: 46,
     fontWeight: 800,
     margin: "0 0 4px 0",
   },
   heroTitleLine2: {
-    fontSize: 40,
+    fontSize: 46,
     fontWeight: 800,
     margin: 0,
     color: "#60a5fa",
   },
   heroText: {
-    marginTop: 18,
+    marginTop: 20,
     marginBottom: 0,
     fontSize: 15,
-    opacity: 0.92,
-    maxWidth: 720,
+    opacity: 0.95,
+    maxWidth: 780,
     marginLeft: "auto",
     marginRight: "auto",
   },
 
-  // WHY SECTION (volta para o azul claro)
+  /* WHY SECTION */
   whyOuter: {
     padding: "32px 16px 40px",
   },
@@ -194,7 +194,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
   },
 
-  // FOOTER
+  /* FOOTER */
   footer: {
     borderTop: "1px solid rgba(255,255,255,0.3)",
     paddingTop: 14,
