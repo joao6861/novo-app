@@ -190,6 +190,55 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
   },
 
+  /* NEWSLETTER (BANNER TARTARUGAS) */
+  newsletterOuter: {
+    padding: "40px 16px 40px",
+    backgroundColor: "#00b7ff",
+    backgroundImage: "url('/newsletter-banner.png')",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    backgroundSize: "cover",
+  },
+  newsletterInner: {
+    width: "100%",
+    maxWidth: 720,
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  newsletterTitle: {
+    fontSize: 32,
+    fontWeight: 700,
+    marginBottom: 8,
+  },
+  newsletterText: {
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  newsletterForm: {
+    display: "flex",
+    maxWidth: 520,
+    margin: "0 auto",
+    marginTop: 4,
+  },
+  newsletterInput: {
+    flex: 1,
+    border: "none",
+    borderRadius: "4px 0 0 4px",
+    padding: "10px 12px",
+    fontSize: 14,
+    outline: "none",
+  },
+  newsletterButton: {
+    border: "none",
+    borderRadius: "0 4px 4px 0",
+    padding: "0 18px",
+    backgroundColor: "#39ff14", // verde forte como no print
+    color: "#000000",
+    fontWeight: 700,
+    fontSize: 13,
+    cursor: "pointer",
+  },
+
   /* FOOTER - ESTILO TUREGGON.COM */
   footerOuter: {
     backgroundColor: "#000000",
@@ -277,7 +326,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   ratingGoogle: {
     fontSize: 22,
     fontWeight: 700,
-    color: "#fbbc05", // amarelo estilo Google G colorido (simplificado)
+    color: "#fbbc05",
   },
   ratingStars: {
     color: "#facc15",
@@ -390,10 +439,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* NEWSLETTER COM BANNER DAS TARTARUGAS */}
+      <section style={styles.newsletterOuter}>
+        <div style={styles.newsletterInner}>
+          <h2 style={styles.newsletterTitle}>Newsletter</h2>
+          <p style={styles.newsletterText}>
+            Quer receber nossas ofertas? Cadastre-se e comece a recebê-las!
+          </p>
+
+          <form
+            style={styles.newsletterForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              // aqui depois você pode integrar com algum serviço de email
+            }}
+          >
+            <input
+              type="email"
+              required
+              placeholder="E-mail"
+              style={styles.newsletterInput}
+            />
+            <button type="submit" style={styles.newsletterButton}>
+              ENVIAR
+            </button>
+          </form>
+        </div>
+      </section>
+
       {/* RODAPÉ ESTILO TUREGGON.COM */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
-          {/* TOPO DO RODAPÉ */}
           <div style={styles.footerTop}>
             <div style={styles.footerColumn}>
               <div style={styles.footerTitle}>DEPARTAMENTOS</div>
@@ -413,7 +489,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* PARTE DE BAIXO */}
           <div style={styles.footerBottom}>
             <div style={styles.footerBottomRow}>
               <div style={styles.paymentSection}>
