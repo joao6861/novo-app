@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body className="bg-[#001428] text-white">
         {/* NavBar removido */}
-        <main className="pt-4">{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   );
