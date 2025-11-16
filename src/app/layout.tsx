@@ -8,7 +8,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className="bg-[#001428] text-white">
+      <body className="bg-white text-black">
         {/* NavBar removido */}
         <main>{children}</main>
       </body>
