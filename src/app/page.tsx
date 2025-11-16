@@ -4,79 +4,95 @@ export default function Home() {
   return (
     <>
       <main className="page">
-        <div className="container">
-          {/* Cabeçalho */}
-          <header className="header">
-            <div className="badge">
-              <span className="badge-brand">TUREGGON</span>
-              <span className="badge-text">SISTEMA ONLINE</span>
-            </div>
+        {/* TOPO – LOGO + SISTEMA ONLINE + MENU */}
+        <header className="top-bar">
+          <div className="brand-block">
+            <div className="brand-logo">Tureggon</div>
+            <div className="brand-status">Sistema Online</div>
+          </div>
 
-            <h1 className="title">Consulta de veículos</h1>
-            <p className="subtitle">
-              Escolha uma opção abaixo para iniciar sua consulta.
-            </p>
-          </header>
+          <nav className="nav">
+            <button type="button" className="nav-btn">
+              Buscar por Placa
+            </button>
+            <button type="button" className="nav-btn nav-btn-secondary">
+              Buscar sem Placa
+            </button>
+            <button type="button" className="nav-btn nav-btn-secondary">
+              Oficinas Próximas
+            </button>
+          </nav>
+        </header>
 
-          {/* Faixa clara com opções */}
-          <section className="card">
-            <div className="options">
-              {/* OPÇÃO 1 */}
-              <button
-                type="button"
-                className="option option-1"
-                onClick={() =>
-                  alert("Em breve: busca por PLACA integrada 🚗")
-                }
-              >
-                <span className="option-tag">OPÇÃO 1</span>
-                <span className="option-title">Buscar por placa</span>
-                <span className="option-text">
-                  Digite a placa para puxar os dados do veículo.
-                </span>
-              </button>
+        {/* HERO / CONTEÚDO PRINCIPAL (como na Lasy) */}
+        <section className="hero">
+          <button type="button" className="hero-search-btn">
+            Buscar
+          </button>
 
-              {/* OPÇÃO 2 */}
-              <button
-                type="button"
-                className="option"
-                onClick={() =>
-                  alert("Em breve: busca por modelo/ano sem placa 🔍")
-                }
-              >
-                <span className="option-tag">OPÇÃO 2</span>
-                <span className="option-title">Buscar sem placa</span>
-                <span className="option-text">
-                  Selecione marca, modelo, ano e motorização.
-                </span>
-              </button>
+          <h2 className="hero-kicker">Consulta Veicular Inteligente</h2>
 
-              {/* OPÇÃO 3 */}
-              <button
-                type="button"
-                className="option option-3"
-                onClick={() =>
-                  alert("Em breve: mapa de oficinas parceiras Tureggon 📍")
-                }
-              >
-                <span className="option-tag">OPÇÃO 3</span>
-                <span className="option-title">Oficinas próximas</span>
-                <span className="option-text">
-                  Veja as oficinas parceiras mais perto de você.
-                </span>
-              </button>
-            </div>
-          </section>
+          <h1 className="hero-title">Descubra Tudo Sobre Seu Veículo</h1>
 
-          {/* Rodapé */}
-          <p className="footer">
-            Esta é uma versão de apresentação. Depois conectamos às consultas
-            reais (Auto Óleo / banco de dados).
+          <p className="hero-text">
+            Consulta completa de dados veiculares, especificações técnicas e
+            informações de manutenção em segundos.
           </p>
-        </div>
+
+          <p className="hero-alert">
+            Busca manual temporariamente indisponível. Use a busca por placa.
+          </p>
+        </section>
+
+        {/* SEÇÃO “POR QUE ESCOLHER A TUREGGON?” */}
+        <section className="why">
+          <h3 className="why-title">Por que escolher a Tureggon?</h3>
+
+          <div className="why-grid">
+            <div className="why-item">
+              <h4 className="why-item-title">Base Completa</h4>
+              <p className="why-item-text">
+                Milhares de veículos nacionais e importados em nossa base de
+                dados atualizada.
+              </p>
+            </div>
+
+            <div className="why-item">
+              <h4 className="why-item-title">Consulta Rápida</h4>
+              <p className="why-item-text">
+                Resultados em segundos. Digite a placa e tenha todas as
+                informações na tela.
+              </p>
+            </div>
+
+            <div className="why-item">
+              <h4 className="why-item-title">Dados Seguros</h4>
+              <p className="why-item-text">
+                Informações confiáveis e atualizadas com total segurança e
+                privacidade.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* RODAPÉ IGUAL AO DA LASY */}
+        <footer className="footer">
+          {/* Se você tiver a logo em /logo.png, pode trocar o texto por <img src="/logo.png" alt="Tureggon" /> */}
+          <div className="footer-logo">Tureggon</div>
+
+          <div className="footer-status">Sistema Online e Operacional</div>
+
+          <div className="footer-copy">
+            © 2024 Tureggon. Todos os direitos reservados.
+          </div>
+
+          <div className="footer-sub">
+            Consulta veicular inteligente e segura
+          </div>
+        </footer>
       </main>
 
-      {/* CSS ESPECÍFICO DA PÁGINA */}
+      {/* CSS: replicando o layout da página da Lasy */}
       <style jsx>{`
         * {
           box-sizing: border-box;
@@ -84,126 +100,181 @@ export default function Home() {
 
         .page {
           min-height: 100vh;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding: 80px 16px;
-          background: linear-gradient(180deg, #00b5ff 0%, #0085ff 100%);
+          max-width: 960px;
+          margin: 0 auto;
+          padding: 32px 16px 48px;
           color: #ffffff;
           font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
             sans-serif;
+          /* não mexo no background aqui pra aproveitar o degradê que já existe no body do seu site */
         }
 
-        .container {
-          width: 100%;
-          max-width: 1100px;
+        /* TOPO */
+        .top-bar {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 32px;
           text-align: center;
         }
 
-        .header {
-          margin-bottom: 24px;
+        @media (min-width: 768px) {
+          .top-bar {
+            flex-direction: row;
+            justify-content: space-between;
+            text-align: left;
+          }
         }
 
-        .badge {
-          display: inline-flex;
-          align-items: center;
+        .brand-block {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .brand-logo {
+          font-weight: 700;
+          font-size: 20px;
+        }
+
+        .brand-status {
+          font-size: 12px;
+          opacity: 0.85;
+        }
+
+        .nav {
+          display: flex;
+          flex-wrap: wrap;
           gap: 8px;
-          padding: 6px 14px;
+          justify-content: center;
+        }
+
+        .nav-btn {
           border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          padding: 6px 14px;
+          font-size: 12px;
+          background: rgba(0, 0, 0, 0.18);
+          color: #ffffff;
+          cursor: pointer;
+        }
+
+        .nav-btn-secondary {
+          border-color: rgba(255, 255, 255, 0.35);
+          background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* HERO */
+        .hero {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+
+        .hero-search-btn {
+          border: 1px solid rgba(255, 255, 255, 0.7);
+          border-radius: 999px;
+          padding: 6px 20px;
           background: rgba(0, 0, 0, 0.2);
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
+          color: #ffffff;
+          font-size: 13px;
+          cursor: pointer;
+          margin-bottom: 14px;
         }
 
-        .badge-brand {
+        .hero-kicker {
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 6px 0;
+        }
+
+        .hero-title {
+          font-size: 28px;
           font-weight: 700;
+          margin: 0 0 10px 0;
         }
 
-        .badge-text {
-          opacity: 0.8;
-        }
-
-        .title {
-          margin: 16px 0 4px 0;
-          font-size: 32px;
-          font-weight: 700;
-        }
-
-        .subtitle {
-          margin: 0;
+        .hero-text {
+          margin: 0 0 8px 0;
           font-size: 14px;
+          max-width: 640px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        .card {
-          margin-top: 24px;
-          background: #e9e9e9;
-          padding: 20px 24px;
+        .hero-alert {
+          margin: 0;
+          font-size: 13px;
+          opacity: 0.9;
         }
 
-        .options {
+        /* POR QUE ESCOLHER A TUREGGON */
+        .why {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+
+        .why-title {
+          margin: 0 0 20px 0;
+          font-size: 20px;
+          font-weight: 600;
+        }
+
+        .why-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(1, minmax(0, 1fr));
           gap: 16px;
           text-align: left;
         }
 
-        .option {
-          border: 1px solid #c4c4c4;
-          border-radius: 4px;
-          padding: 10px 12px;
-          background: #f5f5f5;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          color: #111111;
-          transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+        @media (min-width: 768px) {
+          .why-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
         }
 
-        .option-1 {
-          border-color: #007bff;
+        .why-item {
+          background: rgba(0, 0, 0, 0.18);
+          border-radius: 8px;
+          padding: 12px 14px;
+          border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
-        .option-3 {
-          border-color: #00b894;
-        }
-
-        .option:hover {
-          background: #ffffff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        .option-tag {
-          font-size: 11px;
+        .why-item-title {
+          margin: 0 0 4px 0;
+          font-size: 15px;
           font-weight: 600;
         }
 
-        .option-title {
-          font-size: 14px;
-          font-weight: 600;
+        .why-item-text {
+          margin: 0;
+          font-size: 13px;
         }
 
-        .option-text {
-          font-size: 12px;
-        }
-
+        /* RODAPÉ */
         .footer {
-          margin-top: 16px;
+          text-align: center;
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
+          padding-top: 16px;
           font-size: 12px;
         }
 
-        /* Responsivo (celular) */
-        @media (max-width: 768px) {
-          .page {
-            padding-top: 40px;
-          }
+        .footer-logo {
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
 
-          .options {
-            grid-template-columns: 1fr;
-          }
+        .footer-status {
+          margin-bottom: 4px;
+        }
+
+        .footer-copy {
+          margin-bottom: 2px;
+          opacity: 0.9;
+        }
+
+        .footer-sub {
+          opacity: 0.9;
         }
       `}</style>
     </>
