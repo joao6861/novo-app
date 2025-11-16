@@ -27,20 +27,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "space-between",
     marginBottom: 18,
   },
+
+  // bloco da logo
   logoBlock: {
     display: "flex",
-    flexDirection: "column",
+    alignItems: "center",
+    gap: 8,
   },
-  logoMain: {
-    fontWeight: 900,
-    letterSpacing: "0.08em",
-    fontSize: 22,
+  logoImage: {
+    height: 40, // ajusta aqui se quiser maior/menor
+    objectFit: "contain",
+    display: "block",
   },
-  logoSub: {
-    fontSize: 10,
-    textTransform: "uppercase",
-    letterSpacing: "0.16em",
-  },
+
   systemButton: {
     borderRadius: 999,
     border: "1px solid rgba(255,255,255,0.75)",
@@ -219,9 +218,14 @@ export default function Home() {
         <div style={styles.topInner}>
           <header style={styles.header}>
             <div style={styles.logoBlock}>
-              <span style={styles.logoMain}>TUREGGON STORE</span>
-              <span style={styles.logoSub}>CONSULTA VEICULAR</span>
+              {/* LOGO COMO IMAGEM (usa public/logo.png) */}
+              <img
+                src="/logo.png"
+                alt="Tureggon Store"
+                style={styles.logoImage}
+              />
             </div>
+
             <button type="button" style={styles.systemButton}>
               Sistema Online
             </button>
