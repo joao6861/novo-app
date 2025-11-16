@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,436 +13,375 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Car,
-  Calendar,
-  Clock,
-  User,
-  Phone,
-  Mail,
-  FileText,
-  Filter,
-  Bell,
-  LogOut,
-  BarChart3,
-  Settings,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  PlayCircle,
-} from "lucide-react";
+import { Car, Building2, Mail, Phone, MapPin, FileText, Lock, AlertCircle, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Agendamento, StatusAgendamento } from "@/lib/types/oficina";
+import { useRouter } from "next/navigation";
+import { brazilStates, getCitiesByState } from "@/lib/brazil-locations";
 
-export default function DashboardOficina() {
-  const [filtroStatus, setFiltroStatus] = useState<StatusAgendamento | "todos">("todos");
-  const [filtroData, setFiltroData] = useState("");
-  const [filtroVeiculo, setFiltroVeiculo] = useState("");
-  const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(3);
+export default function RegistroOficina() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState(false);
 
-  // Dados mockados (substituir por dados reais da API)
-  const oficinaInfo = {
-    nome: "Auto Center Premium",
-    cidade: "São Paulo",
-    estado: "SP",
-  };
-
-  const agendamentosMock: Agendamento[] = [
-    {
-      id: "1",
-      oficinaId: "oficina-1",
-      clienteNome: "João Silva",
-      clienteEmail: "joao@email.com",
-      clienteTelefone: "(11) 98765-4321",
-      veiculoMarca: "Honda",
-      veiculoModelo: "Civic",
-      veiculoAno: 2020,
-      veiculoPlaca: "ABC-1234",
-      servicoTipo: "Revisão",
-      servicoDescricao: "Revisão completa dos 30.000 km",
-      dataAgendamento: new Date("2024-01-15"),
-      horaAgendamento: "09:00",
-      status: "pendente",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "2",
-      oficinaId: "oficina-1",
-      clienteNome: "Maria Santos",
-      clienteEmail: "maria@email.com",
-      clienteTelefone: "(11) 91234-5678",
-      veiculoMarca: "Toyota",
-      veiculoModelo: "Corolla",
-      veiculoAno: 2021,
-      veiculoPlaca: "XYZ-5678",
-      servicoTipo: "Troca de Óleo",
-      servicoDescricao: "Troca de óleo e filtros",
-      dataAgendamento: new Date("2024-01-15"),
-      horaAgendamento: "14:00",
-      status: "confirmado",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "3",
-      oficinaId: "oficina-1",
-      clienteNome: "Pedro Oliveira",
-      clienteEmail: "pedro@email.com",
-      clienteTelefone: "(11) 99876-5432",
-      veiculoMarca: "Volkswagen",
-      veiculoModelo: "Gol",
-      veiculoAno: 2019,
-      veiculoPlaca: "DEF-9012",
-      servicoTipo: "Mecânica Geral",
-      servicoDescricao: "Verificar barulho no motor",
-      dataAgendamento: new Date("2024-01-16"),
-      horaAgendamento: "10:30",
-      status: "em_andamento",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
-
-  const [agendamentos, setAgendamentos] = useState(agendamentosMock);
-
-  // Filtrar agendamentos
-  const agendamentosFiltrados = agendamentos.filter((ag) => {
-    if (filtroStatus !== "todos" && ag.status !== filtroStatus) return false;
-    if (filtroVeiculo && !ag.veiculoModelo.toLowerCase().includes(filtroVeiculo.toLowerCase())) return false;
-    return true;
+  // Estados do formulário
+  const [formData, setFormData] = useState({
+    nomeOficina: "",
+    cnpj: "",
+    email: "",
+    telefone: "",
+    cep: "",
+    endereco: "",
+    estado: "",
+    cidade: "",
+    senha: "",
+    confirmarSenha: "",
+    especialidades: [] as string[],
   });
 
-  // Estatísticas
-  const stats = {
-    total: agendamentos.length,
-    pendentes: agendamentos.filter((a) => a.status === "pendente").length,
-    confirmados: agendamentos.filter((a) => a.status === "confirmado").length,
-    emAndamento: agendamentos.filter((a) => a.status === "em_andamento").length,
-    concluidos: agendamentos.filter((a) => a.status === "concluido").length,
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+
+  const handleStateChange = (stateValue: string) => {
+    setFormData({ ...formData, estado: stateValue, cidade: "" });
+    const cities = getCitiesByState(stateValue);
+    setAvailableCities(cities);
   };
 
-  const getStatusIcon = (status: StatusAgendamento) => {
-    switch (status) {
-      case "pendente":
-        return <AlertCircle className="w-5 h-5 text-yellow-600" />;
-      case "confirmado":
-        return <CheckCircle className="w-5 h-5 text-blue-600" />;
-      case "em_andamento":
-        return <PlayCircle className="w-5 h-5 text-purple-600" />;
-      case "concluido":
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case "cancelado":
-        return <XCircle className="w-5 h-5 text-red-600" />;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro("");
+    setLoading(true);
+
+    // Validações
+    if (formData.senha !== formData.confirmarSenha) {
+      setErro("As senhas não coincidem");
+      setLoading(false);
+      return;
     }
+
+    if (formData.senha.length < 6) {
+      setErro("A senha deve ter no mínimo 6 caracteres");
+      setLoading(false);
+      return;
+    }
+
+    // Simulação de registro (substituir por API real)
+    setTimeout(() => {
+      setSucesso(true);
+      setLoading(false);
+      
+      // Redirecionar para login após 2 segundos
+      setTimeout(() => {
+        router.push("/oficina/login");
+      }, 2000);
+    }, 1500);
   };
 
-  const getStatusBadge = (status: StatusAgendamento) => {
-    const styles = {
-      pendente: "bg-yellow-100 text-yellow-800 border-yellow-300",
-      confirmado: "bg-blue-100 text-blue-800 border-blue-300",
-      em_andamento: "bg-purple-100 text-purple-800 border-purple-300",
-      concluido: "bg-green-100 text-green-800 border-green-300",
-      cancelado: "bg-red-100 text-red-800 border-red-300",
-    };
+  const especialidadesDisponiveis = [
+    "Mecânica Geral",
+    "Elétrica",
+    "Funilaria",
+    "Pintura",
+    "Revisão",
+    "Troca de Óleo",
+    "Alinhamento e Balanceamento",
+    "Suspensão",
+    "Freios",
+    "Motor",
+    "Ar Condicionado",
+    "Injeção Eletrônica",
+  ];
 
-    const labels = {
-      pendente: "Pendente",
-      confirmado: "Confirmado",
-      em_andamento: "Em Andamento",
-      concluido: "Concluído",
-      cancelado: "Cancelado",
-    };
+  const toggleEspecialidade = (esp: string) => {
+    setFormData({
+      ...formData,
+      especialidades: formData.especialidades.includes(esp)
+        ? formData.especialidades.filter((e) => e !== esp)
+        : [...formData.especialidades, esp],
+    });
+  };
 
+  if (sucesso) {
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}>
-        {labels[status]}
-      </span>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/90 backdrop-blur">
+          <CardContent className="pt-6 text-center">
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-12 h-12 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Cadastro Realizado!
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Sua oficina foi cadastrada com sucesso. Você será redirecionado para a página de login.
+            </p>
+            <div className="animate-pulse text-sm text-gray-500">
+              Redirecionando...
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
-  };
-
-  const handleStatusChange = (agendamentoId: string, novoStatus: StatusAgendamento) => {
-    setAgendamentos(
-      agendamentos.map((ag) =>
-        ag.id === agendamentoId ? { ...ag, status: novoStatus, updatedAt: new Date() } : ag
-      )
-    );
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-xl">
-                <Car className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {oficinaInfo.nome}
-                </h1>
-                <p className="text-sm text-gray-600">
-                  {oficinaInfo.cidade} - {oficinaInfo.estado}
-                </p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+      <div className="w-full max-w-3xl mx-auto">
+        {/* Logo/Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl">
+              <Car className="w-10 h-10 text-white" />
             </div>
-
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="w-5 h-5" />
-                {notificacoesNaoLidas > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                    {notificacoesNaoLidas}
-                  </span>
-                )}
-              </Button>
-              <Button variant="outline" size="icon">
-                <Settings className="w-5 h-5" />
-              </Button>
-              <Link href="/oficina/login">
-                <Button variant="outline" size="icon">
-                  <LogOut className="w-5 h-5" />
-                </Button>
-              </Link>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                AutoCare
+              </h1>
+              <p className="text-sm text-gray-600">Cadastro de Oficina</p>
             </div>
           </div>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total</p>
-                  <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
-                </div>
-                <Calendar className="w-10 h-10 text-blue-600 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-yellow-50 to-yellow-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Pendentes</p>
-                  <p className="text-3xl font-bold text-yellow-700">{stats.pendentes}</p>
-                </div>
-                <AlertCircle className="w-10 h-10 text-yellow-600 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Confirmados</p>
-                  <p className="text-3xl font-bold text-blue-700">{stats.confirmados}</p>
-                </div>
-                <CheckCircle className="w-10 h-10 text-blue-600 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Em Andamento</p>
-                  <p className="text-3xl font-bold text-purple-700">{stats.emAndamento}</p>
-                </div>
-                <PlayCircle className="w-10 h-10 text-purple-600 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Concluídos</p>
-                  <p className="text-3xl font-bold text-green-700">{stats.concluidos}</p>
-                </div>
-                <CheckCircle className="w-10 h-10 text-green-600 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filtros */}
-        <Card className="mb-6 shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-blue-600" />
-              Filtros
+        {/* Card de Registro */}
+        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Cadastre sua Oficina
             </CardTitle>
+            <CardDescription className="text-center">
+              Preencha os dados abaixo para começar a receber agendamentos
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="filtro-status">Status</Label>
-                <Select value={filtroStatus} onValueChange={(value: any) => setFiltroStatus(value)}>
-                  <SelectTrigger id="filtro-status">
-                    <SelectValue placeholder="Todos os status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="pendente">Pendente</SelectItem>
-                    <SelectItem value="confirmado">Confirmado</SelectItem>
-                    <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                    <SelectItem value="concluido">Concluído</SelectItem>
-                    <SelectItem value="cancelado">Cancelado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="filtro-data">Data</Label>
-                <Input
-                  id="filtro-data"
-                  type="date"
-                  value={filtroData}
-                  onChange={(e) => setFiltroData(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="filtro-veiculo">Veículo</Label>
-                <Input
-                  id="filtro-veiculo"
-                  placeholder="Buscar por modelo..."
-                  value={filtroVeiculo}
-                  onChange={(e) => setFiltroVeiculo(e.target.value)}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Lista de Agendamentos */}
-        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-purple-600" />
-                Agendamentos ({agendamentosFiltrados.length})
-              </CardTitle>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Relatórios
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {agendamentosFiltrados.length > 0 ? (
-                agendamentosFiltrados.map((agendamento) => (
-                  <Card key={agendamento.id} className="border-2 hover:shadow-lg transition-all">
-                    <CardContent className="pt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                        {/* Informações do Cliente */}
-                        <div className="lg:col-span-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(agendamento.status)}
-                            <h4 className="font-semibold text-gray-900">{agendamento.clienteNome}</h4>
-                          </div>
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4" />
-                              <span>{agendamento.clienteTelefone}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-4 h-4" />
-                              <span className="truncate">{agendamento.clienteEmail}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Informações do Veículo */}
-                        <div className="lg:col-span-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Car className="w-5 h-5 text-blue-600" />
-                            <h4 className="font-semibold text-gray-900">
-                              {agendamento.veiculoMarca} {agendamento.veiculoModelo}
-                            </h4>
-                          </div>
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <p>Ano: {agendamento.veiculoAno}</p>
-                            <p>Placa: {agendamento.veiculoPlaca}</p>
-                          </div>
-                        </div>
-
-                        {/* Serviço e Data */}
-                        <div className="lg:col-span-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-purple-600" />
-                            <h4 className="font-semibold text-gray-900">{agendamento.servicoTipo}</h4>
-                          </div>
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{agendamento.dataAgendamento.toLocaleDateString("pt-BR")}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              <span>{agendamento.horaAgendamento}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Ações */}
-                        <div className="lg:col-span-3 flex flex-col gap-2">
-                          {getStatusBadge(agendamento.status)}
-                          <Select
-                            value={agendamento.status}
-                            onValueChange={(value: StatusAgendamento) =>
-                              handleStatusChange(agendamento.id, value)
-                            }
-                          >
-                            <SelectTrigger className="h-9">
-                              <SelectValue placeholder="Alterar status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pendente">Pendente</SelectItem>
-                              <SelectItem value="confirmado">Confirmar</SelectItem>
-                              <SelectItem value="em_andamento">Iniciar</SelectItem>
-                              <SelectItem value="concluido">Concluir</SelectItem>
-                              <SelectItem value="cancelado">Cancelar</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {agendamento.servicoDescricao && (
-                        <div className="mt-4 pt-4 border-t">
-                          <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Descrição:</span> {agendamento.servicoDescricao}
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h4 className="text-xl font-semibold text-gray-700 mb-2">
-                    Nenhum agendamento encontrado
-                  </h4>
-                  <p className="text-gray-600">
-                    Ajuste os filtros ou aguarde novos agendamentos
-                  </p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {erro && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  <span className="text-sm">{erro}</span>
                 </div>
               )}
-            </div>
+
+              {/* Dados da Oficina */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+                  <Building2 className="w-5 h-5 text-blue-600" />
+                  Dados da Oficina
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="nomeOficina">Nome da Oficina *</Label>
+                    <Input
+                      id="nomeOficina"
+                      placeholder="Ex: Auto Center Premium"
+                      value={formData.nomeOficina}
+                      onChange={(e) => setFormData({ ...formData, nomeOficina: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cnpj">CNPJ *</Label>
+                    <Input
+                      id="cnpj"
+                      placeholder="00.000.000/0000-00"
+                      value={formData.cnpj}
+                      onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone *</Label>
+                    <Input
+                      id="telefone"
+                      type="tel"
+                      placeholder="(00) 00000-0000"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Endereço */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+                  <MapPin className="w-5 h-5 text-purple-600" />
+                  Endereço
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP *</Label>
+                    <Input
+                      id="cep"
+                      placeholder="00000-000"
+                      value={formData.cep}
+                      onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="estado">Estado *</Label>
+                    <Select value={formData.estado} onValueChange={handleStateChange}>
+                      <SelectTrigger id="estado">
+                        <SelectValue placeholder="Selecione o estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brazilStates.map((state) => (
+                          <SelectItem key={state.value} value={state.value}>
+                            {state.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="cidade">Cidade *</Label>
+                    <Select
+                      value={formData.cidade}
+                      onValueChange={(value) => setFormData({ ...formData, cidade: value })}
+                      disabled={!formData.estado}
+                    >
+                      <SelectTrigger id="cidade">
+                        <SelectValue
+                          placeholder={
+                            formData.estado
+                              ? "Selecione a cidade"
+                              : "Primeiro selecione o estado"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCities.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="endereco">Endereço Completo *</Label>
+                    <Input
+                      id="endereco"
+                      placeholder="Rua, número, bairro"
+                      value={formData.endereco}
+                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Especialidades */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  Especialidades
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Selecione os serviços que sua oficina oferece
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {especialidadesDisponiveis.map((esp) => (
+                    <button
+                      key={esp}
+                      type="button"
+                      onClick={() => toggleEspecialidade(esp)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        formData.especialidades.includes(esp)
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {esp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Acesso */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+                  <Lock className="w-5 h-5 text-purple-600" />
+                  Dados de Acesso
+                </h3>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="oficina@exemplo.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="senha">Senha *</Label>
+                    <Input
+                      id="senha"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={formData.senha}
+                      onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
+                    <Input
+                      id="confirmarSenha"
+                      type="password"
+                      placeholder="Digite a senha novamente"
+                      value={formData.confirmarSenha}
+                      onChange={(e) => setFormData({ ...formData, confirmarSenha: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg font-semibold"
+                disabled={loading}
+              >
+                {loading ? "Cadastrando..." : "Cadastrar Oficina"}
+              </Button>
+
+              <div className="text-center text-sm text-gray-600">
+                Já tem uma conta?{" "}
+                <Link
+                  href="/oficina/login"
+                  className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                >
+                  Fazer login
+                </Link>
+              </div>
+            </form>
           </CardContent>
         </Card>
+
+        {/* Link para voltar ao site */}
+        <div className="text-center mt-6">
+          <Link
+            href="/"
+            className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+          >
+            ← Voltar para o site principal
+          </Link>
+        </div>
       </div>
     </div>
   );
