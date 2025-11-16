@@ -154,40 +154,90 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginRight: "auto",
   },
 
-  /* WHY SECTION */
+  /* SEÇÃO "POR QUE ESCOLHER" COM CARDS */
   whyOuter: {
-    padding: "32px 16px 40px",
+    backgroundColor: "#020617",
+    padding: "56px 16px 64px",
   },
   whyInner: {
     width: "100%",
     maxWidth: 1100,
     margin: "0 auto",
     textAlign: "center",
+    color: "#e5e7eb",
   },
   whyTitle: {
     marginTop: 0,
     marginBottom: 8,
-    fontSize: 20,
-    fontWeight: 600,
+    fontSize: 24,
+    fontWeight: 700,
   },
   whySub: {
     marginTop: 0,
-    marginBottom: 24,
+    marginBottom: 32,
     fontSize: 14,
+    color: "#9ca3af",
   },
-  whyBlock: {
-    maxWidth: 640,
-    margin: "0 auto",
-    textAlign: "left",
-    lineHeight: 1.5,
-    fontSize: 13,
+  featureGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 24,
   },
-  whyItemTitle: {
-    margin: "10px 0 0 0",
+  featureCard: {
+    background:
+      "radial-gradient(circle at top, #111827 0%, #020617 45%, #020617 100%)",
+    borderRadius: 24,
+    padding: "32px 28px 30px",
+    boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
+    border: "1px solid rgba(148,163,184,0.12)",
+    textAlign: "center",
+  },
+  featureIconWrap: {
+    width: 72,
+    height: 72,
+    margin: "0 auto 20px",
+    borderRadius: 24,
+    background:
+      "linear-gradient(145deg, #22d3ee 0%, #2563eb 50%, #1d4ed8 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureIconWrapPurple: {
+    width: 72,
+    height: 72,
+    margin: "0 auto 20px",
+    borderRadius: 24,
+    background:
+      "linear-gradient(145deg, #a855f7 0%, #6366f1 50%, #4f46e5 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureIconWrapPink: {
+    width: 72,
+    height: 72,
+    margin: "0 auto 20px",
+    borderRadius: 24,
+    background:
+      "linear-gradient(145deg, #ec4899 0%, #8b5cf6 50%, #6d28d9 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureIcon: {
+    fontSize: 32,
+  },
+  featureTitle: {
+    fontSize: 18,
     fontWeight: 700,
+    marginBottom: 10,
+    color: "#f9fafb",
   },
-  whyItemText: {
-    margin: 0,
+  featureText: {
+    fontSize: 14,
+    color: "#9ca3af",
+    lineHeight: 1.5,
   },
 
   /* NEWSLETTER (BANNER TARTARUGAS) */
@@ -239,7 +289,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
   },
 
-  /* FOOTER - SIMPLIFICADO (SEM AS ABAS) */
+  /* FOOTER SIMPLIFICADO */
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
@@ -375,7 +425,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE ESCOLHER A TUREGGON */}
+      {/* POR QUE ESCOLHER A TUREGGON (CARDS) */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
@@ -383,24 +433,39 @@ export default function Home() {
             Tecnologia de ponta para consultas veiculares completas e precisas.
           </p>
 
-          <div style={styles.whyBlock}>
-            <p style={styles.whyItemTitle}>Base Completa</p>
-            <p style={styles.whyItemText}>
-              Milhares de veículos nacionais e importados em nossa base de dados
-              atualizada.
-            </p>
+          <div style={styles.featureGrid}>
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrap}>
+                <span style={styles.featureIcon}>🚗</span>
+              </div>
+              <h3 style={styles.featureTitle}>Base Completa</h3>
+              <p style={styles.featureText}>
+                Milhares de veículos nacionais e importados em nossa base de
+                dados atualizada.
+              </p>
+            </div>
 
-            <p style={styles.whyItemTitle}>Consulta Rápida</p>
-            <p style={styles.whyItemText}>
-              Resultados em segundos. Digite a placa e tenha todas as
-              informações na tela.
-            </p>
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapPurple}>
+                <span style={styles.featureIcon}>⏱️</span>
+              </div>
+              <h3 style={styles.featureTitle}>Consulta Rápida</h3>
+              <p style={styles.featureText}>
+                Resultados em segundos. Digite a placa e tenha todas as
+                informações na tela.
+              </p>
+            </div>
 
-            <p style={styles.whyItemTitle}>Dados Seguros</p>
-            <p style={styles.whyItemText}>
-              Informações confiáveis e atualizadas com total segurança e
-              privacidade.
-            </p>
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapPink}>
+                <span style={styles.featureIcon}>🛡️</span>
+              </div>
+              <h3 style={styles.featureTitle}>Dados Seguros</h3>
+              <p style={styles.featureText}>
+                Informações confiáveis e atualizadas com total segurança e
+                privacidade.
+              </p>
+            </div>
           </div>
         </div>
       </section>
