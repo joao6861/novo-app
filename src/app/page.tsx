@@ -4,7 +4,6 @@ import { useState } from "react";
 import SearchHeader from "@/components/home/SearchHeader";
 import HeroSection from "@/components/home/HeroSection";
 import WhyChooseSection from "@/components/home/WhyChooseSection";
-import OfficesSection from "@/components/home/OfficesSection";
 import AppFooter from "@/components/layout/AppFooter";
 
 export default function HomePage() {
@@ -18,7 +17,6 @@ export default function HomePage() {
       {/* PARTE DE BAIXO — GRADIENTE AZUL ESCURO */}
       <div className="flex-1 bg-gradient-to-b from-[#041C3A] to-[#020617] text-white pt-10 pb-16">
         {mode === "oficinas" ? (
-          <OfficesSection />
         ) : (
           <>
             <HeroSection />
