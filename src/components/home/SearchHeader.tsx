@@ -2,20 +2,23 @@
 
 import { useState } from "react";
 import { Search, List, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SearchHeader() {
-  const [activeTab, setActiveTab] = useState<"placa" | "manual" | "oficinas">(
-    "placa"
-  );
+  const [activeTab, setActiveTab] = useState<"placa" | "manual" | "oficinas">("placa");
+  const router = useRouter();
 
   return (
     <header className="w-full">
-      {/* WRAPPER DO GRADIENTE - sem faixa azul extra */}
       <div className="bg-gradient-to-r from-[#00c0ff] to-[#0090ff] p-5 shadow-md">
         
         {/* TOP BAR */}
         <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
-          <img src="/logo.png" className="h-10" alt="Tureggon Store" />
+
+          {/* LOGO → redireciona para zureggon.com */}
+          <a href="https://tureggon.com/" target="_blank">
+            <img src="/logo.png" className="h-10 cursor-pointer" alt="Tureggon Store" />
+          </a>
 
           <button className="border border-white text-white px-4 py-1 rounded-xl hover:bg-white hover:text-black transition">
             Sistema Online
@@ -24,36 +27,34 @@ export default function SearchHeader() {
 
         {/* TABS */}
         <div className="max-w-6xl mx-auto grid grid-cols-3 gap-3">
+
+          {/* BUSCAR POR PLACA */}
           <button
             onClick={() => setActiveTab("placa")}
             className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "placa"
-                ? "bg-white text-black"
-                : "bg-[#ffffff40] text-white"
+              activeTab === "placa" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
             }`}
           >
             <Search size={18} />
             Buscar por Placa
           </button>
 
+          {/* BUSCAR SEM PLACA */}
           <button
             onClick={() => setActiveTab("manual")}
             className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "manual"
-                ? "bg-white text-black"
-                : "bg-[#ffffff40] text-white"
+              activeTab === "manual" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
             }`}
           >
             <List size={18} />
             Buscar sem Placa
           </button>
 
+          {/* OFICINAS → agora navega para /oficinas */}
           <button
-            onClick={() => setActiveTab("oficinas")}
+            onClick={() => router.push("/oficinas")}
             className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "oficinas"
-                ? "bg-white text-black"
-                : "bg-[#ffffff40] text-white"
+              activeTab === "oficinas" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
             }`}
           >
             <MapPin size={18} />
@@ -61,7 +62,7 @@ export default function SearchHeader() {
           </button>
         </div>
 
-        {/* INPUT DE CONSULTA */}
+        {/* INPUT DE BUSCA */}
         <div className="max-w-6xl mx-auto mt-4 flex items-center gap-3">
           <input
             type="text"
