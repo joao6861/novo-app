@@ -13,10 +13,10 @@ export default function SearchHeader() {
     <header className="w-full bg-[#02C4FF] shadow-md">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
 
-        {/* TOP */}
+        {/* Linha superior */}
         <div className="flex items-center justify-between mb-6">
           <Link href="https://tureggon.com/" target="_blank">
-            <img src="/logo.png" alt="logo" className="h-12 cursor-pointer" />
+            <img src="/logo.png" alt="Tureggon" className="h-12 cursor-pointer" />
           </Link>
 
           <button className="bg-white text-black px-5 py-2 rounded-xl shadow font-semibold">
@@ -24,12 +24,15 @@ export default function SearchHeader() {
           </button>
         </div>
 
-        {/* BOTOES */}
+        {/* Navegação */}
         <div className="flex gap-3">
           <button
             onClick={() => { setActive("placa"); router.push("/"); }}
-            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
-              ${active === "placa" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium ${
+              active === "placa"
+                ? "text-[#0091FF] border-[#0091FF]"
+                : "text-black border-white"
+            }`}
           >
             <Search size={18} />
             Buscar por Placa
@@ -37,8 +40,11 @@ export default function SearchHeader() {
 
           <button
             onClick={() => { setActive("manual"); router.push("/buscar-sem-placa"); }}
-            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
-              ${active === "manual" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium ${
+              active === "manual"
+                ? "text-[#0091FF] border-[#0091FF]"
+                : "text-black border-white"
+            }`}
           >
             <List size={18} />
             Buscar sem Placa
@@ -46,8 +52,11 @@ export default function SearchHeader() {
 
           <button
             onClick={() => router.push("/oficinas")}
-            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
-              ${active === "oficinas" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium ${
+              active === "oficinas"
+                ? "text-[#0091FF] border-[#0091FF]"
+                : "text-black border-white"
+            }`}
           >
             <MapPin size={18} />
             Oficinas Próximas
