@@ -28,12 +28,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: 32,
     textAlign: "center",
   },
-  topBarDesktop: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    textAlign: "left",
-  },
   brandBlock: {
     display: "flex",
     flexDirection: "column",
@@ -112,26 +106,27 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: 40,
   },
   whyTitle: {
-    margin: "0 0 20px 0",
+    margin: "0 0 12px 0",
     fontSize: 20,
     fontWeight: 600,
   },
-  whyGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(1, minmax(0, 1fr))",
-    gap: 16,
-    textAlign: "left",
+  whySub: {
+    margin: "0 0 20px 0",
+    fontSize: 14,
+    maxWidth: 640,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
-  whyItem: {
-    background: "rgba(0,0,0,0.18)",
-    borderRadius: 8,
-    padding: "12px 14px",
-    border: "1px solid rgba(255,255,255,0.25)",
+  whyBlock: {
+    maxWidth: 700,
+    margin: "0 auto",
+    textAlign: "left",
+    lineHeight: 1.5,
   },
   whyItemTitle: {
-    margin: "0 0 4px 0",
+    margin: "8px 0 0 0",
     fontSize: 15,
-    fontWeight: 600,
+    fontWeight: 700,
   },
   whyItemText: {
     margin: 0,
@@ -165,14 +160,7 @@ export default function Home() {
     <main style={styles.page}>
       <div style={styles.container}>
         {/* TOPO – LOGO + SISTEMA ONLINE + MENU */}
-        <header
-          style={{
-            ...styles.topBar,
-            ...(typeof window !== "undefined" && window.innerWidth >= 768
-              ? styles.topBarDesktop
-              : {}),
-          }}
-        >
+        <header style={styles.topBar}>
           <div style={styles.brandBlock}>
             <span style={styles.brandLogo}>Tureggon</span>
             <span style={styles.brandStatus}>Sistema Online</span>
@@ -217,34 +205,31 @@ export default function Home() {
           </p>
         </section>
 
-        {/* POR QUE ESCOLHER A TUREGGON */}
+        {/* POR QUE ESCOLHER A TUREGGON (só texto, igual à Lasy) */}
         <section style={styles.why}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
+          <p style={styles.whySub}>
+            Tecnologia de ponta para consultas veiculares completas e precisas.
+          </p>
 
-          <div style={styles.whyGrid}>
-            <div style={styles.whyItem}>
-              <h3 style={styles.whyItemTitle}>Base Completa</h3>
-              <p style={styles.whyItemText}>
-                Milhares de veículos nacionais e importados em nossa base de
-                dados atualizada.
-              </p>
-            </div>
+          <div style={styles.whyBlock}>
+            <p style={styles.whyItemTitle}>Base Completa</p>
+            <p style={styles.whyItemText}>
+              Milhares de veículos nacionais e importados em nossa base de dados
+              atualizada.
+            </p>
 
-            <div style={styles.whyItem}>
-              <h3 style={styles.whyItemTitle}>Consulta Rápida</h3>
-              <p style={styles.whyItemText}>
-                Resultados em segundos. Digite a placa e tenha todas as
-                informações na tela.
-              </p>
-            </div>
+            <p style={styles.whyItemTitle}>Consulta Rápida</p>
+            <p style={styles.whyItemText}>
+              Resultados em segundos. Digite a placa e tenha todas as
+              informações na tela.
+            </p>
 
-            <div style={styles.whyItem}>
-              <h3 style={styles.whyItemTitle}>Dados Seguros</h3>
-              <p style={styles.whyItemText}>
-                Informações confiáveis e atualizadas com total segurança e
-                privacidade.
-              </p>
-            </div>
+            <p style={styles.whyItemTitle}>Dados Seguros</p>
+            <p style={styles.whyItemText}>
+              Informações confiáveis e atualizadas com total segurança e
+              privacidade.
+            </p>
           </div>
         </section>
 
