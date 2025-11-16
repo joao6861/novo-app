@@ -2,100 +2,245 @@
 
 import React from "react";
 
+const styles: { [key: string]: React.CSSProperties } = {
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    padding: "32px 16px 48px",
+    color: "#ffffff",
+    fontFamily:
+      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    boxSizing: "border-box",
+  },
+  container: {
+    width: "100%",
+    maxWidth: "960px",
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "calc(100vh - 80px)",
+  },
+  topBar: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 32,
+    textAlign: "center",
+  },
+  topBarDesktop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    textAlign: "left",
+  },
+  brandBlock: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+  },
+  brandLogo: {
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  brandStatus: {
+    fontSize: 12,
+    opacity: 0.85,
+  },
+  nav: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "center",
+  },
+  navBtn: {
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.7)",
+    padding: "6px 14px",
+    fontSize: 12,
+    background: "rgba(0,0,0,0.2)",
+    color: "#ffffff",
+    cursor: "pointer",
+  },
+  navBtnSecondary: {
+    border: "1px solid rgba(255,255,255,0.4)",
+    background: "rgba(0,0,0,0.1)",
+  },
+  hero: {
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  heroSearchBtn: {
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.7)",
+    padding: "6px 20px",
+    background: "rgba(0,0,0,0.2)",
+    color: "#ffffff",
+    fontSize: 13,
+    cursor: "pointer",
+    marginBottom: 14,
+    textTransform: "uppercase",
+    letterSpacing: "0.16em",
+    fontWeight: 600,
+  },
+  heroKicker: {
+    fontSize: 16,
+    fontWeight: 600,
+    margin: "0 0 6px 0",
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    margin: "0 0 10px 0",
+  },
+  heroText: {
+    margin: "0 0 8px 0",
+    fontSize: 14,
+    maxWidth: 640,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  heroAlert: {
+    margin: 0,
+    fontSize: 13,
+    opacity: 0.9,
+  },
+  why: {
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  whyTitle: {
+    margin: "0 0 20px 0",
+    fontSize: 20,
+    fontWeight: 600,
+  },
+  whyGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(1, minmax(0, 1fr))",
+    gap: 16,
+    textAlign: "left",
+  },
+  whyItem: {
+    background: "rgba(0,0,0,0.18)",
+    borderRadius: 8,
+    padding: "12px 14px",
+    border: "1px solid rgba(255,255,255,0.25)",
+  },
+  whyItemTitle: {
+    margin: "0 0 4px 0",
+    fontSize: 15,
+    fontWeight: 600,
+  },
+  whyItemText: {
+    margin: 0,
+    fontSize: 13,
+  },
+  footer: {
+    marginTop: "auto",
+    borderTop: "1px solid rgba(255,255,255,0.25)",
+    paddingTop: 16,
+    textAlign: "center",
+    fontSize: 12,
+  },
+  footerLogo: {
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  footerStatus: {
+    marginBottom: 4,
+  },
+  footerCopy: {
+    marginBottom: 2,
+    opacity: 0.9,
+  },
+  footerSub: {
+    opacity: 0.9,
+  },
+};
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-400 to-sky-700 text-white">
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-8 md:py-12">
+    <main style={styles.page}>
+      <div style={styles.container}>
         {/* TOPO – LOGO + SISTEMA ONLINE + MENU */}
-        <header className="mb-10 flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
-          <div className="flex flex-col gap-1">
-            <span className="text-xl font-bold tracking-tight">Tureggon</span>
-            <span className="text-xs uppercase tracking-[0.2em] text-sky-100">
-              Sistema Online
-            </span>
+        <header
+          style={{
+            ...styles.topBar,
+            ...(typeof window !== "undefined" && window.innerWidth >= 768
+              ? styles.topBarDesktop
+              : {}),
+          }}
+        >
+          <div style={styles.brandBlock}>
+            <span style={styles.brandLogo}>Tureggon</span>
+            <span style={styles.brandStatus}>Sistema Online</span>
           </div>
 
-          <nav className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              className="rounded-full border border-white/70 bg-black/20 px-4 py-1.5 text-xs font-medium hover:bg-black/30"
-            >
+          <nav style={styles.nav}>
+            <button type="button" style={styles.navBtn}>
               Buscar por Placa
             </button>
             <button
               type="button"
-              className="rounded-full border border-white/40 bg-black/10 px-4 py-1.5 text-xs font-medium hover:bg-black/20"
+              style={{ ...styles.navBtn, ...styles.navBtnSecondary }}
             >
               Buscar sem Placa
             </button>
             <button
               type="button"
-              className="rounded-full border border-white/40 bg-black/10 px-4 py-1.5 text-xs font-medium hover:bg-black/20"
+              style={{ ...styles.navBtn, ...styles.navBtnSecondary }}
             >
               Oficinas Próximas
             </button>
           </nav>
         </header>
 
-        {/* CONTEÚDO PRINCIPAL / HERO */}
-        <section className="mb-12 text-center">
-          <button
-            type="button"
-            className="mb-4 rounded-full border border-white/70 bg-black/20 px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] hover:bg-black/30"
-          >
+        {/* HERO */}
+        <section style={styles.hero}>
+          <button type="button" style={styles.heroSearchBtn}>
             Buscar
           </button>
 
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-50">
-            Consulta Veicular Inteligente
-          </p>
+          <p style={styles.heroKicker}>Consulta Veicular Inteligente</p>
 
-          <h1 className="mt-2 text-3xl font-bold leading-tight md:text-4xl">
-            Descubra Tudo Sobre Seu Veículo
-          </h1>
+          <h1 style={styles.heroTitle}>Descubra Tudo Sobre Seu Veículo</h1>
 
-          <p className="mx-auto mt-3 max-w-xl text-sm md:text-base">
+          <p style={styles.heroText}>
             Consulta completa de dados veiculares, especificações técnicas e
             informações de manutenção em segundos.
           </p>
 
-          <p className="mx-auto mt-2 max-w-xl text-xs md:text-sm text-sky-100">
+          <p style={styles.heroAlert}>
             Busca manual temporariamente indisponível. Use a busca por placa.
           </p>
         </section>
 
         {/* POR QUE ESCOLHER A TUREGGON */}
-        <section className="mb-12">
-          <h2 className="mb-5 text-center text-xl font-semibold md:text-2xl">
-            Por que escolher a Tureggon?
-          </h2>
+        <section style={styles.why}>
+          <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
-              <h3 className="mb-1 text-sm font-semibold md:text-base">
-                Base Completa
-              </h3>
-              <p className="text-xs md:text-sm text-sky-50">
+          <div style={styles.whyGrid}>
+            <div style={styles.whyItem}>
+              <h3 style={styles.whyItemTitle}>Base Completa</h3>
+              <p style={styles.whyItemText}>
                 Milhares de veículos nacionais e importados em nossa base de
                 dados atualizada.
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
-              <h3 className="mb-1 text-sm font-semibold md:text-base">
-                Consulta Rápida
-              </h3>
-              <p className="text-xs md:text-sm text-sky-50">
+            <div style={styles.whyItem}>
+              <h3 style={styles.whyItemTitle}>Consulta Rápida</h3>
+              <p style={styles.whyItemText}>
                 Resultados em segundos. Digite a placa e tenha todas as
                 informações na tela.
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
-              <h3 className="mb-1 text-sm font-semibold md:text-base">
-                Dados Seguros
-              </h3>
-              <p className="text-xs md:text-sm text-sky-50">
+            <div style={styles.whyItem}>
+              <h3 style={styles.whyItemTitle}>Dados Seguros</h3>
+              <p style={styles.whyItemText}>
                 Informações confiáveis e atualizadas com total segurança e
                 privacidade.
               </p>
@@ -104,15 +249,13 @@ export default function Home() {
         </section>
 
         {/* RODAPÉ */}
-        <footer className="mt-auto border-t border-white/25 pt-4 text-center text-xs md:text-sm">
-          <div className="font-semibold">Tureggon</div>
-          <div className="mt-1 text-[11px] md:text-xs">
-            Sistema Online e Operacional
-          </div>
-          <div className="mt-1 text-[11px] md:text-xs text-sky-100">
+        <footer style={styles.footer}>
+          <div style={styles.footerLogo}>Tureggon</div>
+          <div style={styles.footerStatus}>Sistema Online e Operacional</div>
+          <div style={styles.footerCopy}>
             © 2024 Tureggon. Todos os direitos reservados.
           </div>
-          <div className="mt-1 text-[11px] md:text-xs text-sky-100">
+          <div style={styles.footerSub}>
             Consulta veicular inteligente e segura
           </div>
         </footer>
