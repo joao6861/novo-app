@@ -10,28 +10,25 @@ export default function SearchHeader() {
   const [active, setActive] = useState("placa");
 
   return (
-    <header className="w-full bg-[#02C4FF] shadow-lg">
-      
-      {/* CONTAINER CENTRAL */}
-      <div className="max-w-[1400px] mx-auto px-6 py-4">
+    <header className="w-full bg-[#02C4FF] shadow-md">
+      <div className="max-w-[1400px] mx-auto px-6 py-6">
 
-        {/* LINHA SUPERIOR COM LOGO + SISTEMA */}
-        <div className="w-full flex items-center justify-between mb-4">
+        {/* TOP */}
+        <div className="flex items-center justify-between mb-6">
           <Link href="https://tureggon.com/" target="_blank">
-            <img src="/logo.png" alt="Tureggon" className="h-12 cursor-pointer" />
+            <img src="/logo.png" alt="logo" className="h-12 cursor-pointer" />
           </Link>
 
-          <button className="bg-white text-black px-5 py-2 rounded-xl font-semibold shadow hover:bg-gray-200">
+          <button className="bg-white text-black px-5 py-2 rounded-xl shadow font-semibold">
             Sistema Online
           </button>
         </div>
 
-        {/* BOTÕES (IGUAL LASY) */}
+        {/* BOTOES */}
         <div className="flex gap-3">
-
           <button
             onClick={() => { setActive("placa"); router.push("/"); }}
-            className={`px-5 py-3 rounded-xl border bg-white font-medium flex items-center gap-2
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
               ${active === "placa" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
           >
             <Search size={18} />
@@ -39,8 +36,8 @@ export default function SearchHeader() {
           </button>
 
           <button
-            onClick={() => { setActive("manual"); router.push("/buscar"); }}
-            className={`px-5 py-3 rounded-xl border bg-white font-medium flex items-center gap-2
+            onClick={() => { setActive("manual"); router.push("/buscar-sem-placa"); }}
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
               ${active === "manual" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
           >
             <List size={18} />
@@ -49,13 +46,12 @@ export default function SearchHeader() {
 
           <button
             onClick={() => router.push("/oficinas")}
-            className={`px-5 py-3 rounded-xl border bg-white font-medium flex items-center gap-2
+            className={`px-6 py-3 rounded-xl border bg-white flex items-center gap-2 font-medium
               ${active === "oficinas" ? "text-[#0091FF] border-[#0091FF]" : "text-black border-white"}`}
           >
             <MapPin size={18} />
             Oficinas Próximas
           </button>
-
         </div>
       </div>
     </header>
