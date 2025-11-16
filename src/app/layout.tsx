@@ -11,7 +11,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <body className="bg-[#001428] text-white">
-        <NavBar />
 
         {/* Conteúdo da página */}
         <main className="pt-4 pb-20">{children}</main>
