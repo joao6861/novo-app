@@ -2,6 +2,45 @@
 
 import React, { useRef, useState } from "react";
 
+/** ====== DADOS DE EXEMPLO ======
+ * Aqui vai a sua tabela real depois.
+ * É só seguir esse formato.
+ */
+
+type VehicleOption = {
+  brand: string;
+  model: string;
+  engines: string[];
+  years: number[];
+};
+
+const vehicleOptions: VehicleOption[] = [
+  {
+    brand: "Fiat",
+    model: "Argo",
+    engines: ["1.0", "1.3", "1.8"],
+    years: [2019, 2020, 2021, 2022, 2023],
+  },
+  {
+    brand: "Fiat",
+    model: "Cronos",
+    engines: ["1.0", "1.3"],
+    years: [2018, 2019, 2020, 2021, 2022],
+  },
+  {
+    brand: "Volkswagen",
+    model: "Gol",
+    engines: ["1.0 8V", "1.6"],
+    years: [2010, 2011, 2012, 2013, 2014],
+  },
+  {
+    brand: "Chevrolet",
+    model: "Onix",
+    engines: ["1.0", "1.0 Turbo"],
+    years: [2019, 2020, 2021, 2022, 2023],
+  },
+];
+
 /** ÍCONES SVG PERSONALIZADOS **/
 
 const CarIcon: React.FC = () => (
@@ -68,7 +107,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: "border-box",
   },
 
-  /* TOPO (logo + sistema + cards + barra de placa) */
+  /* TOPO (logo + sistema + cards + barra de busca) */
   topArea: {
     padding: "24px 16px 0",
   },
@@ -137,12 +176,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 500,
   },
 
+  searchWrapper: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: 8,
-    marginBottom: 8,
-    marginTop: 8,
   },
   searchInput: {
     width: "100%",
@@ -166,6 +208,35 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 11,
     opacity: 0.85,
     marginTop: 4,
+  },
+
+  /* CAMPOS MANUAIS */
+  manualGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 10,
+  },
+  manualField: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  },
+  manualLabel: {
+    fontSize: 11,
+    opacity: 0.9,
+  },
+  manualSelect: {
+    borderRadius: 8,
+    border: "1px solid rgba(255,255,255,0.6)",
+    background: "rgba(255,255,255,0.12)",
+    color: "#ffffff",
+    padding: "8px 10px",
+    fontSize: 12,
+  },
+  manualButtonRow: {
+    marginTop: 10,
+    display: "flex",
+    justifyContent: "flex-end",
   },
 
   /* HERO ESCURO EM LARGURA TOTAL */
@@ -425,26 +496,55 @@ const styles: { [key: string]: React.CSSProperties } = {
 export default function Home() {
   const [mode, setMode] = useState<"plate" | "manual">("plate");
   const plateInputRef = useRef<HTMLInputElement | null>(null);
-  const searchRowRef = useRef<HTMLDivElement | null>(null);
+  const brandSelectRef = useRef<HTMLSelectElement | null>(null);
+  const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollToSearch = () => {
-    if (searchRowRef.current) {
-      searchRowRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  const [brand, setBrand] = useState("");
+  const [model, setModel] = useState("");
+  const [engine, setEngine] = useState("");
+  const [year, setYear] = useState("");
+
+  // opções derivadas dos dados
+  const brandOptions = Array.from(
+    new Set(vehicleOptions.map((v) => v.brand))
+  ).sort();
+
+  const modelOptions = vehicleOptions
+    .filter((v) => (brand ? v.brand === brand : true))
+    .map((v) => v.model);
+
+  const selectedVehicle = vehicleOptions.find(
+    (v) => v.brand === brand && v.model === model
+  );
+
+  const engineOptions = selectedVehicle ? selectedVehicle.engines : [];
+  const yearOptions = selectedVehicle ? selectedVehicle.years : [];
+
+  const scrollToSearch = (target: "plate" | "manual") => {
+    if (searchBlockRef.current) {
+      searchBlockRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
-    // pequeno delay pra focar depois do scroll
+
     setTimeout(() => {
-      plateInputRef.current?.focus();
+      if (target === "plate") {
+        plateInputRef.current?.focus();
+      } else {
+        brandSelectRef.current?.focus();
+      }
     }, 300);
   };
 
   const handleSelectPlate = () => {
     setMode("plate");
-    scrollToSearch();
+    scrollToSearch("plate");
   };
 
   const handleSelectManual = () => {
     setMode("manual");
-    scrollToSearch();
+    scrollToSearch("manual");
   };
 
   const handleOfficesClick = () => {
@@ -455,24 +555,27 @@ export default function Home() {
   };
 
   const handleSearchClick = () => {
-    const value = plateInputRef.current?.value.trim() ?? "";
-
-    if (!value) {
-      alert(
-        mode === "plate"
-          ? "Digite a placa para realizar a consulta."
-          : "Digite os dados do veículo (marca, modelo, ano...) para realizar a consulta."
-      );
-      return;
-    }
-
     if (mode === "plate") {
+      const value = plateInputRef.current?.value.trim() ?? "";
+
+      if (!value) {
+        alert("Digite a placa para realizar a consulta.");
+        return;
+      }
+
       alert(
         `Versão de apresentação.\n\nAqui nós vamos consultar a placa "${value}" no Auto Óleo / banco de dados assim que estiver conectado.`
       );
     } else {
+      if (!brand || !model || !engine || !year) {
+        alert(
+          "Selecione marca, modelo, motorização e ano para realizar a consulta."
+        );
+        return;
+      }
+
       alert(
-        `Versão de apresentação.\n\nAqui nós vamos buscar pelo veículo usando: "${value}".`
+        `Versão de apresentação.\n\nAqui nós vamos consultar o veículo:\n\nMarca: ${brand}\nModelo: ${model}\nMotor: ${engine}\nAno: ${year}`
       );
     }
   };
@@ -531,25 +634,128 @@ export default function Home() {
             </button>
           </div>
 
-          <div style={styles.searchRow} ref={searchRowRef}>
-            <input
-              ref={plateInputRef}
-              type="text"
-              placeholder={
-                mode === "plate"
-                  ? "Digite a placa (ex: ABC1234)"
-                  : "Digite marca, modelo, ano, motorização..."
-              }
-              style={styles.searchInput}
-            />
-            <button type="button" style={styles.searchBtn} onClick={handleSearchClick}>
-              Buscar
-            </button>
-          </div>
-          <div style={styles.searchHint}>
-            {mode === "plate"
-              ? "Modo selecionado: Buscar por Placa."
-              : "Modo selecionado: Buscar sem Placa (consulta manual)."}
+          <div style={styles.searchWrapper} ref={searchBlockRef}>
+            {mode === "plate" && (
+              <>
+                <div style={styles.searchRow}>
+                  <input
+                    ref={plateInputRef}
+                    type="text"
+                    placeholder="Digite a placa (ex: ABC1234)"
+                    style={styles.searchInput}
+                  />
+                  <button
+                    type="button"
+                    style={styles.searchBtn}
+                    onClick={handleSearchClick}
+                  >
+                    Buscar
+                  </button>
+                </div>
+                <div style={styles.searchHint}>
+                  Modo selecionado: <strong>Buscar por Placa</strong>.
+                </div>
+              </>
+            )}
+
+            {mode === "manual" && (
+              <>
+                <div style={styles.manualGrid}>
+                  <div style={styles.manualField}>
+                    <label style={styles.manualLabel}>Marca</label>
+                    <select
+                      ref={brandSelectRef}
+                      style={styles.manualSelect}
+                      value={brand}
+                      onChange={(e) => {
+                        setBrand(e.target.value);
+                        setModel("");
+                        setEngine("");
+                        setYear("");
+                      }}
+                    >
+                      <option value="">Selecione</option>
+                      {brandOptions.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.manualField}>
+                    <label style={styles.manualLabel}>Modelo</label>
+                    <select
+                      style={styles.manualSelect}
+                      value={model}
+                      onChange={(e) => {
+                        setModel(e.target.value);
+                        setEngine("");
+                        setYear("");
+                      }}
+                      disabled={!brand}
+                    >
+                      <option value="">Selecione</option>
+                      {modelOptions.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.manualField}>
+                    <label style={styles.manualLabel}>Motor</label>
+                    <select
+                      style={styles.manualSelect}
+                      value={engine}
+                      onChange={(e) => setEngine(e.target.value)}
+                      disabled={!model}
+                    >
+                      <option value="">Selecione</option>
+                      {engineOptions.map((eng) => (
+                        <option key={eng} value={eng}>
+                          {eng}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.manualField}>
+                    <label style={styles.manualLabel}>Ano</label>
+                    <select
+                      style={styles.manualSelect}
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      disabled={!model}
+                    >
+                      <option value="">Selecione</option>
+                      {yearOptions.map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={styles.manualButtonRow}>
+                  <button
+                    type="button"
+                    style={styles.searchBtn}
+                    onClick={handleSearchClick}
+                  >
+                    Buscar
+                  </button>
+                </div>
+
+                <div style={styles.searchHint}>
+                  Modo selecionado:{" "}
+                  <strong>Buscar sem Placa (consulta manual)</strong>. Escolha
+                  marca, modelo, motorização e ano.
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
