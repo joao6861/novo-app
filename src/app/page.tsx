@@ -211,3 +211,21 @@ export default function Home() {
         {/* ------------------------- ABA AVALIAÇÕES ------------------------- */}
         {activeTab === "avaliacoes" && (
           <Card className="p-6 bg-white rounded-3
+        {/* ------------------------- ABA AVALIAÇÕES ------------------------- */}
+        {activeTab === "avaliacoes" && (
+          <Card className="p-6 bg-white rounded-3xl shadow-xl space-y-4">
+            <h2 className="text-2xl font-bold text-center">Avaliações de Oficinas</h2>
+
+            <p className="text-gray-600 text-center">
+              Em breve você poderá avaliar oficinas, ver notas e histórico de serviços.
+            </p>
+
+            <div className="flex justify-center pt-4">
+              <Star className="text-yellow-500" size={40} />
+            </div>
+          </Card>
+        )}
+      </div>
+    </main>
+  );
+}
