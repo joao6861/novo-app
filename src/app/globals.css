@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RESET PADRÃO – igual Lasy */
+/* RESET global igual Lasy */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* FONTE GLOBAL */
+/* Fundo e fonte global */
 body {
   font-family: 'Inter', sans-serif;
   background: linear-gradient(to bottom, #02C4FF, #0091FF);
@@ -17,18 +17,12 @@ body {
   color: #ffffff;
 }
 
-/* REMOVER ESTILOS DO SHADCN QUE QUEBRAVAM TUDO */
-:root {
-  --radius: 8px;
-}
-
-/* Remove bordas automáticas que estavam quebrando o layout */
+/* Remover bordas automáticas que quebravam tudo */
 * {
   border-style: none !important;
   outline: none !important;
 }
 
-/* CORREÇÃO DE BOTÕES E INPUTS */
 button, input, select {
   font-family: inherit;
 }
