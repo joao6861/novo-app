@@ -27,19 +27,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "space-between",
     marginBottom: 18,
   },
-
-  // bloco da logo
   logoBlock: {
     display: "flex",
     alignItems: "center",
     gap: 8,
   },
   logoImage: {
-    height: 40, // ajusta aqui se quiser maior/menor
+    height: 40,
     objectFit: "contain",
     display: "block",
   },
-
   systemButton: {
     borderRadius: 999,
     border: "1px solid rgba(255,255,255,0.75)",
@@ -193,20 +190,105 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
   },
 
-  /* FOOTER */
-  footer: {
-    borderTop: "1px solid rgba(255,255,255,0.3)",
-    paddingTop: 14,
+  /* FOOTER - ESTILO TUREGGON.COM */
+  footerOuter: {
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    padding: "32px 16px 16px",
+  },
+  footerInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+  },
+  footerTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 40,
     paddingBottom: 24,
-    textAlign: "center",
-    fontSize: 12,
+    borderBottom: "1px solid #111827",
   },
-  footerLogo: {
+  footerColumn: {
+    flex: 1,
+    minWidth: 220,
+  },
+  footerTitle: {
+    fontSize: 13,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+    marginBottom: 14,
     fontWeight: 700,
-    marginBottom: 4,
   },
-  footerLine: {
-    margin: 0,
+  footerLink: {
+    fontSize: 13,
+    marginBottom: 6,
+  },
+  footerPhone: {
+    fontSize: 13,
+    marginBottom: 6,
+  },
+
+  footerBottom: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 18,
+    paddingTop: 18,
+  },
+  footerBottomRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 40,
+    flexWrap: "wrap",
+  },
+
+  paymentSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+  paymentTitle: {
+    fontSize: 13,
+    fontWeight: 500,
+  },
+  paymentBadges: {
+    display: "flex",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+  paymentBadge: {
+    fontSize: 11,
+    padding: "4px 8px",
+    borderRadius: 4,
+    backgroundColor: "#111827",
+    border: "1px solid #1f2937",
+  },
+
+  ratingRow: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 18,
+    marginTop: 4,
+  },
+  ratingGoogle: {
+    fontSize: 22,
+    fontWeight: 700,
+    color: "#fbbc05", // amarelo estilo Google G colorido (simplificado)
+  },
+  ratingStars: {
+    color: "#facc15",
+    letterSpacing: 2,
+  },
+
+  footerCopy: {
+    textAlign: "center",
+    fontSize: 11,
+    opacity: 0.8,
+    marginTop: 4,
   },
 };
 
@@ -218,7 +300,6 @@ export default function Home() {
         <div style={styles.topInner}>
           <header style={styles.header}>
             <div style={styles.logoBlock}>
-              {/* LOGO COMO IMAGEM (usa public/logo.png) */}
               <img
                 src="/logo.png"
                 alt="Tureggon Store"
@@ -259,7 +340,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HERO ESCURO EM LARGURA TOTAL */}
+      {/* HERO ESCURO */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -309,14 +390,62 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ */}
-      <footer style={styles.footer}>
-        <div style={styles.footerLogo}>Tureggon</div>
-        <p style={styles.footerLine}>Sistema Online e Operacional</p>
-        <p style={styles.footerLine}>
-          © 2024 Tureggon. Todos os direitos reservados.
-        </p>
-        <p style={styles.footerLine}>Consulta veicular inteligente e segura</p>
+      {/* RODAPÉ ESTILO TUREGGON.COM */}
+      <footer style={styles.footerOuter}>
+        <div style={styles.footerInner}>
+          {/* TOPO DO RODAPÉ */}
+          <div style={styles.footerTop}>
+            <div style={styles.footerColumn}>
+              <div style={styles.footerTitle}>DEPARTAMENTOS</div>
+              <div style={styles.footerLink}>Início</div>
+              <div style={styles.footerLink}>Manutenção</div>
+              <div style={styles.footerLink}>Performance</div>
+              <div style={styles.footerLink}>Acessórios &amp; Cuidados</div>
+              <div style={styles.footerLink}>Elétrica &amp; tecnologia</div>
+              <div style={styles.footerLink}>Instagram</div>
+              <div style={styles.footerLink}>Consulta Veicular</div>
+            </div>
+
+            <div style={styles.footerColumn}>
+              <div style={styles.footerTitle}>ENTRE EM CONTATO</div>
+              <div style={styles.footerPhone}>5541997744692</div>
+              <div style={styles.footerPhone}>41997744692</div>
+            </div>
+          </div>
+
+          {/* PARTE DE BAIXO */}
+          <div style={styles.footerBottom}>
+            <div style={styles.footerBottomRow}>
+              <div style={styles.paymentSection}>
+                <span style={styles.paymentTitle}>Meios de pagamento</span>
+                <div style={styles.paymentBadges}>
+                  <span style={styles.paymentBadge}>VISA</span>
+                  <span style={styles.paymentBadge}>Mastercard</span>
+                  <span style={styles.paymentBadge}>Elo</span>
+                  <span style={styles.paymentBadge}>Pix</span>
+                </div>
+              </div>
+
+              <div style={styles.paymentSection}>
+                <span style={styles.paymentTitle}>Meios de envio</span>
+                <div style={styles.paymentBadges}>
+                  <span style={styles.paymentBadge}>Correios</span>
+                  <span style={styles.paymentBadge}>Transportadora</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.ratingRow}>
+              <span style={styles.ratingGoogle}>G</span>
+              <span style={styles.ratingStars}>★★★★★</span>
+            </div>
+
+            <div style={styles.footerCopy}>
+              © {new Date().getFullYear()} Tureggon. Todos os direitos
+              reservados.
+            </div>
+          </div>
+        </div>
       </footer>
     </main>
   );
