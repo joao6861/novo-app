@@ -1,45 +1,11 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-
-/** ====== DADOS DE EXEMPLO ======
- * Aqui vai a sua tabela real depois.
- * É só seguir esse formato.
- */
-
-type VehicleOption = {
-  brand: string;
-  model: string;
-  engines: string[];
-  years: number[];
-};
-
-const vehicleOptions: VehicleOption[] = [
-  {
-    brand: "Fiat",
-    model: "Argo",
-    engines: ["1.0", "1.3", "1.8"],
-    years: [2019, 2020, 2021, 2022, 2023],
-  },
-  {
-    brand: "Fiat",
-    model: "Cronos",
-    engines: ["1.0", "1.3"],
-    years: [2018, 2019, 2020, 2021, 2022],
-  },
-  {
-    brand: "Volkswagen",
-    model: "Gol",
-    engines: ["1.0 8V", "1.6"],
-    years: [2010, 2011, 2012, 2013, 2014],
-  },
-  {
-    brand: "Chevrolet",
-    model: "Onix",
-    engines: ["1.0", "1.0 Turbo"],
-    years: [2019, 2020, 2021, 2022, 2023],
-  },
-];
+import {
+  vehicleBrands,
+  getModelsByBrand,
+  type VehicleModel,
+} from "@/lib/vehicle-data";
 
 /** ÍCONES SVG PERSONALIZADOS **/
 
@@ -210,10 +176,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  /* CAMPOS MANUAIS */
+  /* CAMPOS MANUAIS (agora só Marca + Modelo) */
   manualGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: 10,
   },
   manualField: {
@@ -229,7 +195,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: 8,
     border: "1px solid #d1d5db",
     background: "#ffffff",
-    color: "#111827", // ← letras pretas
+    color: "#111827", // letras pretas
     padding: "8px 10px",
     fontSize: 12,
   },
@@ -499,26 +465,10 @@ export default function Home() {
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
+  // NOVO: estado para Marca e Modelo (código do modelo)
   const [brand, setBrand] = useState("");
-  const [model, setModel] = useState("");
-  const [engine, setEngine] = useState("");
-  const [year, setYear] = useState("");
-
-  // opções derivadas dos dados
-  const brandOptions = Array.from(
-    new Set(vehicleOptions.map((v) => v.brand))
-  ).sort();
-
-  const modelOptions = vehicleOptions
-    .filter((v) => (brand ? v.brand === brand : true))
-    .map((v) => v.model);
-
-  const selectedVehicle = vehicleOptions.find(
-    (v) => v.brand === brand && v.model === model
-  );
-
-  const engineOptions = selectedVehicle ? selectedVehicle.engines : [];
-  const yearOptions = selectedVehicle ? selectedVehicle.years : [];
+  const [availableModels, setAvailableModels] = useState<VehicleModel[]>([]);
+  const [selectedModelCode, setSelectedModelCode] = useState("");
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -554,6 +504,13 @@ export default function Home() {
     );
   };
 
+  const handleBrandChange = (value: string) => {
+    setBrand(value);
+    const models = getModelsByBrand(value);
+    setAvailableModels(models);
+    setSelectedModelCode("");
+  };
+
   const handleSearchClick = () => {
     if (mode === "plate") {
       const value = plateInputRef.current?.value.trim() ?? "";
@@ -567,18 +524,25 @@ export default function Home() {
         `Versão de apresentação.\n\nAqui nós vamos consultar a placa "${value}" no Auto Óleo / banco de dados assim que estiver conectado.`
       );
     } else {
-      if (!brand || !model || !engine || !year) {
-        alert(
-          "Selecione marca, modelo, motorização e ano para realizar a consulta."
-        );
+      if (!brand || !selectedModelCode) {
+        alert("Selecione marca e modelo para realizar a consulta.");
         return;
       }
 
+      const selectedModel = availableModels.find(
+        (m) => m.code === selectedModelCode
+      );
+
+      const modeloTexto = selectedModel?.label ?? "";
+
       alert(
-        `Versão de apresentação.\n\nAqui nós vamos consultar o veículo:\n\nMarca: ${brand}\nModelo: ${model}\nMotor: ${engine}\nAno: ${year}`
+        `Versão de apresentação.\n\nAqui nós vamos consultar o veículo no Auto Óleo usando:\n\nMarca: ${brand}\nModelo (texto exato): ${modeloTexto}`
       );
     }
   };
+
+  // opções de marca (vem do vehicle-data.ts)
+  const brandOptions = vehicleBrands.map((b) => b.brand).sort();
 
   return (
     <main style={styles.page}>
@@ -641,7 +605,7 @@ export default function Home() {
                   <input
                     ref={plateInputRef}
                     type="text"
-                    placeholder="Digite a placa (ex: ABC1234)"
+                    placeholder="Digite a placa (ex: ABC1D23)"
                     style={styles.searchInput}
                   />
                   <button
@@ -661,18 +625,14 @@ export default function Home() {
             {mode === "manual" && (
               <>
                 <div style={styles.manualGrid}>
+                  {/* MARCA */}
                   <div style={styles.manualField}>
                     <label style={styles.manualLabel}>Marca</label>
                     <select
                       ref={brandSelectRef}
                       style={styles.manualSelect}
                       value={brand}
-                      onChange={(e) => {
-                        setBrand(e.target.value);
-                        setModel("");
-                        setEngine("");
-                        setYear("");
-                      }}
+                      onChange={(e) => handleBrandChange(e.target.value)}
                     >
                       <option value="">Selecione</option>
                       {brandOptions.map((b) => (
@@ -683,56 +643,25 @@ export default function Home() {
                     </select>
                   </div>
 
+                  {/* MODELO (texto exato igual da tabela/Auto Óleo) */}
                   <div style={styles.manualField}>
-                    <label style={styles.manualLabel}>Modelo</label>
+                    <label style={styles.manualLabel}>
+                      Modelo (texto exato da tabela)
+                    </label>
                     <select
                       style={styles.manualSelect}
-                      value={model}
-                      onChange={(e) => {
-                        setModel(e.target.value);
-                        setEngine("");
-                        setYear("");
-                      }}
-                      disabled={!brand}
+                      value={selectedModelCode}
+                      onChange={(e) => setSelectedModelCode(e.target.value)}
+                      disabled={!brand || availableModels.length === 0}
                     >
-                      <option value="">Selecione</option>
-                      {modelOptions.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div style={styles.manualField}>
-                    <label style={styles.manualLabel}>Motor</label>
-                    <select
-                      style={styles.manualSelect}
-                      value={engine}
-                      onChange={(e) => setEngine(e.target.value)}
-                      disabled={!model}
-                    >
-                      <option value="">Selecione</option>
-                      {engineOptions.map((eng) => (
-                        <option key={eng} value={eng}>
-                          {eng}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div style={styles.manualField}>
-                    <label style={styles.manualLabel}>Ano</label>
-                    <select
-                      style={styles.manualSelect}
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      disabled={!model}
-                    >
-                      <option value="">Selecione</option>
-                      {yearOptions.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
+                      <option value="">
+                        {brand
+                          ? "Selecione o modelo"
+                          : "Escolha primeiro a marca"}
+                      </option>
+                      {availableModels.map((m) => (
+                        <option key={m.code} value={m.code}>
+                          {m.label}
                         </option>
                       ))}
                     </select>
@@ -751,8 +680,9 @@ export default function Home() {
 
                 <div style={styles.searchHint}>
                   Modo selecionado:{" "}
-                  <strong>Buscar sem Placa (consulta manual)</strong>. Escolha
-                  marca, modelo, motorização e ano.
+                  <strong>Buscar sem Placa (consulta por marca e modelo)</strong>
+                  . O modelo usa o mesmo texto que o Auto Óleo / sua tabela para
+                  facilitar a busca.
                 </div>
               </>
             )}
