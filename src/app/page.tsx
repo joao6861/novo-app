@@ -192,12 +192,12 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   /* NEWSLETTER (BANNER TARTARUGAS) */
   newsletterOuter: {
-    padding: "60px 16px 80px", // mais altura pra caber a arte inteira
+    padding: "60px 16px 80px",
     backgroundColor: "#00b7ff",
     backgroundImage: "url('/newsletter-banner.png')",
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "center bottom", // tartarugas presas embaixo
-    backgroundSize: "contain", // mostra a imagem inteira, sem cortar
+    backgroundPosition: "center bottom",
+    backgroundSize: "contain",
   },
   newsletterInner: {
     width: "100%",
@@ -232,57 +232,30 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "none",
     borderRadius: "0 4px 4px 0",
     padding: "0 18px",
-    backgroundColor: "#39ff14", // verde forte como no print
+    backgroundColor: "#39ff14",
     color: "#000000",
     fontWeight: 700,
     fontSize: 13,
     cursor: "pointer",
   },
 
-  /* FOOTER - ESTILO TUREGGON.COM */
+  /* FOOTER - SIMPLIFICADO (SEM AS ABAS) */
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
-    padding: "32px 16px 16px",
+    padding: "24px 16px 16px",
   },
   footerInner: {
     width: "100%",
     maxWidth: 1100,
     margin: "0 auto",
   },
-  footerTop: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 40,
-    paddingBottom: 24,
-    borderBottom: "1px solid #111827",
-  },
-  footerColumn: {
-    flex: 1,
-    minWidth: 220,
-  },
-  footerTitle: {
-    fontSize: 13,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    marginBottom: 14,
-    fontWeight: 700,
-  },
-  footerLink: {
-    fontSize: 13,
-    marginBottom: 6,
-  },
-  footerPhone: {
-    fontSize: 13,
-    marginBottom: 6,
-  },
 
   footerBottom: {
     display: "flex",
     flexDirection: "column",
     gap: 18,
-    paddingTop: 18,
+    paddingTop: 4,
   },
   footerBottomRow: {
     display: "flex",
@@ -315,14 +288,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid #1f2937",
   },
 
-  // nova config para a imagem de avaliação do Google
   ratingRow: {
     display: "flex",
     justifyContent: "center",
     marginTop: 10,
   },
   ratingImage: {
-    height: 48, // ajusta o tamanho da imagem aqui
+    height: 48,
     objectFit: "contain",
     display: "block",
   },
@@ -433,7 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEWSLETTER COM BANNER DAS TARTARUGAS */}
+      {/* NEWSLETTER */}
       <section style={styles.newsletterOuter}>
         <div style={styles.newsletterInner}>
           <h2 style={styles.newsletterTitle}>Newsletter</h2>
@@ -445,7 +417,6 @@ export default function Home() {
             style={styles.newsletterForm}
             onSubmit={(e) => {
               e.preventDefault();
-              // aqui depois você pode integrar com algum serviço de email
             }}
           >
             <input
@@ -461,28 +432,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ ESTILO TUREGGON.COM */}
+      {/* RODAPÉ SIMPLIFICADO */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
-          <div style={styles.footerTop}>
-            <div style={styles.footerColumn}>
-              <div style={styles.footerTitle}>DEPARTAMENTOS</div>
-              <div style={styles.footerLink}>Início</div>
-              <div style={styles.footerLink}>Manutenção</div>
-              <div style={styles.footerLink}>Performance</div>
-              <div style={styles.footerLink}>Acessórios &amp; Cuidados</div>
-              <div style={styles.footerLink}>Elétrica &amp; tecnologia</div>
-              <div style={styles.footerLink}>Instagram</div>
-              <div style={styles.footerLink}>Consulta Veicular</div>
-            </div>
-
-            <div style={styles.footerColumn}>
-              <div style={styles.footerTitle}>ENTRE EM CONTATO</div>
-              <div style={styles.footerPhone}>5541997744692</div>
-              <div style={styles.footerPhone}>41997744692</div>
-            </div>
-          </div>
-
           <div style={styles.footerBottom}>
             <div style={styles.footerBottomRow}>
               <div style={styles.paymentSection}>
@@ -504,7 +456,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Avaliação Google clicável */}
             <div style={styles.ratingRow}>
               <a
                 href="https://www.google.com/maps/place/TUREGGON/@-27.7229965,-62.6404099,2591015m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94dcfb2b8bb6b5db:0xc19deb1a9509a901!8m2!3d-28.1336936!4d-52.006782!16s%2Fg%2F11nmgpmlpr?entry=ttu&g_ep=EgoyMDI1MTExMi4wIKXMDSoASAFQAw%3D%3D"
