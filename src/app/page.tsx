@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 
 /** ÍCONES SVG PERSONALIZADOS **/
 
@@ -17,7 +17,7 @@ const CarIcon: React.FC = () => (
   >
     <path d="M3 14.5V12c0-.6.3-1.1.9-1.4l2.3-1.2c.4-.2.8-.4 1.2-.5L10.2 8c.6-.2 1-.3 1.8-.3h2c.7 0 1.1.1 1.7.3l1.9.6c.5.2.9.3 1.3.6l1.2.8c.5.3.9.9.9 1.5v2.6" />
     <path d="M4 18.5h-.5C3 18.5 2.5 18 2.5 17.5V15" />
-    <path d="M20 18.5h.5c.5 0 1 .5 1 1V15" />
+    <path d="M20 18.5h.5c.5 0 1-.5 1-1V15" />
     <path d="M7.5 18.5h9" />
     <path d="M7.25 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
     <path d="M16.75 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
@@ -120,13 +120,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 13,
     cursor: "pointer",
     boxShadow: "0 8px 18px rgba(15,23,42,0.18)",
-    transition: "all 0.18s ease-out",
+    border: "1px solid transparent",
+    transition: "all 0.18s ease",
   },
   cardActive: {
-    background: "linear-gradient(135deg,#1d4ed8,#22d3ee)",
-    color: "#ffffff",
-    boxShadow: "0 16px 40px rgba(15,23,42,0.45)",
-    transform: "translateY(-1px)",
+    background: "linear-gradient(135deg,#0f172a,#1e293b)",
+    color: "#e5f0ff",
+    border: "1px solid rgba(96,165,250,0.9)",
   },
   cardIcon: {
     width: 18,
@@ -137,9 +137,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 500,
   },
 
-  searchBlock: {
-    marginBottom: 24,
-  },
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
@@ -165,9 +162,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 13,
     cursor: "pointer",
   },
-  searchModeInfo: {
-    fontSize: 12,
-    opacity: 0.9,
+  searchHint: {
+    fontSize: 11,
+    opacity: 0.85,
+    marginTop: 4,
   },
 
   /* HERO ESCURO EM LARGURA TOTAL */
@@ -424,58 +422,60 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-type SearchMode = "placa" | "manual" | "oficinas";
-
 export default function Home() {
-  const [searchMode, setSearchMode] = useState<SearchMode>("placa");
-  const [searchText, setSearchText] = useState("");
-  const searchBlockRef = useRef<HTMLDivElement | null>(null);
+  const [mode, setMode] = useState<"plate" | "manual">("plate");
+  const plateInputRef = useRef<HTMLInputElement | null>(null);
+  const searchRowRef = useRef<HTMLDivElement | null>(null);
 
-  const handleModeClick = (mode: SearchMode) => {
-    setSearchMode(mode);
-
-    // rolar suavemente até o campo de busca
-    if (searchBlockRef.current) {
-      searchBlockRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+  const scrollToSearch = () => {
+    if (searchRowRef.current) {
+      searchRowRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    // pequeno delay pra focar depois do scroll
+    setTimeout(() => {
+      plateInputRef.current?.focus();
+    }, 300);
   };
 
-  const handleSearch = () => {
-    const value = searchText.trim();
+  const handleSelectPlate = () => {
+    setMode("plate");
+    scrollToSearch();
+  };
+
+  const handleSelectManual = () => {
+    setMode("manual");
+    scrollToSearch();
+  };
+
+  const handleOfficesClick = () => {
+    window.open(
+      "https://www.google.com/maps/search/oficina+perto+de+mim",
+      "_blank"
+    );
+  };
+
+  const handleSearchClick = () => {
+    const value = plateInputRef.current?.value.trim() ?? "";
+
     if (!value) {
-      window.alert("Digite algo para buscar.");
+      alert(
+        mode === "plate"
+          ? "Digite a placa para realizar a consulta."
+          : "Digite os dados do veículo (marca, modelo, ano...) para realizar a consulta."
+      );
       return;
     }
 
-    if (searchMode === "placa") {
-      window.alert(`(DEMO) Buscar informações da placa: ${value}`);
-    } else if (searchMode === "manual") {
-      window.alert(
-        `(DEMO) Buscar por veículo usando marca/modelo/ano: ${value}`
+    if (mode === "plate") {
+      alert(
+        `Versão de apresentação.\n\nAqui nós vamos consultar a placa "${value}" no Auto Óleo / banco de dados assim que estiver conectado.`
       );
     } else {
-      window.alert(
-        `(DEMO) Buscar oficinas próximas usando cidade/CEP: ${value}`
+      alert(
+        `Versão de apresentação.\n\nAqui nós vamos buscar pelo veículo usando: "${value}".`
       );
     }
   };
-
-  const placeholder =
-    searchMode === "placa"
-      ? "Digite a placa (ex: ABC1234)"
-      : searchMode === "manual"
-      ? "Digite marca, modelo, ano, motorização..."
-      : "Digite sua cidade ou CEP para encontrar oficinas próximas";
-
-  const modeInfo =
-    searchMode === "placa"
-      ? "Modo: Buscar por placa. Ideal para puxar todos os dados do veículo em segundos."
-      : searchMode === "manual"
-      ? "Modo: Buscar sem placa. Use marca, modelo, ano e motorização para localizar o veículo."
-      : "Modo: Oficinas próximas. Use cidade ou CEP para encontrar oficinas parceiras."
 
   return (
     <main style={styles.page}>
@@ -501,52 +501,55 @@ export default function Home() {
               type="button"
               style={{
                 ...styles.card,
-                ...(searchMode === "placa" ? styles.cardActive : {}),
+                ...(mode === "plate" ? styles.cardActive : {}),
               }}
-              onClick={() => handleModeClick("placa")}
+              onClick={handleSelectPlate}
             >
               <span style={styles.cardIcon}>🔍</span>
               <span style={styles.cardLabel}>Buscar por Placa</span>
             </button>
+
             <button
               type="button"
               style={{
                 ...styles.card,
-                ...(searchMode === "manual" ? styles.cardActive : {}),
+                ...(mode === "manual" ? styles.cardActive : {}),
               }}
-              onClick={() => handleModeClick("manual")}
+              onClick={handleSelectManual}
             >
               <span style={styles.cardIcon}>≡</span>
               <span style={styles.cardLabel}>Buscar sem Placa</span>
             </button>
+
             <button
               type="button"
-              style={{
-                ...styles.card,
-                ...(searchMode === "oficinas" ? styles.cardActive : {}),
-              }}
-              onClick={() => handleModeClick("oficinas")}
+              style={styles.card}
+              onClick={handleOfficesClick}
             >
               <span style={styles.cardIcon}>📍</span>
               <span style={styles.cardLabel}>Oficinas Próximas</span>
             </button>
           </div>
 
-          {/* BLOCO DE BUSCA */}
-          <div ref={searchBlockRef} style={styles.searchBlock}>
-            <div style={styles.searchRow}>
-              <input
-                type="text"
-                placeholder={placeholder}
-                style={styles.searchInput}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <button type="button" style={styles.searchBtn} onClick={handleSearch}>
-                Buscar
-              </button>
-            </div>
-            <div style={styles.searchModeInfo}>{modeInfo}</div>
+          <div style={styles.searchRow} ref={searchRowRef}>
+            <input
+              ref={plateInputRef}
+              type="text"
+              placeholder={
+                mode === "plate"
+                  ? "Digite a placa (ex: ABC1234)"
+                  : "Digite marca, modelo, ano, motorização..."
+              }
+              style={styles.searchInput}
+            />
+            <button type="button" style={styles.searchBtn} onClick={handleSearchClick}>
+              Buscar
+            </button>
+          </div>
+          <div style={styles.searchHint}>
+            {mode === "plate"
+              ? "Modo selecionado: Buscar por Placa."
+              : "Modo selecionado: Buscar sem Placa (consulta manual)."}
           </div>
         </div>
       </section>
@@ -628,7 +631,6 @@ export default function Home() {
             style={styles.newsletterForm}
             onSubmit={(e) => {
               e.preventDefault();
-              handleSearch();
             }}
           >
             <input
