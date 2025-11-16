@@ -55,3 +55,68 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-xl text-sm md:text-base">
+            Consulta completa de dados veiculares, especificações técnicas e
+            informações de manutenção em segundos.
+          </p>
+
+          <p className="mx-auto mt-2 max-w-xl text-xs md:text-sm text-sky-100">
+            Busca manual temporariamente indisponível. Use a busca por placa.
+          </p>
+        </section>
+
+        {/* POR QUE ESCOLHER A TUREGGON */}
+        <section className="mb-12">
+          <h2 className="mb-5 text-center text-xl font-semibold md:text-2xl">
+            Por que escolher a Tureggon?
+          </h2>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
+              <h3 className="mb-1 text-sm font-semibold md:text-base">
+                Base Completa
+              </h3>
+              <p className="text-xs md:text-sm text-sky-50">
+                Milhares de veículos nacionais e importados em nossa base de
+                dados atualizada.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
+              <h3 className="mb-1 text-sm font-semibold md:text-base">
+                Consulta Rápida
+              </h3>
+              <p className="text-xs md:text-sm text-sky-50">
+                Resultados em segundos. Digite a placa e tenha todas as
+                informações na tela.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/25 bg-black/20 p-4">
+              <h3 className="mb-1 text-sm font-semibold md:text-base">
+                Dados Seguros
+              </h3>
+              <p className="text-xs md:text-sm text-sky-50">
+                Informações confiáveis e atualizadas com total segurança e
+                privacidade.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* RODAPÉ */}
+        <footer className="mt-auto border-t border-white/25 pt-4 text-center text-xs md:text-sm">
+          <div className="font-semibold">Tureggon</div>
+          <div className="mt-1 text-[11px] md:text-xs">
+            Sistema Online e Operacional
+          </div>
+          <div className="mt-1 text-[11px] md:text-xs text-sky-100">
+            © 2024 Tureggon. Todos os direitos reservados.
+          </div>
+          <div className="mt-1 text-[11px] md:text-xs text-sky-100">
+            Consulta veicular inteligente e segura
+          </div>
+        </footer>
+      </div>
+    </main>
+  );
+}
