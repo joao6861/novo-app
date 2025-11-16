@@ -7,85 +7,161 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
-    padding: "32px 16px 48px",
+    padding: "24px 16px 48px",
     color: "#ffffff",
     fontFamily:
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     boxSizing: "border-box",
-    textAlign: "center",
   },
   container: {
     width: "100%",
-    maxWidth: "960px",
+    maxWidth: "1100px",
   },
-  logoTitle: {
-    fontSize: 22,
-    fontWeight: 700,
-    margin: 0,
+
+  /* HEADER */
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  logoSubtitle: {
-    fontSize: 12,
-    margin: 0,
-    opacity: 0.9,
+  logoBlock: {
+    display: "flex",
+    flexDirection: "column",
   },
-  topBlock: {
-    marginBottom: 16,
+  logoMain: {
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    fontSize: 20,
   },
-  navLine: {
-    marginTop: 16,
-    marginBottom: 24,
-    fontSize: 13,
-  },
-  // aqui vira texto simples, sem “botão”
-  navStrong: {
-    display: "inline-block",
-    margin: "0 12px",
-    fontSize: 13,
-    fontWeight: 500,
-  },
-  // “Buscar” também bem simples
-  heroSearchBtn: {
-    display: "inline-block",
-    marginBottom: 18,
-    padding: "4px 18px",
-    borderRadius: 4,
-    border: "1px solid rgba(255,255,255,0.7)",
-    background: "transparent",
-    color: "#ffffff",
-    fontSize: 13,
-    letterSpacing: "0.16em",
+  logoSub: {
+    fontSize: 10,
     textTransform: "uppercase",
+    letterSpacing: "0.16em",
+  },
+  systemButton: {
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.7)",
+    padding: "6px 14px",
+    fontSize: 11,
+    background: "rgba(0,0,0,0.15)",
     cursor: "pointer",
   },
-  heroKicker: {
-    fontSize: 12,
-    letterSpacing: "0.18em",
-    textTransform: "uppercase",
-    margin: "0 0 8px 0",
+
+  /* TOP SEARCH CARDS */
+  cardsRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 10,
+    marginTop: 16,
+    marginBottom: 10,
   },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: 700,
-    margin: "0 0 10px 0",
+  card: {
+    background: "#ffffff",
+    color: "#0f172a",
+    borderRadius: 8,
+    padding: "10px 14px",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 13,
+    cursor: "pointer",
   },
-  heroText: {
-    margin: "0 0 8px 0",
-    fontSize: 14,
-    maxWidth: 640,
-    marginLeft: "auto",
-    marginRight: "auto",
+  cardIcon: {
+    width: 18,
+    textAlign: "center",
+    opacity: 0.8,
   },
-  heroAlert: {
-    margin: 0,
+  cardLabel: {
+    fontWeight: 500,
+  },
+
+  /* SEARCH BAR */
+  searchRow: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    gap: 8,
+    marginBottom: 32,
+    marginTop: 6,
+  },
+  searchInput: {
+    width: "100%",
+    borderRadius: 6,
+    border: "1px solid rgba(255,255,255,0.6)",
+    background: "rgba(0,0,0,0.07)",
+    color: "#ffffff",
+    padding: "10px 14px",
     fontSize: 13,
   },
-  sectionTitle: {
-    marginTop: 28,
+  searchBtn: {
+    borderRadius: 6,
+    border: "1px solid rgba(255,255,255,0.7)",
+    padding: "0 18px",
+    background: "rgba(0,0,0,0.15)",
+    color: "#ffffff",
+    fontSize: 13,
+    cursor: "pointer",
+  },
+
+  /* HERO DARK SECTION */
+  hero: {
+    borderRadius: 24,
+    padding: "40px 24px 36px",
+    background:
+      "radial-gradient(circle at top, #101827 0%, #020617 45%, #020617 100%)",
+    boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+    textAlign: "center",
+    marginBottom: 32,
+  },
+  heroBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: 999,
+    border: "1px solid rgba(56,189,248,0.6)",
+    padding: "6px 14px",
+    fontSize: 11,
+    marginBottom: 20,
+    background:
+      "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(8,47,73,0.9))",
+  },
+  heroBadgeIcon: {
+    fontSize: 13,
+  },
+  heroBadgeText: {
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    opacity: 0.9,
+  },
+  heroTitleLine1: {
+    fontSize: 34,
+    fontWeight: 800,
+    margin: "0 0 4px 0",
+  },
+  heroTitleLine2: {
+    fontSize: 34,
+    fontWeight: 800,
+    margin: 0,
+    color: "#60a5fa", // azul do “Seu Veículo”
+  },
+  heroText: {
+    marginTop: 14,
+    marginBottom: 0,
+    fontSize: 14,
+    opacity: 0.92,
+  },
+
+  /* WHY SECTION */
+  why: {
+    textAlign: "center",
+  },
+  whyTitle: {
+    marginTop: 0,
     marginBottom: 8,
     fontSize: 20,
     fontWeight: 600,
   },
-  sectionSub: {
+  whySub: {
     marginTop: 0,
     marginBottom: 24,
     fontSize: 14,
@@ -104,11 +180,14 @@ const styles: { [key: string]: React.CSSProperties } = {
   whyItemText: {
     margin: 0,
   },
+
+  /* FOOTER */
   footer: {
     marginTop: 32,
     paddingTop: 12,
     borderTop: "1px solid rgba(255,255,255,0.3)",
     fontSize: 12,
+    textAlign: "center",
   },
   footerLogo: {
     fontWeight: 700,
@@ -123,65 +202,90 @@ export default function Home() {
   return (
     <main style={styles.page}>
       <div style={styles.container}>
-        {/* TOPO */}
-        <div style={styles.topBlock}>
-          <h1 style={styles.logoTitle}>Tureggon</h1>
-          <p style={styles.logoSubtitle}>Sistema Online</p>
+        {/* HEADER */}
+        <header style={styles.header}>
+          <div style={styles.logoBlock}>
+            <span style={styles.logoMain}>TUREGGON STORE</span>
+            <span style={styles.logoSub}>CONSULTA VEICULAR</span>
+          </div>
+          <button type="button" style={styles.systemButton}>
+            Sistema Online
+          </button>
+        </header>
+
+        {/* TOP SEARCH CARDS */}
+        <div style={styles.cardsRow}>
+          <button type="button" style={styles.card}>
+            <span style={styles.cardIcon}>🔍</span>
+            <span style={styles.cardLabel}>Buscar por Placa</span>
+          </button>
+          <button type="button" style={styles.card}>
+            <span style={styles.cardIcon}>≡</span>
+            <span style={styles.cardLabel}>Buscar sem Placa</span>
+          </button>
+          <button type="button" style={styles.card}>
+            <span style={styles.cardIcon}>📍</span>
+            <span style={styles.cardLabel}>Oficinas Próximas</span>
+          </button>
         </div>
 
-        {/* LINHA COM AS OPÇÕES (texto simples, igual na Lasy) */}
-        <p style={styles.navLine}>
-          <span style={styles.navStrong}>Buscar por Placa</span>
-          <span style={styles.navStrong}>Buscar sem Placa</span>
-          <span style={styles.navStrong}>Oficinas Próximas</span>
-        </p>
+        {/* SEARCH BAR */}
+        <div style={styles.searchRow}>
+          <input
+            type="text"
+            placeholder="Digite a placa (ex: ABC1234)"
+            style={styles.searchInput}
+          />
+          <button type="button" style={styles.searchBtn}>
+            Buscar
+          </button>
+        </div>
 
-        {/* BOTÃO BUSCAR */}
-        <button type="button" style={styles.heroSearchBtn}>
-          Buscar
-        </button>
+        {/* HERO DARK SECTION */}
+        <section style={styles.hero}>
+          <div style={styles.heroBadge}>
+            <span style={styles.heroBadgeIcon}>⚡</span>
+            <span style={styles.heroBadgeText}>Consulta Veicular Inteligente</span>
+          </div>
 
-        {/* HERO / CONTEÚDO PRINCIPAL */}
-        <p style={styles.heroKicker}>Consulta Veicular Inteligente</p>
+          <h1 style={styles.heroTitleLine1}>Descubra Tudo Sobre</h1>
+          <h1 style={styles.heroTitleLine2}>Seu Veículo</h1>
 
-        <h2 style={styles.heroTitle}>Descubra Tudo Sobre Seu Veículo</h2>
-
-        <p style={styles.heroText}>
-          Consulta completa de dados veiculares, especificações técnicas e
-          informações de manutenção em segundos.
-        </p>
-
-        <p style={styles.heroAlert}>
-          Busca manual temporariamente indisponível. Use a busca por placa.
-        </p>
+          <p style={styles.heroText}>
+            Consulta completa de dados veiculares, especificações técnicas e
+            informações de manutenção em segundos.
+          </p>
+        </section>
 
         {/* POR QUE ESCOLHER A TUREGGON */}
-        <h3 style={styles.sectionTitle}>Por que escolher a Tureggon?</h3>
-        <p style={styles.sectionSub}>
-          Tecnologia de ponta para consultas veiculares completas e precisas.
-        </p>
-
-        <div style={styles.whyBlock}>
-          <p style={styles.whyItemTitle}>Base Completa</p>
-          <p style={styles.whyItemText}>
-            Milhares de veículos nacionais e importados em nossa base de dados
-            atualizada.
+        <section style={styles.why}>
+          <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
+          <p style={styles.whySub}>
+            Tecnologia de ponta para consultas veiculares completas e precisas.
           </p>
 
-          <p style={styles.whyItemTitle}>Consulta Rápida</p>
-          <p style={styles.whyItemText}>
-            Resultados em segundos. Digite a placa e tenha todas as informações
-            na tela.
-          </p>
+          <div style={styles.whyBlock}>
+            <p style={styles.whyItemTitle}>Base Completa</p>
+            <p style={styles.whyItemText}>
+              Milhares de veículos nacionais e importados em nossa base de dados
+              atualizada.
+            </p>
 
-          <p style={styles.whyItemTitle}>Dados Seguros</p>
-          <p style={styles.whyItemText}>
-            Informações confiáveis e atualizadas com total segurança e
-            privacidade.
-          </p>
-        </div>
+            <p style={styles.whyItemTitle}>Consulta Rápida</p>
+            <p style={styles.whyItemText}>
+              Resultados em segundos. Digite a placa e tenha todas as
+              informações na tela.
+            </p>
 
-        {/* RODAPÉ */}
+            <p style={styles.whyItemTitle}>Dados Seguros</p>
+            <p style={styles.whyItemText}>
+              Informações confiáveis e atualizadas com total segurança e
+              privacidade.
+            </p>
+          </div>
+        </section>
+
+        {/* FOOTER */}
         <footer style={styles.footer}>
           <div style={styles.footerLogo}>Tureggon</div>
           <p style={styles.footerLine}>Sistema Online e Operacional</p>
