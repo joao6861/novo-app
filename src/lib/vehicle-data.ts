@@ -3,7 +3,7 @@
 export type VehicleModel = {
   /** Código interno seu (pode ser qualquer coisa única) */
   code: string;
-  /** Texto EXATO do modelo, igual ao que aparece no Auto Óleo */
+  /** Texto EXATO do modelo, igual ao que aparece na tabela / Auto Óleo */
   label: string;
 };
 
@@ -33,7 +33,7 @@ export const vehicleBrands: VehicleBrand[] = [
         code: "PULSE_10_2022",
         label: "PULSE 1.0 12V FLEX ANO 2022",
       },
-      // ➜ AQUI você continua adicionando TODOS os FIAT exatamente como estão na sua tabela
+      // ➜ AQUI você continua com todos os FIAT exatamente como na tabela / Auto Óleo
     ],
   },
   {
@@ -47,7 +47,7 @@ export const vehicleBrands: VehicleBrand[] = [
         code: "KWID_10_3CIL_2022",
         label: "KWID 1.0 12V 3 CILINDROS FLEX ANO 2022",
       },
-      // ➜ Coloque aqui todos os Renault exatamente como aparecem no Auto Óleo
+      // ➜ Coloque aqui todos os Renault exatamente como aparecem na tabela / Auto Óleo
     ],
   },
   // ➜ Depois você adiciona VW, CHEVROLET, HONDA, etc.
