@@ -1,76 +1,101 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, List } from "lucide-react";
+import { Search, List, MapPin } from "lucide-react";
 
 export default function SearchHeader() {
-  const [mode, setMode] = useState<"placa" | "manual" | "oficinas">("placa");
-  const [placa, setPlaca] = useState("");
+  const [activeTab, setActiveTab] = useState<"placa" | "manual" | "oficinas">(
+    "placa"
+  );
 
   return (
-    <div className="w-full bg-[#00BFFF] py-4 px-4 flex flex-col gap-4 shadow-md rounded-b-3xl">
-      {/* TOP BUTTONS */}
-      <div className="flex gap-3 w-full">
+    <header className="w-full bg-gradient-to-r from-[#00c0ff] to-[#0090ff] py-5 px-4 shadow-md">
+      {/* TOP BAR */}
+      <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
+        <img src="/logo.png" className="h-10" alt="Tureggon Store" />
+
+        <button className="border border-white text-white px-4 py-1 rounded-xl hover:bg-white hover:text-black transition">
+          Sistema Online
+        </button>
+      </div>
+
+      {/* TABS */}
+      <div className="max-w-6xl mx-auto grid grid-cols-3 gap-3">
         <button
-          onClick={() => setMode("placa")}
-          className={`flex items-center justify-center w-full h-12 rounded-xl font-medium 
-          ${mode === "placa" ? "bg-white text-black" : "bg-white/40 text-white"}`}
+          onClick={() => setActiveTab("placa")}
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
+            activeTab === "placa"
+              ? "bg-white text-black"
+              : "bg-[#ffffff40] text-white"
+          }`}
         >
-          <Search className="mr-2" size={18} />
+          <Search size={18} />
           Buscar por Placa
         </button>
 
         <button
-          onClick={() => setMode("manual")}
-          className={`flex items-center justify-center w-full h-12 rounded-xl font-medium
-          ${mode === "manual" ? "bg-white text-black" : "bg-white/40 text-white"}`}
+          onClick={() => setActiveTab("manual")}
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
+            activeTab === "manual"
+              ? "bg-white text-black"
+              : "bg-[#ffffff40] text-white"
+          }`}
         >
-          <List className="mr-2" size={18} />
+          <List size={18} />
           Buscar sem Placa
         </button>
 
         <button
-          onClick={() => setMode("oficinas")}
-          className={`flex items-center justify-center w-full h-12 rounded-xl font-medium
-          ${mode === "oficinas" ? "bg-white text-black" : "bg-white/40 text-white"}`}
+          onClick={() => setActiveTab("oficinas")}
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
+            activeTab === "oficinas"
+              ? "bg-white text-black"
+              : "bg-[#ffffff40] text-white"
+          }`}
         >
-          <MapPin className="mr-2" size={18} />
+          <MapPin size={18} />
           Oficinas Próximas
         </button>
       </div>
 
-      {/* INPUT PLACA */}
-      {mode === "placa" && (
-        <div className="flex gap-3 w-full">
-          <input
-            type="text"
-            value={placa}
-            onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-            className="w-full h-12 rounded-xl bg-white text-black px-4 font-medium"
-            placeholder="Digite a placa (ex: ABC1234)"
-            maxLength={7}
-          />
+      {/* INPUT DE CONSULTA */}
+      <div className="max-w-6xl mx-auto mt-4 flex items-center gap-3">
+        <input
+          type="text"
+          placeholder={
+            activeTab === "placa"
+              ? "Digite a placa (ex: ABC1234)"
+              : "Digite marca, modelo ou detalhes"
+          }
+          className="flex-1 px-4 py-4 rounded-xl text-black shadow-md outline-none border border-gray-300"
+        />
 
-          <button className="bg-white rounded-xl h-12 px-6 flex items-center justify-center font-semibold text-black hover:bg-gray-200">
-            <Search size={20} />
-            <span className="ml-2">Buscar</span>
-          </button>
+        <button className="flex items-center gap-2 bg-[#ffffff50] hover:bg-white text-white hover:text-black px-6 py-4 rounded-xl transition shadow">
+          <Search />
+          Buscar
+        </button>
+      </div>
+
+      {/* FILTROS MANUAIS – Só aparecem na aba “Buscar sem placa” */}
+      {activeTab === "manual" && (
+        <div className="max-w-6xl mx-auto mt-4 grid grid-cols-4 gap-3">
+          <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
+            <option>Marca</option>
+          </select>
+
+          <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
+            <option>Modelo</option>
+          </select>
+
+          <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
+            <option>Ano</option>
+          </select>
+
+          <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
+            <option>Motor</option>
+          </select>
         </div>
       )}
-
-      {/* MODO MANUAL — CAMPOS */}
-      {mode === "manual" && (
-        <div className="text-center text-white text-sm mt-2">
-          Busca manual está temporariamente indisponível. Use a busca por placa.
-        </div>
-      )}
-
-      {/* MODO OFICINAS */}
-      {mode === "oficinas" && (
-        <div className="text-center text-white text-sm mt-2">
-          Mostrando oficinas perto de você…
-        </div>
-      )}
-    </div>
+    </header>
   );
 }
