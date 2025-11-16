@@ -192,12 +192,12 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   /* NEWSLETTER (BANNER TARTARUGAS) */
   newsletterOuter: {
-    padding: "40px 16px 40px",
+    padding: "60px 16px 80px",            // mais altura pra caber a arte inteira
     backgroundColor: "#00b7ff",
     backgroundImage: "url('/newsletter-banner.png')",
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    backgroundSize: "cover",
+    backgroundPosition: "center bottom", // tartarugas presas embaixo
+    backgroundSize: "contain",           // mostra a imagem inteira, sem cortar
   },
   newsletterInner: {
     width: "100%",
