@@ -1,5 +1,6 @@
 import "./globals.css";
 import NavBar from "@/components/layout/NavBar";
+import BottomNav from "@/components/layout/BottomNav";
 
 export const metadata = {
   title: "Tureggon Store",
@@ -11,7 +12,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body className="bg-[#001428] text-white">
         <NavBar />
-        <main className="pt-4">{children}</main>
+
+        {/* Conteúdo da página */}
+        <main className="pt-4 pb-20">{children}</main>
+
+        {/* Navegação inferior estilo app */}
+        <BottomNav />
       </body>
     </html>
   );
