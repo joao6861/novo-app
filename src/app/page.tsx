@@ -3,13 +3,18 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// ...outros imports...
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+// outros imports que você já tem aí…
 
+// ⬇⬇⬇ AQUI ENTRA O PASSO 3 ⬇⬇⬇
 import {
   vehicleBrands,
   getModelsByBrand,
   type VehicleModel,
 } from "@/lib/vehicle-data";
+// ⬆⬆⬆ ESSE É O IMPORT NOVO ⬆⬆⬆
+
 
 /** ÍCONES SVG PERSONALIZADOS **/
 
