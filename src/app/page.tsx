@@ -5,20 +5,22 @@ import React from "react";
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    padding: "24px 16px 48px",
+    background: "linear-gradient(180deg, #00c2ff 0%, #0077ff 100%)",
     color: "#ffffff",
     fontFamily:
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     boxSizing: "border-box",
   },
-  container: {
-    width: "100%",
-    maxWidth: "1100px",
-  },
 
-  /* HEADER */
+  // TOPO (logo + sistema online + cartões + barra de busca)
+  topArea: {
+    padding: "24px 16px 12px",
+  },
+  topInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+  },
   header: {
     display: "flex",
     alignItems: "center",
@@ -42,13 +44,12 @@ const styles: { [key: string]: React.CSSProperties } = {
   systemButton: {
     borderRadius: 999,
     border: "1px solid rgba(255,255,255,0.7)",
-    padding: "6px 14px",
+    padding: "6px 16px",
     fontSize: 11,
-    background: "rgba(0,0,0,0.15)",
+    background: "rgba(0,0,0,0.18)",
     cursor: "pointer",
   },
 
-  /* TOP SEARCH CARDS */
   cardsRow: {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
@@ -66,6 +67,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: 8,
     fontSize: 13,
     cursor: "pointer",
+    boxShadow: "0 6px 14px rgba(15,23,42,0.18)",
   },
   cardIcon: {
     width: 18,
@@ -76,19 +78,18 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 500,
   },
 
-  /* SEARCH BAR */
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: 8,
-    marginBottom: 32,
+    marginBottom: 12,
     marginTop: 6,
   },
   searchInput: {
     width: "100%",
     borderRadius: 6,
-    border: "1px solid rgba(255,255,255,0.6)",
-    background: "rgba(0,0,0,0.07)",
+    border: "1px solid rgba(255,255,255,0.7)",
+    background: "rgba(0,0,0,0.05)",
     color: "#ffffff",
     padding: "10px 14px",
     fontSize: 13,
@@ -97,21 +98,24 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: 6,
     border: "1px solid rgba(255,255,255,0.7)",
     padding: "0 18px",
-    background: "rgba(0,0,0,0.15)",
+    background: "rgba(0,0,0,0.18)",
     color: "#ffffff",
     fontSize: 13,
     cursor: "pointer",
   },
 
-  /* HERO DARK SECTION */
-  hero: {
-    borderRadius: 24,
-    padding: "40px 24px 36px",
+  // HERO ESCURO EM LARGURA TOTAL
+  heroOuter: {
     background:
-      "radial-gradient(circle at top, #101827 0%, #020617 45%, #020617 100%)",
-    boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+      "radial-gradient(circle at top, #101827 0%, #020617 40%, #020617 100%)",
+    padding: "56px 16px 44px",
+    boxShadow: "0 -10px 30px rgba(0,0,0,0.45)",
+  },
+  heroInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
     textAlign: "center",
-    marginBottom: 32,
   },
   heroBadge: {
     display: "inline-flex",
@@ -119,9 +123,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: 8,
     borderRadius: 999,
     border: "1px solid rgba(56,189,248,0.6)",
-    padding: "6px 14px",
+    padding: "6px 16px",
     fontSize: 11,
-    marginBottom: 20,
+    marginBottom: 24,
     background:
       "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(8,47,73,0.9))",
   },
@@ -134,25 +138,34 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.9,
   },
   heroTitleLine1: {
-    fontSize: 34,
+    fontSize: 40,
     fontWeight: 800,
     margin: "0 0 4px 0",
   },
   heroTitleLine2: {
-    fontSize: 34,
+    fontSize: 40,
     fontWeight: 800,
     margin: 0,
-    color: "#60a5fa", // azul do “Seu Veículo”
+    color: "#60a5fa",
   },
   heroText: {
-    marginTop: 14,
+    marginTop: 18,
     marginBottom: 0,
-    fontSize: 14,
+    fontSize: 15,
     opacity: 0.92,
+    maxWidth: 720,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
 
-  /* WHY SECTION */
-  why: {
+  // WHY SECTION (volta para o azul claro)
+  whyOuter: {
+    padding: "32px 16px 40px",
+  },
+  whyInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
     textAlign: "center",
   },
   whyTitle: {
@@ -181,13 +194,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
   },
 
-  /* FOOTER */
+  // FOOTER
   footer: {
-    marginTop: 32,
-    paddingTop: 12,
     borderTop: "1px solid rgba(255,255,255,0.3)",
-    fontSize: 12,
+    paddingTop: 14,
+    paddingBottom: 24,
     textAlign: "center",
+    fontSize: 12,
   },
   footerLogo: {
     fontWeight: 700,
@@ -201,51 +214,55 @@ const styles: { [key: string]: React.CSSProperties } = {
 export default function Home() {
   return (
     <main style={styles.page}>
-      <div style={styles.container}>
-        {/* HEADER */}
-        <header style={styles.header}>
-          <div style={styles.logoBlock}>
-            <span style={styles.logoMain}>TUREGGON STORE</span>
-            <span style={styles.logoSub}>CONSULTA VEICULAR</span>
+      {/* TOPO */}
+      <section style={styles.topArea}>
+        <div style={styles.topInner}>
+          <header style={styles.header}>
+            <div style={styles.logoBlock}>
+              <span style={styles.logoMain}>TUREGGON STORE</span>
+              <span style={styles.logoSub}>CONSULTA VEICULAR</span>
+            </div>
+            <button type="button" style={styles.systemButton}>
+              Sistema Online
+            </button>
+          </header>
+
+          <div style={styles.cardsRow}>
+            <button type="button" style={styles.card}>
+              <span style={styles.cardIcon}>🔍</span>
+              <span style={styles.cardLabel}>Buscar por Placa</span>
+            </button>
+            <button type="button" style={styles.card}>
+              <span style={styles.cardIcon}>≡</span>
+              <span style={styles.cardLabel}>Buscar sem Placa</span>
+            </button>
+            <button type="button" style={styles.card}>
+              <span style={styles.cardIcon}>📍</span>
+              <span style={styles.cardLabel}>Oficinas Próximas</span>
+            </button>
           </div>
-          <button type="button" style={styles.systemButton}>
-            Sistema Online
-          </button>
-        </header>
 
-        {/* TOP SEARCH CARDS */}
-        <div style={styles.cardsRow}>
-          <button type="button" style={styles.card}>
-            <span style={styles.cardIcon}>🔍</span>
-            <span style={styles.cardLabel}>Buscar por Placa</span>
-          </button>
-          <button type="button" style={styles.card}>
-            <span style={styles.cardIcon}>≡</span>
-            <span style={styles.cardLabel}>Buscar sem Placa</span>
-          </button>
-          <button type="button" style={styles.card}>
-            <span style={styles.cardIcon}>📍</span>
-            <span style={styles.cardLabel}>Oficinas Próximas</span>
-          </button>
+          <div style={styles.searchRow}>
+            <input
+              type="text"
+              placeholder="Digite a placa (ex: ABC1234)"
+              style={styles.searchInput}
+            />
+            <button type="button" style={styles.searchBtn}>
+              Buscar
+            </button>
+          </div>
         </div>
+      </section>
 
-        {/* SEARCH BAR */}
-        <div style={styles.searchRow}>
-          <input
-            type="text"
-            placeholder="Digite a placa (ex: ABC1234)"
-            style={styles.searchInput}
-          />
-          <button type="button" style={styles.searchBtn}>
-            Buscar
-          </button>
-        </div>
-
-        {/* HERO DARK SECTION */}
-        <section style={styles.hero}>
+      {/* HERO ESCURO EM LARGURA TOTAL */}
+      <section style={styles.heroOuter}>
+        <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
             <span style={styles.heroBadgeIcon}>⚡</span>
-            <span style={styles.heroBadgeText}>Consulta Veicular Inteligente</span>
+            <span style={styles.heroBadgeText}>
+              Consulta Veicular Inteligente
+            </span>
           </div>
 
           <h1 style={styles.heroTitleLine1}>Descubra Tudo Sobre</h1>
@@ -255,10 +272,12 @@ export default function Home() {
             Consulta completa de dados veiculares, especificações técnicas e
             informações de manutenção em segundos.
           </p>
-        </section>
+        </div>
+      </section>
 
-        {/* POR QUE ESCOLHER A TUREGGON */}
-        <section style={styles.why}>
+      {/* POR QUE ESCOLHER A TUREGGON */}
+      <section style={styles.whyOuter}>
+        <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
           <p style={styles.whySub}>
             Tecnologia de ponta para consultas veiculares completas e precisas.
@@ -283,18 +302,18 @@ export default function Home() {
               privacidade.
             </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* FOOTER */}
-        <footer style={styles.footer}>
-          <div style={styles.footerLogo}>Tureggon</div>
-          <p style={styles.footerLine}>Sistema Online e Operacional</p>
-          <p style={styles.footerLine}>
-            © 2024 Tureggon. Todos os direitos reservados.
-          </p>
-          <p style={styles.footerLine}>Consulta veicular inteligente e segura</p>
-        </footer>
-      </div>
+      {/* RODAPÉ */}
+      <footer style={styles.footer}>
+        <div style={styles.footerLogo}>Tureggon</div>
+        <p style={styles.footerLine}>Sistema Online e Operacional</p>
+        <p style={styles.footerLine}>
+          © 2024 Tureggon. Todos os direitos reservados.
+        </p>
+        <p style={styles.footerLine}>Consulta veicular inteligente e segura</p>
+      </footer>
     </main>
   );
 }
