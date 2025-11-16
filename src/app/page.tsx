@@ -192,12 +192,12 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   /* NEWSLETTER (BANNER TARTARUGAS) */
   newsletterOuter: {
-    padding: "60px 16px 80px",            // mais altura pra caber a arte inteira
+    padding: "60px 16px 80px", // mais altura pra caber a arte inteira
     backgroundColor: "#00b7ff",
     backgroundImage: "url('/newsletter-banner.png')",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center bottom", // tartarugas presas embaixo
-    backgroundSize: "contain",           // mostra a imagem inteira, sem cortar
+    backgroundSize: "contain", // mostra a imagem inteira, sem cortar
   },
   newsletterInner: {
     width: "100%",
@@ -315,22 +315,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid #1f2937",
   },
 
+  // nova config para a imagem de avaliação do Google
   ratingRow: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    fontSize: 18,
-    marginTop: 4,
+    marginTop: 10,
   },
-  ratingGoogle: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: "#fbbc05",
-  },
-  ratingStars: {
-    color: "#facc15",
-    letterSpacing: 2,
+  ratingImage: {
+    height: 48, // ajusta o tamanho da imagem aqui
+    objectFit: "contain",
+    display: "block",
   },
 
   footerCopy: {
@@ -510,9 +504,19 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Avaliação Google clicável */}
             <div style={styles.ratingRow}>
-              <span style={styles.ratingGoogle}>G</span>
-              <span style={styles.ratingStars}>★★★★★</span>
+              <a
+                href="https://www.google.com/maps/place/TUREGGON/@-27.7229965,-62.6404099,2591015m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94dcfb2b8bb6b5db:0xc19deb1a9509a901!8m2!3d-28.1336936!4d-52.006782!16s%2Fg%2F11nmgpmlpr?entry=ttu&g_ep=EgoyMDI1MTExMi4wIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="/google-rating.png"
+                  alt="Avaliação 5 estrelas da Tureggon no Google"
+                  style={styles.ratingImage}
+                />
+              </a>
             </div>
 
             <div style={styles.footerCopy}>
