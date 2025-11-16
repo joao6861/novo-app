@@ -1,40 +1,25 @@
 "use client";
 
-import { useState } from "react";
 import SearchHeader from "@/components/home/SearchHeader";
-import HeroSection from "@/components/home/HeroSection";
-import WhyChooseSection from "@/components/home/WhyChooseSection";
-import AppFooter from "@/components/layout/AppFooter";
 
 export default function HomePage() {
-  const [mode, setMode] = useState<"placa" | "manual" | "oficinas">("placa");
-
   return (
-    <main className="min-h-screen bg-[#00B8FF] flex flex-col">
-      {/* TOPO AZUL COM BUSCAS */}
-      <SearchHeader mode={mode} onModeChange={setMode} />
+    <main className="min-h-screen flex flex-col bg-gradient-to-b from-[#02C4FF] via-[#0091FF] to-[#001F3F]">
+      
+      {/* CABEÇALHO E ÁREA DE BUSCA – IGUAL À LASY */}
+      <SearchHeader />
 
-      {/* PARTE DE BAIXO — GRADIENTE AZUL ESCURO */}
-      <div className="flex-1 bg-gradient-to-b from-[#041C3A] to-[#020617] text-white pt-10 pb-16">
+      {/* ÁREA DE CONTEÚDO – COMO NA LASY (BRANCO E LIMPO) */}
+      <div className="flex-1 w-full bg-white text-black rounded-t-3xl shadow-xl mt-6 p-6 max-w-[1400px] mx-auto">
         
-        {mode === "oficinas" ? (
-          <>
-            {/* Conteúdo temporário até criarmos a página de oficinas */}
-            <div className="text-center text-lg text-white/80 py-10">
-              <p>🔧 Buscando oficinas próximas...</p>
-              <p className="text-sm text-white/50 mt-2">
-                (A seção de Oficinas será adicionada igual à da Lasy)
-              </p>
-            </div>
-          </>
-        ) : (
-          <>
-            <HeroSection />
-            <WhyChooseSection />
-          </>
-        )}
+        <h1 className="text-2xl font-bold text-[#0091FF]">
+          Bem-vindo ao sistema Tureggon
+        </h1>
 
-        <AppFooter />
+        <p className="text-gray-600 mt-2">
+          Aqui vão entrar suas informações, cards, categorias, etc — igual à segunda parte do layout da Lasy.
+        </p>
+
       </div>
     </main>
   );
