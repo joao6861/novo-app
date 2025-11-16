@@ -10,9 +10,9 @@ export default function SearchHeader() {
 
   return (
     <header className="w-full">
-      {/* WRAPPER DO GRADIENTE - agora sem faixa azul */}
+      {/* WRAPPER DO GRADIENTE - sem faixa azul extra */}
       <div className="bg-gradient-to-r from-[#00c0ff] to-[#0090ff] p-5 shadow-md">
-
+        
         {/* TOP BAR */}
         <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
           <img src="/logo.png" className="h-10" alt="Tureggon Store" />
@@ -97,3 +97,9 @@ export default function SearchHeader() {
             <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
               <option>Motor</option>
             </select>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
