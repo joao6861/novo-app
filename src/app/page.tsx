@@ -2,6 +2,62 @@
 
 import React from "react";
 
+/** ÍCONES SVG PERSONALIZADOS **/
+
+const CarIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width={32}
+    height={32}
+    fill="none"
+    stroke="#ffffff"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 14.5V12c0-.6.3-1.1.9-1.4l2.3-1.2c.4-.2.8-.4 1.2-.5L10.2 8c.6-.2 1-.3 1.8-.3h2c.7 0 1.1.1 1.7.3l1.9.6c.5.2.9.3 1.3.6l1.2.8c.5.3.9.9.9 1.5v2.6" />
+    <path d="M4 18.5h-.5C3 18.5 2.5 18 2.5 17.5V15" />
+    <path d="M20 18.5h.5c.5 0 1-.5 1-1V15" />
+    <path d="M7.5 18.5h9" />
+    <path d="M7.25 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
+    <path d="M16.75 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
+  </svg>
+);
+
+const ClockIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width={32}
+    height={32}
+    fill="none"
+    stroke="#ffffff"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="8" />
+    <path d="M12 8v4l2.5 2.5" />
+  </svg>
+);
+
+const ShieldIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width={32}
+    height={32}
+    fill="none"
+    stroke="#ffffff"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 3.5 6.5 5.5c-.6.2-1 .8-1 1.5v4.9c0 1.7.8 3.4 2.2 4.6L12 21l4.3-4.5a6 6 0 0 0 1.7-4.2V7c0-.7-.4-1.3-1.1-1.5L12 3.5Z" />
+    <path d="M9.5 12.2 11 13.7l3.5-3.5" />
+  </svg>
+);
+
+/** ESTILOS **/
+
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
@@ -225,9 +281,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
   },
-  featureIcon: {
-    fontSize: 32,
-  },
   featureTitle: {
     fontSize: 18,
     fontWeight: 700,
@@ -425,7 +478,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE ESCOLHER A TUREGGON (CARDS) */}
+      {/* POR QUE ESCOLHER A TUREGGON (CARDS COM SVG) */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
@@ -436,7 +489,7 @@ export default function Home() {
           <div style={styles.featureGrid}>
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrap}>
-                <span style={styles.featureIcon}>🚗</span>
+                <CarIcon />
               </div>
               <h3 style={styles.featureTitle}>Base Completa</h3>
               <p style={styles.featureText}>
@@ -447,7 +500,7 @@ export default function Home() {
 
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrapPurple}>
-                <span style={styles.featureIcon}>⏱️</span>
+                <ClockIcon />
               </div>
               <h3 style={styles.featureTitle}>Consulta Rápida</h3>
               <p style={styles.featureText}>
@@ -458,7 +511,7 @@ export default function Home() {
 
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrapPink}>
-                <span style={styles.featureIcon}>🛡️</span>
+                <ShieldIcon />
               </div>
               <h3 style={styles.featureTitle}>Dados Seguros</h3>
               <p style={styles.featureText}>
