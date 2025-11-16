@@ -1,106 +1,109 @@
 "use client";
 
-import { useState } from "react";
-import { Search, List, MapPin } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Search, MapPin } from "lucide-react";
+import { useState } from "react";
 
 export default function SearchHeader() {
-  const [activeTab, setActiveTab] = useState<"placa" | "manual" | "oficinas">("placa");
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState("placa");
+
+  const handlePlateSearch = () => {
+    if (!query) return;
+    router.push(`/consulta?placa=${query}`);
+  };
 
   return (
-    <header className="w-full">
-      <div className="bg-gradient-to-r from-[#00c0ff] to-[#0090ff] p-5 shadow-md">
-        
-        {/* TOP BAR */}
-        <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
+    <div className="w-full bg-transparent flex flex-col items-center pt-6 pb-8">
 
-          {/* LOGO → redireciona para zureggon.com */}
-          <a href="https://tureggon.com/" target="_blank">
-            <img src="/logo.png" className="h-10 cursor-pointer" alt="Tureggon Store" />
-          </a>
-
-          <button className="border border-white text-white px-4 py-1 rounded-xl hover:bg-white hover:text-black transition">
-            Sistema Online
-          </button>
-        </div>
-
-        {/* TABS */}
-        <div className="max-w-6xl mx-auto grid grid-cols-3 gap-3">
-
-          {/* BUSCAR POR PLACA */}
-          <button
-            onClick={() => setActiveTab("placa")}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "placa" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
-            }`}
-          >
-            <Search size={18} />
-            Buscar por Placa
-          </button>
-
-          {/* BUSCAR SEM PLACA */}
-          <button
-            onClick={() => setActiveTab("manual")}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "manual" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
-            }`}
-          >
-            <List size={18} />
-            Buscar sem Placa
-          </button>
-
-          {/* OFICINAS → agora navega para /oficinas */}
-          <button
-            onClick={() => router.push("/oficinas")}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow transition ${
-              activeTab === "oficinas" ? "bg-white text-black" : "bg-[#ffffff40] text-white"
-            }`}
-          >
-            <MapPin size={18} />
-            Oficinas Próximas
-          </button>
-        </div>
-
-        {/* INPUT DE BUSCA */}
-        <div className="max-w-6xl mx-auto mt-4 flex items-center gap-3">
-          <input
-            type="text"
-            placeholder={
-              activeTab === "placa"
-                ? "Digite a placa (ex: ABC1234)"
-                : "Digite marca, modelo ou detalhes"
-            }
-            className="flex-1 px-4 py-4 rounded-xl text-black shadow-md outline-none border border-gray-300"
+      {/* TOPO COM LOGO + BOTÃO SISTEMA */}
+      <div className="w-full max-w-[1450px] flex justify-between items-center px-6 mb-6">
+        <Link href="https://tureggon.com/">
+          <img
+            src="/logo.png"
+            alt="Tureggon Store"
+            className="h-12 cursor-pointer"
           />
+        </Link>
 
-          <button className="flex items-center gap-2 bg-[#ffffff50] hover:bg-white text-white hover:text-black px-6 py-4 rounded-xl transition shadow">
-            <Search />
-            Buscar
-          </button>
+        <Link
+          href="/sistema"
+          className="px-5 py-2 rounded-xl bg-white text-black font-medium shadow"
+        >
+          Sistema Online
+        </Link>
+      </div>
+
+      {/* LINHA DOS BOTÕES */}
+      <div className="w-full max-w-[1450px] flex items-center gap-4 px-6">
+        
+        {/* BOTOES MENU (branco com letra preta / azul ao ativo) */}
+        <button
+          onClick={() => setActive("placa")}
+          className={`px-6 py-3 rounded-xl shadow text-sm font-medium border 
+          ${active === "placa" ? "text-blue-600 bg-white" : "text-black bg-white"}`}
+        >
+          Buscar por Placa
+        </button>
+
+        <button
+          onClick={() => setActive("manual")}
+          className={`px-6 py-3 rounded-xl shadow text-sm font-medium border 
+          ${active === "manual" ? "text-blue-600 bg-white" : "text-black bg-white"}`}
+        >
+          Buscar sem Placa
+        </button>
+
+        <button
+          onClick={() => router.push("/oficinas")}
+          className={`px-6 py-3 rounded-xl shadow text-sm font-medium border 
+          ${active === "oficinas" ? "text-blue-600 bg-white" : "text-black bg-white"}`}
+        >
+          Oficinas Próximas
+        </button>
+      </div>
+
+      {/* CAMPO DE BUSCA */}
+      <div className="w-full max-w-[1450px] px-6 mt-4 flex gap-4">
+        <div className="flex w-full bg-white/20 px-4 py-3 rounded-xl backdrop-blur-md border border-white/30">
+          <Search className="mr-2" />
+          <input
+            className="bg-transparent outline-none w-full text-white placeholder-white"
+            placeholder="Digite a placa (ex: ABC1234)"
+            onChange={(e) => setQuery(e.target.value)}
+            value={query}
+          />
         </div>
 
-        {/* FILTROS MANUAIS */}
-        {activeTab === "manual" && (
-          <div className="max-w-6xl mx-auto mt-4 grid grid-cols-4 gap-3">
-            <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
-              <option>Marca</option>
-            </select>
-
-            <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
-              <option>Modelo</option>
-            </select>
-
-            <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
-              <option>Ano</option>
-            </select>
-
-            <select className="px-4 py-3 rounded-xl bg-white text-black shadow">
-              <option>Motor</option>
-            </select>
-          </div>
-        )}
+        <button
+          onClick={handlePlateSearch}
+          className="bg-white text-black px-6 rounded-xl shadow flex items-center justify-center"
+        >
+          <Search size={20} />
+        </button>
       </div>
-    </header>
+
+      {/* SELECTS DE FILTRO */}
+      <div className="w-full max-w-[1450px] px-6 mt-4 grid grid-cols-4 gap-4">
+        <select className="bg-white text-black px-4 py-3 rounded-xl shadow">
+          <option>Marca</option>
+        </select>
+
+        <select className="bg-white text-black px-4 py-3 rounded-xl shadow">
+          <option>Modelo</option>
+        </select>
+
+        <select className="bg-white text-black px-4 py-3 rounded-xl shadow">
+          <option>Ano</option>
+        </select>
+
+        <select className="bg-white text-black px-4 py-3 rounded-xl shadow">
+          <option>Motor</option>
+        </select>
+      </div>
+
+    </div>
   );
 }
