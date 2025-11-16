@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 
 /** ÍCONES SVG PERSONALIZADOS **/
 
@@ -17,7 +17,7 @@ const CarIcon: React.FC = () => (
   >
     <path d="M3 14.5V12c0-.6.3-1.1.9-1.4l2.3-1.2c.4-.2.8-.4 1.2-.5L10.2 8c.6-.2 1-.3 1.8-.3h2c.7 0 1.1.1 1.7.3l1.9.6c.5.2.9.3 1.3.6l1.2.8c.5.3.9.9.9 1.5v2.6" />
     <path d="M4 18.5h-.5C3 18.5 2.5 18 2.5 17.5V15" />
-    <path d="M20 18.5h.5c.5 0 1-.5 1-1V15" />
+    <path d="M20 18.5h.5c.5 0 1 .5 1 1V15" />
     <path d="M7.5 18.5h9" />
     <path d="M7.25 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
     <path d="M16.75 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
@@ -120,6 +120,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 13,
     cursor: "pointer",
     boxShadow: "0 8px 18px rgba(15,23,42,0.18)",
+    transition: "all 0.18s ease-out",
+  },
+  cardActive: {
+    background: "linear-gradient(135deg,#1d4ed8,#22d3ee)",
+    color: "#ffffff",
+    boxShadow: "0 16px 40px rgba(15,23,42,0.45)",
+    transform: "translateY(-1px)",
   },
   cardIcon: {
     width: 18,
@@ -130,11 +137,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 500,
   },
 
+  searchBlock: {
+    marginBottom: 24,
+  },
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: 8,
-    marginBottom: 28,
+    marginBottom: 8,
     marginTop: 8,
   },
   searchInput: {
@@ -154,6 +164,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#ffffff",
     fontSize: 13,
     cursor: "pointer",
+  },
+  searchModeInfo: {
+    fontSize: 12,
+    opacity: 0.9,
   },
 
   /* HERO ESCURO EM LARGURA TOTAL */
@@ -410,7 +424,59 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
+type SearchMode = "placa" | "manual" | "oficinas";
+
 export default function Home() {
+  const [searchMode, setSearchMode] = useState<SearchMode>("placa");
+  const [searchText, setSearchText] = useState("");
+  const searchBlockRef = useRef<HTMLDivElement | null>(null);
+
+  const handleModeClick = (mode: SearchMode) => {
+    setSearchMode(mode);
+
+    // rolar suavemente até o campo de busca
+    if (searchBlockRef.current) {
+      searchBlockRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleSearch = () => {
+    const value = searchText.trim();
+    if (!value) {
+      window.alert("Digite algo para buscar.");
+      return;
+    }
+
+    if (searchMode === "placa") {
+      window.alert(`(DEMO) Buscar informações da placa: ${value}`);
+    } else if (searchMode === "manual") {
+      window.alert(
+        `(DEMO) Buscar por veículo usando marca/modelo/ano: ${value}`
+      );
+    } else {
+      window.alert(
+        `(DEMO) Buscar oficinas próximas usando cidade/CEP: ${value}`
+      );
+    }
+  };
+
+  const placeholder =
+    searchMode === "placa"
+      ? "Digite a placa (ex: ABC1234)"
+      : searchMode === "manual"
+      ? "Digite marca, modelo, ano, motorização..."
+      : "Digite sua cidade ou CEP para encontrar oficinas próximas";
+
+  const modeInfo =
+    searchMode === "placa"
+      ? "Modo: Buscar por placa. Ideal para puxar todos os dados do veículo em segundos."
+      : searchMode === "manual"
+      ? "Modo: Buscar sem placa. Use marca, modelo, ano e motorização para localizar o veículo."
+      : "Modo: Oficinas próximas. Use cidade ou CEP para encontrar oficinas parceiras."
+
   return (
     <main style={styles.page}>
       {/* TOPO */}
@@ -431,29 +497,56 @@ export default function Home() {
           </header>
 
           <div style={styles.cardsRow}>
-            <button type="button" style={styles.card}>
+            <button
+              type="button"
+              style={{
+                ...styles.card,
+                ...(searchMode === "placa" ? styles.cardActive : {}),
+              }}
+              onClick={() => handleModeClick("placa")}
+            >
               <span style={styles.cardIcon}>🔍</span>
               <span style={styles.cardLabel}>Buscar por Placa</span>
             </button>
-            <button type="button" style={styles.card}>
+            <button
+              type="button"
+              style={{
+                ...styles.card,
+                ...(searchMode === "manual" ? styles.cardActive : {}),
+              }}
+              onClick={() => handleModeClick("manual")}
+            >
               <span style={styles.cardIcon}>≡</span>
               <span style={styles.cardLabel}>Buscar sem Placa</span>
             </button>
-            <button type="button" style={styles.card}>
+            <button
+              type="button"
+              style={{
+                ...styles.card,
+                ...(searchMode === "oficinas" ? styles.cardActive : {}),
+              }}
+              onClick={() => handleModeClick("oficinas")}
+            >
               <span style={styles.cardIcon}>📍</span>
               <span style={styles.cardLabel}>Oficinas Próximas</span>
             </button>
           </div>
 
-          <div style={styles.searchRow}>
-            <input
-              type="text"
-              placeholder="Digite a placa (ex: ABC1234)"
-              style={styles.searchInput}
-            />
-            <button type="button" style={styles.searchBtn}>
-              Buscar
-            </button>
+          {/* BLOCO DE BUSCA */}
+          <div ref={searchBlockRef} style={styles.searchBlock}>
+            <div style={styles.searchRow}>
+              <input
+                type="text"
+                placeholder={placeholder}
+                style={styles.searchInput}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <button type="button" style={styles.searchBtn} onClick={handleSearch}>
+                Buscar
+              </button>
+            </div>
+            <div style={styles.searchModeInfo}>{modeInfo}</div>
           </div>
         </div>
       </section>
@@ -535,6 +628,7 @@ export default function Home() {
             style={styles.newsletterForm}
             onSubmit={(e) => {
               e.preventDefault();
+              handleSearch();
             }}
           >
             <input
