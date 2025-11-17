@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { vehicleBrands, getModelsByBrand } from "@/lib/vehicle-data";
+import {
+  vehicleBrands,
+  getModelsByBrand,
+  type VehicleModel,
+} from "@/lib/vehicle-data";
 
 /** ÍCONES SVG PERSONALIZADOS **/
 
@@ -467,10 +471,10 @@ export default function Home() {
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  // NOVO: estado para Marca e Modelo (modelo é string)
+  // NOVO: estado para Marca e Modelo (código do modelo)
   const [brand, setBrand] = useState("");
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [selectedModel, setSelectedModel] = useState("");
+  const [availableModels, setAvailableModels] = useState<VehicleModel[]>([]);
+  const [selectedModelCode, setSelectedModelCode] = useState("");
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -510,7 +514,7 @@ export default function Home() {
     setBrand(value);
     const models = getModelsByBrand(value);
     setAvailableModels(models);
-    setSelectedModel("");
+    setSelectedModelCode("");
   };
 
   const handleSearchClick = () => {
@@ -526,12 +530,16 @@ export default function Home() {
         `Versão de apresentação.\n\nAqui nós vamos consultar a placa "${value}" no Auto Óleo / banco de dados assim que estiver conectado.`
       );
     } else {
-      if (!brand || !selectedModel) {
+      if (!brand || !selectedModelCode) {
         alert("Selecione marca e modelo para realizar a consulta.");
         return;
       }
 
-      const modeloTexto = selectedModel;
+      const selectedModel = availableModels.find(
+        (m) => m.code === selectedModelCode
+      );
+
+      const modeloTexto = selectedModel?.label ?? "";
 
       alert(
         `Versão de apresentação.\n\nAqui nós vamos consultar o veículo no Auto Óleo usando:\n\nMarca: ${brand}\nModelo (texto exato): ${modeloTexto}`
@@ -539,8 +547,8 @@ export default function Home() {
     }
   };
 
-  // opções de marca (vem do vehicle-data.ts, já é string[])
-  const brandOptions = vehicleBrands;
+  // opções de marca (vem do vehicle-data.ts)
+  const brandOptions = vehicleBrands.map((b) => b.brand).sort();
 
   return (
     <main style={styles.page}>
@@ -648,8 +656,8 @@ export default function Home() {
                     </label>
                     <select
                       style={styles.manualSelect}
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
+                      value={selectedModelCode}
+                      onChange={(e) => setSelectedModelCode(e.target.value)}
                       disabled={!brand || availableModels.length === 0}
                     >
                       <option value="">
@@ -658,8 +666,8 @@ export default function Home() {
                           : "Escolha primeiro a marca"}
                       </option>
                       {availableModels.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
+                        <option key={m.code} value={m.code}>
+                          {m.label}
                         </option>
                       ))}
                     </select>
