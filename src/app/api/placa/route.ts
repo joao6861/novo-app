@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 
+// Garantir que rode no Node (Edge dá pau com cheerio)
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 type PlacaData = {
   placa: string;
   titulo: string | null;
@@ -23,7 +27,6 @@ type PlacaData = {
 };
 
 function extractField($: cheerio.CheerioAPI, label: string): string | null {
-  // Procura qualquer nó que contenha o texto "Label:"
   const node = $("body")
     .find("*")
     .filter((_, el) => $(el).text().includes(label + ":"))
@@ -62,10 +65,11 @@ export async function GET(req: NextRequest) {
       cache: "no-store",
     });
 
+    // Se o site bloquear (403/5xx/etc)
     if (!resp.ok) {
       return NextResponse.json(
         {
-          error: "Erro ao consultar a placa",
+          error: `Erro ao consultar a placa (status ${resp.status})`,
           statusCode: resp.status,
         },
         { status: 502 }
@@ -77,7 +81,6 @@ export async function GET(req: NextRequest) {
 
     const titulo = $("h1").first().text().trim() || null;
 
-    // Primeiro parágrafo depois de "Detalhes do carro..."
     let resumo: string | null = null;
     const h2Detalhes = $('h2:contains("Detalhes do carro")').first();
     if (h2Detalhes.length) {
@@ -106,7 +109,7 @@ export async function GET(req: NextRequest) {
       especie: extractField($, "Especie Veiculo"),
     };
 
-    // Se não achou nem marca, provavelmente não encontrou a placa
+    // Se não achou nem marca, considera placa não encontrada
     if (!data.marca) {
       return NextResponse.json(
         { error: "Placa não encontrada", notFound: true },
