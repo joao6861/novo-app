@@ -566,7 +566,13 @@ export default function Home() {
         const body = await res.json();
 
         if (!res.ok || body.error) {
-          setPlateError(body.error || "Erro ao consultar a placa.");
+          // 🔹 AQUI está o ajuste: aproveita a mensagem e o status vindo da API
+          const base = body.error || "Erro ao consultar a placa.";
+          if (body.statusCode) {
+            setPlateError(`${base} (código ${body.statusCode})`);
+          } else {
+            setPlateError(base);
+          }
           return;
         }
 
