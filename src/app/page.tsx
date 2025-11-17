@@ -67,6 +67,29 @@ const ShieldIcon: React.FC = () => (
   </svg>
 );
 
+/** TIPOS PARA CONSULTA DE PLACA **/
+
+type PlacaInfo = {
+  placa: string;
+  titulo: string | null;
+  resumo: string | null;
+  marca: string | null;
+  modelo: string | null;
+  ano: string | null;
+  ano_modelo: string | null;
+  cor: string | null;
+  cilindrada?: string | null;
+  potencia?: string | null;
+  combustivel: string | null;
+  chassi_final?: string | null;
+  motor?: string | null;
+  passageiros?: string | null;
+  uf: string | null;
+  municipio: string | null;
+  segmento?: string | null;
+  especie?: string | null;
+};
+
 /** ESTILOS **/
 
 const styles: { [key: string]: React.CSSProperties } = {
@@ -162,8 +185,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     borderRadius: 8,
     border: "1px solid #00b7ff",
-    background: "#ffffff",
-    color: "#000000",
+    background: "#ffffff", // fundo branco
+    color: "#000000", // texto preto
     padding: "10px 16px",
     fontSize: 13,
   },
@@ -182,7 +205,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  /* CAMPOS MANUAIS (agora só Marca + Modelo) */
+  /* CAMPOS MANUAIS (Marca + Modelo) */
   manualGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -201,7 +224,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: 8,
     border: "1px solid #d1d5db",
     background: "#ffffff",
-    color: "#111827", // letras pretas
+    color: "#111827",
     padding: "8px 10px",
     fontSize: 12,
   },
@@ -471,10 +494,16 @@ export default function Home() {
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  // NOVO: estado para Marca e Modelo (código do modelo)
+  // ESTADOS MARCA / MODELOS
   const [brand, setBrand] = useState("");
   const [availableModels, setAvailableModels] = useState<VehicleModel[]>([]);
   const [selectedModelCode, setSelectedModelCode] = useState("");
+
+  // ESTADOS CONSULTA PLACA
+  const [plate, setPlate] = useState("");
+  const [plateLoading, setPlateLoading] = useState(false);
+  const [plateError, setPlateError] = useState<string | null>(null);
+  const [plateResult, setPlateResult] = useState<PlacaInfo | null>(null);
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -517,19 +546,40 @@ export default function Home() {
     setSelectedModelCode("");
   };
 
-  const handleSearchClick = () => {
+  // CONSULTA DE PLACA (chama /api/placa)
+  const handleSearchClick = async () => {
     if (mode === "plate") {
-      const value = plateInputRef.current?.value.trim() ?? "";
+      const value = plate.trim().toUpperCase();
 
       if (!value) {
-        alert("Digite a placa para realizar a consulta.");
+        setPlateError("Digite a placa para realizar a consulta.");
+        setPlateResult(null);
         return;
       }
 
-      alert(
-        `Versão de apresentação.\n\nAqui nós vamos consultar a placa "${value}" no Auto Óleo / banco de dados assim que estiver conectado.`
-      );
+      setPlateError(null);
+      setPlateLoading(true);
+      setPlateResult(null);
+
+      try {
+        const res = await fetch(`/api/placa?placa=${encodeURIComponent(value)}`);
+        const body = await res.json();
+
+        if (!res.ok || body.error) {
+          setPlateError(body.error || "Erro ao consultar a placa.");
+          return;
+        }
+
+        const data = body.data as PlacaInfo;
+        setPlateResult(data);
+      } catch (e) {
+        console.error(e);
+        setPlateError("Falha ao consultar a placa.");
+      } finally {
+        setPlateLoading(false);
+      }
     } else {
+      // Lógica da busca manual (marca + modelo) – por enquanto ainda em modo demonstração
       if (!brand || !selectedModelCode) {
         alert("Selecione marca e modelo para realizar a consulta.");
         return;
@@ -556,13 +606,18 @@ export default function Home() {
       <section style={styles.topArea}>
         <div style={styles.topInner}>
           <header style={styles.header}>
-            <div style={styles.logoBlock}>
+            <a
+              href="https://tureggon.com/"
+              style={styles.logoBlock}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
                 src="/logo.png"
                 alt="Tureggon Store"
                 style={styles.logoImage}
               />
-            </div>
+            </a>
 
             <button type="button" style={styles.systemButton}>
               Sistema Online
@@ -613,18 +668,100 @@ export default function Home() {
                     type="text"
                     placeholder="Digite a placa (ex: ABC1D23)"
                     style={styles.searchInput}
+                    value={plate}
+                    onChange={(e) => setPlate(e.target.value.toUpperCase())}
                   />
                   <button
                     type="button"
                     style={styles.searchBtn}
                     onClick={handleSearchClick}
+                    disabled={plateLoading}
                   >
-                    Buscar
+                    {plateLoading ? "Buscando..." : "Buscar"}
                   </button>
                 </div>
                 <div style={styles.searchHint}>
                   Modo selecionado: <strong>Buscar por Placa</strong>.
                 </div>
+
+                {plateError && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 12,
+                      color: "#fecaca",
+                    }}
+                  >
+                    {plateError}
+                  </div>
+                )}
+
+                {plateResult && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      padding: "12px 14px",
+                      borderRadius: 10,
+                      background: "rgba(15,23,42,0.9)",
+                      border: "1px solid rgba(148,163,184,0.5)",
+                      fontSize: 12,
+                      textAlign: "left",
+                    }}
+                  >
+                    {plateResult.titulo && (
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          marginBottom: 4,
+                        }}
+                      >
+                        {plateResult.titulo}
+                      </div>
+                    )}
+                    {plateResult.resumo && (
+                      <div style={{ marginBottom: 6 }}>
+                        {plateResult.resumo}
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                        gap: 4,
+                      }}
+                    >
+                      <div>
+                        <strong>Placa:</strong> {plateResult.placa}
+                      </div>
+                      <div>
+                        <strong>Marca:</strong> {plateResult.marca}
+                      </div>
+                      <div>
+                        <strong>Modelo:</strong> {plateResult.modelo}
+                      </div>
+                      <div>
+                        <strong>Ano:</strong> {plateResult.ano}
+                      </div>
+                      <div>
+                        <strong>Ano Modelo:</strong> {plateResult.ano_modelo}
+                      </div>
+                      <div>
+                        <strong>Cor:</strong> {plateResult.cor}
+                      </div>
+                      <div>
+                        <strong>Combustível:</strong>{" "}
+                        {plateResult.combustivel}
+                      </div>
+                      <div>
+                        <strong>UF:</strong> {plateResult.uf}
+                      </div>
+                      <div>
+                        <strong>Município:</strong> {plateResult.municipio}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             )}
 
@@ -649,7 +786,7 @@ export default function Home() {
                     </select>
                   </div>
 
-                  {/* MODELO (texto exato igual da tabela/Auto Óleo) */}
+                  {/* MODELO */}
                   <div style={styles.manualField}>
                     <label style={styles.manualLabel}>
                       Modelo (texto exato da tabela)
@@ -716,7 +853,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE ESCOLHER A TUREGGON (CARDS COM SVG) */}
+      {/* POR QUE ESCOLHER A TUREGGON */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
@@ -788,7 +925,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ SIMPLIFICADO */}
+      {/* RODAPÉ */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
           <div style={styles.footerBottom}>
