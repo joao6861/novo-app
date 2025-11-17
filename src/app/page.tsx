@@ -161,9 +161,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   searchInput: {
     width: "100%",
     borderRadius: 8,
-    border: "1px solid rgba(255,255,255,0.6)",
-    background: "rgba(255,255,255,0.12)",
-    color: "#ffffff",
+    border: "1px solid #00b7ff",
+    background: "#ffffff",
+    color: "#000000",
     padding: "10px 16px",
     fontSize: 13,
   },
