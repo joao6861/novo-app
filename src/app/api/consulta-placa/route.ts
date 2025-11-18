@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { PlateApiRoot } from "@/lib/plate-api-types"; // ⬅️ usa as interfaces que você criou em src/lib/plate-api-types.ts
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,10 +42,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const data = await externalResponse.json();
+    // 👇 aqui usamos o tipo PlateApiRoot pra tipar TUDO que vem da API
+    const data: PlateApiRoot = await externalResponse.json();
 
-    // aqui o data é exatamente aquele JSON:
-    // { error: false, message: "Requisição processada com sucesso", response: {...} }
+    // data é exatamente:
+    // {
+    //   error: false,
+    //   message: "Requisição processada com sucesso",
+    //   response: { ...todos aqueles campos que você me mandou... },
+    //   api_limit,
+    //   api_limit_for,
+    //   api_limit_used
+    // }
+
+    // Se você quiser reaproveitar TODOS os dados no front,
+    // é só retornar o objeto inteiro sem mexer:
     return NextResponse.json(data);
   } catch (err) {
     console.error(err);
