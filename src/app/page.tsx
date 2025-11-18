@@ -31,6 +31,7 @@ type PlacaInfo = {
   segmento: string | null;
   uf: string | null;
   municipio: string | null;
+  chassi: string | null; // 👈 NOVO CAMPO
 };
 
 /** ESTILOS **/
@@ -600,6 +601,7 @@ export default function Home() {
             r.municipio ||
             (ex.municipio && ex.municipio.municipio) ||
             null,
+          chassi: ex.chassi || r.chassi || null, // 👈 AQUI PEGAMOS O CHASSI
         };
 
         setPlateResult(resumo);
@@ -785,6 +787,13 @@ export default function Home() {
                           </span>
                           <span style={styles.resultItemValue}>
                             {plateResult.tipo_veiculo || "—"}
+                          </span>
+                        </div>
+                        {/* 👇 NOVO BLOCO: CHASSI */}
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Chassi</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.chassi || "—"}
                           </span>
                         </div>
                       </div>
