@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-// Se você NÃO estiver usando Card/Button/Input/Label, pode apagar esses imports abaixo:
+// Se você NÃO estiver usando Card/Button/Input/Label em outro lugar, pode remover esses imports:
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,27 +13,24 @@ import {
   type VehicleModel,
 } from "@/lib/vehicle-data";
 
-/** TIPOS PARA CONSULTA DE PLACA (RESUMO QUE MOSTRAMOS NA TELA) **/
+/** RESUMO PRINCIPAL PARA EXIBIR NA TELA **/
 
 type PlacaInfo = {
   placa: string;
-  titulo: string | null;
-  resumo: string | null;
   marca: string | null;
   modelo: string | null;
+  versao: string | null;
   ano: string | null;
   ano_modelo: string | null;
   cor: string | null;
-  cilindrada?: string | null;
-  potencia?: string | null;
   combustivel: string | null;
-  chassi_final?: string | null;
-  motor?: string | null;
-  passageiros?: string | null;
+  potencia: string | null;
+  cilindradas: string | null;
+  passageiros: string | null;
+  tipo_veiculo: string | null;
+  segmento: string | null;
   uf: string | null;
   municipio: string | null;
-  segmento?: string | null;
-  especie?: string | null;
 };
 
 /** ESTILOS **/
@@ -180,6 +177,60 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "flex-end",
   },
 
+  /* RESULTADO DA CONSULTA – CARDS BONITOS */
+  resultWrapper: {
+    marginTop: 12,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  },
+  resultSection: {
+    padding: "12px 14px",
+    borderRadius: 10,
+    background: "rgba(15,23,42,0.95)",
+    border: "1px solid rgba(148,163,184,0.5)",
+    fontSize: 12,
+    textAlign: "left",
+  },
+  resultSectionTitle: {
+    fontWeight: 600,
+    marginBottom: 8,
+    fontSize: 13,
+  },
+  resultGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: 8,
+  },
+  resultItem: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  resultItemLabel: {
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    opacity: 0.7,
+    marginBottom: 2,
+  },
+  resultItemValue: {
+    fontSize: 12,
+    fontWeight: 500,
+  },
+  tagRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 6,
+  },
+  tag: {
+    fontSize: 11,
+    padding: "3px 8px",
+    borderRadius: 999,
+    border: "1px solid rgba(148,163,184,0.6)",
+    background: "rgba(15,23,42,0.9)",
+  },
+
   /* HERO ESCURO EM LARGURA TOTAL */
   heroOuter: {
     background:
@@ -271,39 +322,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
     border: "1px solid rgba(148,163,184,0.12)",
     textAlign: "center",
-  },
-  featureIconWrap: {
-    width: 72,
-    height: 72,
-    margin: "0 auto 20px",
-    borderRadius: 24,
-    background:
-      "linear-gradient(145deg, #22d3ee 0%, #2563eb 50%, #1d4ed8 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  featureIconWrapPurple: {
-    width: 72,
-    height: 72,
-    margin: "0 auto 20px",
-    borderRadius: 24,
-    background:
-      "linear-gradient(145deg, #a855f7 0%, #6366f1 50%, #4f46e5 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  featureIconWrapPink: {
-    width: 72,
-    height: 72,
-    margin: "0 auto 20px",
-    borderRadius: 24,
-    background:
-      "linear-gradient(145deg, #ec4899 0%, #8b5cf6 50%, #6d28d9 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
   featureTitle: {
     fontSize: 18,
@@ -445,14 +463,35 @@ export default function Home() {
   const [availableModels, setAvailableModels] = useState<VehicleModel[]>([]);
   const [selectedModelCode, setSelectedModelCode] = useState("");
 
-  // ESTADOS CONSULTA PLACA
+  // CONSULTA PLACA
   const [plate, setPlate] = useState("");
   const [plateLoading, setPlateLoading] = useState(false);
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateResult, setPlateResult] = useState<PlacaInfo | null>(null);
-
-  // 🔴 NOVO: guarda o JSON COMPLETO da API (tudo: response, extra, fipe, multas, api_limit, etc.)
   const [rawApiData, setRawApiData] = useState<any | null>(null);
+
+  // DERIVADOS DO RAW (extra, status FIPE, multas, restrições...)
+  const resp = rawApiData?.response || {};
+  const extra = resp.extra || {};
+  const restricoes =
+    [
+      extra.restricao1?.restricao,
+      extra.restricao2?.restricao,
+      extra.restricao3?.restricao,
+      extra.restricao4?.restricao,
+    ]
+      .filter((r: string | undefined | null) => r && r.trim() !== "")
+      .join(" · ") || "Sem restrições registradas";
+
+  const fipeStatus =
+    resp.fipe?.dados && resp.fipe.dados.length > 0
+      ? "Dados FIPE disponíveis"
+      : "Sem dados FIPE retornados nesta consulta";
+
+  const multasStatus =
+    resp.multas?.dados && resp.multas.dados.length > 0
+      ? `${resp.multas.dados.length} multa(s) encontrada(s)`
+      : "Nenhuma multa encontrada na consulta";
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -495,7 +534,7 @@ export default function Home() {
     setSelectedModelCode("");
   };
 
-  // CONSULTA DE PLACA (chama /api/consulta-placa → proxy para consultaplaca.store)
+  // CONSULTA DE PLACA
   const handleSearchClick = async () => {
     if (mode === "plate") {
       const value = plate.trim().toUpperCase();
@@ -529,53 +568,41 @@ export default function Home() {
           return;
         }
 
-        // 🔴 GUARDA O JSON INTEIRO DA API PRA VOCÊ REAPROVEITAR TODOS OS CAMPOS
         setRawApiData(data);
 
-        const resp = data.response || {};
+        const r = data.response || {};
+        const ex = r.extra || {};
+        const mm = r.marca_modelo || ex.marca_modelo || {};
 
-        const placaInfo: PlacaInfo = {
-          placa: resp.placa || resp.PLACA || value,
-          titulo: null,
-          resumo: null,
-          marca: resp.marca || resp.MARCA || null,
-          modelo: resp.modelo || resp.MODELO || null,
-          ano:
-            resp.ano ||
-            resp.ANO ||
-            resp.anoModelo ||
-            resp.ANO_MODELO ||
-            null,
+        const resumo: PlacaInfo = {
+          placa: r.placa_modelo_novo || r.placa || value,
+          marca: r.marca || r.MARCA || mm.marca || null,
+          modelo: r.modelo || r.MODELO || mm.modelo || null,
+          versao: r.VERSAO || mm.versao || null,
+          ano: r.ano || ex.ano_fabricacao || null,
           ano_modelo:
-            resp.ano_modelo ||
-            resp.anoModelo ||
-            resp.ANO_MODELO ||
+            r.ano_modelo || r.anoModelo || ex.ano_modelo || null,
+          cor:
+            (r.cor_veiculo && r.cor_veiculo.cor) ||
+            (ex.cor_veiculo && ex.cor_veiculo.cor) ||
+            r.cor ||
             null,
-          cor: resp.cor || resp.COR || null,
-          cilindrada: resp.cilindradas || resp.CILINDRADAS || null,
-          potencia: resp.potencia || resp.POTENCIA || null,
-          combustivel:
-            resp.combustivel ||
-            resp.COMBUSTIVEL ||
-            resp["combustível"] ||
-            null,
-          chassi_final: resp.chassi_final || resp.chassi || resp.CHASSI || null,
-          motor: resp.motor || resp.MOTOR || null,
-          passageiros: resp.quantidade_passageiro || resp.LOTACAO || null,
-          uf: resp.uf || resp.UF || null,
+          combustivel: r.combustivel || ex.combustivel || null,
+          potencia: r.potencia || ex.potencia || null,
+          cilindradas: r.cilindradas || ex.cilindradas || null,
+          passageiros:
+            r.quantidade_passageiro || ex.quantidade_passageiro || null,
+          tipo_veiculo:
+            (r.tipo_veiculo && r.tipo_veiculo.tipo_veiculo) || null,
+          segmento: mm.segmento || null,
+          uf: r.uf || ex.uf || ex.uf_placa || null,
           municipio:
-            resp.municipio ||
-            (resp.municipio && resp.municipio.municipio) ||
-            resp.MUNICIPIO ||
+            r.municipio ||
+            (ex.municipio && ex.municipio.municipio) ||
             null,
-          segmento:
-            resp.segmento ||
-            (resp.marca_modelo && resp.marca_modelo.segmento) ||
-            null,
-          especie: resp.especie || resp.ESPECIE || null,
         };
 
-        setPlateResult(placaInfo);
+        setPlateResult(resumo);
       } catch (e) {
         console.error(e);
         setPlateError("Falha ao consultar a placa.");
@@ -583,7 +610,7 @@ export default function Home() {
         setPlateLoading(false);
       }
     } else {
-      // Lógica da busca manual (marca + modelo) – por enquanto ainda em modo demonstração
+      // BUSCA MANUAL (ainda modo demo)
       if (!brand || !selectedModelCode) {
         alert("Selecione marca e modelo para realizar a consulta.");
         return;
@@ -601,7 +628,6 @@ export default function Home() {
     }
   };
 
-  // opções de marca (vem do vehicle-data.ts)
   const brandOptions = vehicleBrands.map((b) => b.brand).sort();
 
   return (
@@ -700,109 +726,256 @@ export default function Home() {
                   </div>
                 )}
 
+                {/* RESULTADO BONITINHO, SEM CÓDIGO */}
                 {plateResult && (
-                  <div
-                    style={{
-                      marginTop: 10,
-                      padding: "12px 14px",
-                      borderRadius: 10,
-                      background: "rgba(15,23,42,0.9)",
-                      border: "1px solid rgba(148,163,184,0.5)",
-                      fontSize: 12,
-                      textAlign: "left",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontWeight: 600,
-                        marginBottom: 6,
-                      }}
-                    >
-                      Resumo do veículo
+                  <div style={styles.resultWrapper}>
+                    {/* 1. DADOS GERAIS */}
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Dados gerais do veículo
+                      </div>
+                      <div style={styles.resultGrid}>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Placa</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.placa}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Marca</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.marca || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Modelo</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.modelo || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Versão</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.versao || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Ano Fab.</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.ano || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Ano Modelo
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.ano_modelo || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Cor</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.cor || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Tipo de veículo
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.tipo_veiculo || "—"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={styles.tagRow}>
+                        {plateResult.segmento && (
+                          <span style={styles.tag}>
+                            Segmento: {plateResult.segmento}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                        gap: 4,
-                      }}
-                    >
-                      <div>
-                        <strong>Placa:</strong> {plateResult.placa}
+                    {/* 2. ESPECIFICAÇÕES TÉCNICAS */}
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Especificações técnicas
                       </div>
-                      <div>
-                        <strong>Marca:</strong> {plateResult.marca}
-                      </div>
-                      <div>
-                        <strong>Modelo:</strong> {plateResult.modelo}
-                      </div>
-                      <div>
-                        <strong>Ano:</strong> {plateResult.ano}
-                      </div>
-                      <div>
-                        <strong>Ano Modelo:</strong> {plateResult.ano_modelo}
-                      </div>
-                      <div>
-                        <strong>Cor:</strong> {plateResult.cor}
-                      </div>
-                      <div>
-                        <strong>Combustível:</strong>{" "}
-                        {plateResult.combustivel}
-                      </div>
-                      <div>
-                        <strong>UF:</strong> {plateResult.uf}
-                      </div>
-                      <div>
-                        <strong>Município:</strong> {plateResult.municipio}
-                      </div>
-                      <div>
-                        <strong>Potência:</strong> {plateResult.potencia}
-                      </div>
-                      <div>
-                        <strong>Cilindrada:</strong> {plateResult.cilindrada}
-                      </div>
-                      <div>
-                        <strong>Passageiros:</strong> {plateResult.passageiros}
+                      <div style={styles.resultGrid}>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Combustível
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.combustivel || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Potência</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.potencia
+                              ? `${plateResult.potencia} cv`
+                              : "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Cilindradas
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.cilindradas
+                              ? `${plateResult.cilindradas} cc`
+                              : "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Passageiros
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.passageiros || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Eixos</span>
+                          <span style={styles.resultItemValue}>
+                            {resp.eixos || extra.eixos || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Cap. Carga (kg)
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.capacidade_carga ||
+                              extra.capacidade_carga ||
+                              "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Peso bruto (kg)
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {extra.peso_bruto_total || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Cap. Máx. Tração
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {extra.cap_maxima_tracao || "—"}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
 
-                {/* 🔴 BLOCO NOVO: MOSTRA TODOS OS DADOS BRUTOS DA API */}
-                {rawApiData && (
-                  <div
-                    style={{
-                      marginTop: 10,
-                      padding: "12px 14px",
-                      borderRadius: 10,
-                      background: "rgba(0,0,0,0.85)",
-                      border: "1px solid rgba(148,163,184,0.5)",
-                      fontSize: 11,
-                      textAlign: "left",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontWeight: 600,
-                        marginBottom: 6,
-                      }}
-                    >
-                      Dados completos da API (para salvar no banco)
+                    {/* 3. LOCALIZAÇÃO E DOCUMENTOS */}
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Localização e documentos
+                      </div>
+                      <div style={styles.resultGrid}>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            UF da placa
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.uf || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Município
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.municipio || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Nacionalidade
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.nacionalidade?.nacionalidade ||
+                              extra.nacionalidade ||
+                              "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Faturado</span>
+                          <span style={styles.resultItemValue}>
+                            {extra.faturado || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Tipo doc. faturado
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {extra.tipo_doc_faturado?.tipo_pessoa || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Tipo doc. proprietário
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {extra.tipo_doc_prop?.tipo_pessoa || "—"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <pre
-                      style={{
-                        margin: 0,
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco",
-                        maxHeight: 300,
-                        overflow: "auto",
-                      }}
-                    >
-                      {JSON.stringify(rawApiData, null, 2)}
-                    </pre>
+                    {/* 4. SITUAÇÃO, RESTRIÇÕES, FIPE E MULTAS */}
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Situação e restrições
+                      </div>
+                      <div style={styles.resultGrid}>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Situação veículo
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.situacao_veiculo || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Situação chassi
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.situacao_chassi || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Última atualização
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.ultima_atualizacao || resp.info || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Código retorno
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {resp.codigoRetorno || "—"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={styles.tagRow}>
+                        <span style={styles.tag}>{restricoes}</span>
+                        <span style={styles.tag}>{fipeStatus}</span>
+                        <span style={styles.tag}>{multasStatus}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
@@ -867,8 +1040,7 @@ export default function Home() {
                 <div style={styles.searchHint}>
                   Modo selecionado:{" "}
                   <strong>Buscar sem Placa (consulta por marca e modelo)</strong>
-                  . O modelo usa o mesmo texto que o Auto Óleo / sua tabela para
-                  facilitar a busca.
+                  .
                 </div>
               </>
             )}
@@ -906,12 +1078,6 @@ export default function Home() {
 
           <div style={styles.featureGrid}>
             <div style={styles.featureCard}>
-              <div style={styles.featureIconWrap}>
-                {/* Ícone simples de carro */}
-                <span role="img" aria-label="Carro">
-                  🚗
-                </span>
-              </div>
               <h3 style={styles.featureTitle}>Base Completa</h3>
               <p style={styles.featureText}>
                 Milhares de veículos nacionais e importados em nossa base de
@@ -920,11 +1086,6 @@ export default function Home() {
             </div>
 
             <div style={styles.featureCard}>
-              <div style={styles.featureIconWrapPurple}>
-                <span role="img" aria-label="Relógio">
-                  ⏱️
-                </span>
-              </div>
               <h3 style={styles.featureTitle}>Consulta Rápida</h3>
               <p style={styles.featureText}>
                 Resultados em segundos. Digite a placa e tenha todas as
@@ -933,11 +1094,6 @@ export default function Home() {
             </div>
 
             <div style={styles.featureCard}>
-              <div style={styles.featureIconWrapPink}>
-                <span role="img" aria-label="Escudo">
-                  🛡️
-                </span>
-              </div>
               <h3 style={styles.featureTitle}>Dados Seguros</h3>
               <p style={styles.featureText}>
                 Informações confiáveis e atualizadas com total segurança e
@@ -1001,7 +1157,7 @@ export default function Home() {
 
             <div style={styles.ratingRow}>
               <a
-                href="https://www.google.com/maps/place/TUREGGON/@-27.7229965,-62.6404099,2591015m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94dcfb2b8bb6b5db:0xc19deb1a9509a901!8m2!3d-28.1336936!4d-52.006782!16s%2Fg%2F11nmgpmlpr?entry=ttu&g_ep=EgoyMDI1MTExMi4wIKXMDSoASAFQAw%3D%3D"
+                href="https://www.google.com/maps/place/TUREGGON/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
