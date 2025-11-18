@@ -13,61 +13,7 @@ import {
   type VehicleModel,
 } from "@/lib/vehicle-data";
 
-/** ÍCONES SVG PERSONALIZADOS **/
-
-const CarIcon: React.FC = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width={32}
-    height={32}
-    fill="none"
-    stroke="#ffffff"
-    strokeWidth={1.8}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 14.5V12c0-.6.3-1.1.9-1.4l2.3-1.2c.4-.2.8-.4 1.2-.5L10.2 8c.6-.2 1-.3 1.8-.3h2c.7 0 1.1.1 1.7.3l1.9.6c.5.2.9.3 1.3.6l1.2.8c.5.3.9.9.9 1.5v2.6" />
-    <path d="M4 18.5h-.5C3 18.5 2.5 18 2.5 17.5V15" />
-    <path d="M20 18.5h.5c.5 0 1-.5 1-1V15" />
-    <path d="M7.5 18.5h9" />
-    <path d="M7.25 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
-    <path d="M16.75 15.4a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
-  </svg>
-);
-
-const ClockIcon: React.FC = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width={32}
-    height={32}
-    fill="none"
-    stroke="#ffffff"
-    strokeWidth={1.8}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="8" />
-    <path d="M12 8v4l2.5 2.5" />
-  </svg>
-);
-
-const ShieldIcon: React.FC = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width={32}
-    height={32}
-    fill="none"
-    stroke="#ffffff"
-    strokeWidth={1.8}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 3.5 6.5 5.5c-.6.2-1 .8-1 1.5v4.9c0 1.7.8 3.4 2.2 4.6L12 21l4.3-4.5a6 6 0 0 0 1.7-4.2V7c0-.7-.4-1.3-1.1-1.5L12 3.5Z" />
-    <path d="M9.5 12.2 11 13.7l3.5-3.5" />
-  </svg>
-);
-
-/** TIPOS PARA CONSULTA DE PLACA **/
+/** TIPOS PARA CONSULTA DE PLACA (RESUMO QUE MOSTRAMOS NA TELA) **/
 
 type PlacaInfo = {
   placa: string;
@@ -505,6 +451,9 @@ export default function Home() {
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateResult, setPlateResult] = useState<PlacaInfo | null>(null);
 
+  // 🔴 NOVO: guarda o JSON COMPLETO da API (tudo: response, extra, fipe, multas, api_limit, etc.)
+  const [rawApiData, setRawApiData] = useState<any | null>(null);
+
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
       searchBlockRef.current.scrollIntoView({
@@ -554,12 +503,14 @@ export default function Home() {
       if (!value) {
         setPlateError("Digite a placa para realizar a consulta.");
         setPlateResult(null);
+        setRawApiData(null);
         return;
       }
 
       setPlateError(null);
       setPlateLoading(true);
       setPlateResult(null);
+      setRawApiData(null);
 
       try {
         const res = await fetch("/api/consulta-placa", {
@@ -577,6 +528,9 @@ export default function Home() {
           setPlateError(msg);
           return;
         }
+
+        // 🔴 GUARDA O JSON INTEIRO DA API PRA VOCÊ REAPROVEITAR TODOS OS CAMPOS
+        setRawApiData(data);
 
         const resp = data.response || {};
 
@@ -607,10 +561,17 @@ export default function Home() {
             null,
           chassi_final: resp.chassi_final || resp.chassi || resp.CHASSI || null,
           motor: resp.motor || resp.MOTOR || null,
-          passageiros: resp.lotacao || resp.LOTACAO || null,
+          passageiros: resp.quantidade_passageiro || resp.LOTACAO || null,
           uf: resp.uf || resp.UF || null,
-          municipio: resp.municipio || resp.MUNICIPIO || null,
-          segmento: resp.segmento || resp.SEGMENTO || null,
+          municipio:
+            resp.municipio ||
+            (resp.municipio && resp.municipio.municipio) ||
+            resp.MUNICIPIO ||
+            null,
+          segmento:
+            resp.segmento ||
+            (resp.marca_modelo && resp.marca_modelo.segmento) ||
+            null,
           especie: resp.especie || resp.ESPECIE || null,
         };
 
@@ -751,21 +712,14 @@ export default function Home() {
                       textAlign: "left",
                     }}
                   >
-                    {plateResult.titulo && (
-                      <div
-                        style={{
-                          fontWeight: 600,
-                          marginBottom: 4,
-                        }}
-                      >
-                        {plateResult.titulo}
-                      </div>
-                    )}
-                    {plateResult.resumo && (
-                      <div style={{ marginBottom: 6 }}>
-                        {plateResult.resumo}
-                      </div>
-                    )}
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        marginBottom: 6,
+                      }}
+                    >
+                      Resumo do veículo
+                    </div>
 
                     <div
                       style={{
@@ -802,7 +756,53 @@ export default function Home() {
                       <div>
                         <strong>Município:</strong> {plateResult.municipio}
                       </div>
+                      <div>
+                        <strong>Potência:</strong> {plateResult.potencia}
+                      </div>
+                      <div>
+                        <strong>Cilindrada:</strong> {plateResult.cilindrada}
+                      </div>
+                      <div>
+                        <strong>Passageiros:</strong> {plateResult.passageiros}
+                      </div>
                     </div>
+                  </div>
+                )}
+
+                {/* 🔴 BLOCO NOVO: MOSTRA TODOS OS DADOS BRUTOS DA API */}
+                {rawApiData && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      padding: "12px 14px",
+                      borderRadius: 10,
+                      background: "rgba(0,0,0,0.85)",
+                      border: "1px solid rgba(148,163,184,0.5)",
+                      fontSize: 11,
+                      textAlign: "left",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        marginBottom: 6,
+                      }}
+                    >
+                      Dados completos da API (para salvar no banco)
+                    </div>
+
+                    <pre
+                      style={{
+                        margin: 0,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco",
+                        maxHeight: 300,
+                        overflow: "auto",
+                      }}
+                    >
+                      {JSON.stringify(rawApiData, null, 2)}
+                    </pre>
                   </div>
                 )}
               </>
@@ -907,7 +907,10 @@ export default function Home() {
           <div style={styles.featureGrid}>
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrap}>
-                <CarIcon />
+                {/* Ícone simples de carro */}
+                <span role="img" aria-label="Carro">
+                  🚗
+                </span>
               </div>
               <h3 style={styles.featureTitle}>Base Completa</h3>
               <p style={styles.featureText}>
@@ -918,7 +921,9 @@ export default function Home() {
 
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrapPurple}>
-                <ClockIcon />
+                <span role="img" aria-label="Relógio">
+                  ⏱️
+                </span>
               </div>
               <h3 style={styles.featureTitle}>Consulta Rápida</h3>
               <p style={styles.featureText}>
@@ -929,7 +934,9 @@ export default function Home() {
 
             <div style={styles.featureCard}>
               <div style={styles.featureIconWrapPink}>
-                <ShieldIcon />
+                <span role="img" aria-label="Escudo">
+                  🛡️
+                </span>
               </div>
               <h3 style={styles.featureTitle}>Dados Seguros</h3>
               <p style={styles.featureText}>
