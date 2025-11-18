@@ -186,26 +186,32 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: 10,
   },
   resultSection: {
-    padding: "12px 14px",
-    borderRadius: 10,
-    background: "rgba(15,23,42,0.95)",
-    border: "1px solid rgba(148,163,184,0.5)",
+    padding: "12px 0 4px",
+    borderRadius: 0,
+    background: "transparent",
+    border: "none",
     fontSize: 12,
     textAlign: "left",
   },
   resultSectionTitle: {
     fontWeight: 600,
-    marginBottom: 8,
+    marginBottom: 10,
     fontSize: 13,
   },
   resultGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 8,
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: 10,
   },
   resultItem: {
     display: "flex",
     flexDirection: "column",
+    background:
+      "radial-gradient(circle at top, #0b1120 0%, #020617 60%, #020617 100%)",
+    borderRadius: 12,
+    padding: "10px 12px",
+    border: "1px solid rgba(148,163,184,0.55)",
+    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
   },
   resultItemLabel: {
     fontSize: 10,
@@ -215,21 +221,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: 2,
   },
   resultItemValue: {
-    fontSize: 12,
-    fontWeight: 500,
+    fontSize: 13,
+    fontWeight: 600,
   },
   tagRow: {
     display: "flex",
     flexWrap: "wrap",
     gap: 6,
-    marginTop: 6,
+    marginTop: 10,
   },
   tag: {
     fontSize: 11,
-    padding: "3px 8px",
+    padding: "4px 9px",
     borderRadius: 999,
-    border: "1px solid rgba(148,163,184,0.6)",
-    background: "rgba(15,23,42,0.9)",
+    border: "1px solid rgba(148,163,184,0.7)",
+    background: "rgba(15,23,42,0.96)",
   },
 
   /* HERO ESCURO EM LARGURA TOTAL */
@@ -728,7 +734,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* RESULTADO BONITINHO, SEM CÓDIGO */}
+                {/* RESULTADO BONITINHO, EM CARDS */}
                 {plateResult && (
                   <div style={styles.resultWrapper}>
                     {/* 1. DADOS GERAIS */}
@@ -789,7 +795,7 @@ export default function Home() {
                             {plateResult.tipo_veiculo || "—"}
                           </span>
                         </div>
-                        {/* 👇 NOVO BLOCO: CHASSI */}
+                        {/* 👇 CHASSI EM CARD */}
                         <div style={styles.resultItem}>
                           <span style={styles.resultItemLabel}>Chassi</span>
                           <span style={styles.resultItemValue}>
