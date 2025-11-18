@@ -546,7 +546,7 @@ export default function Home() {
     setSelectedModelCode("");
   };
 
-  // CONSULTA DE PLACA (chama /api/placa)
+  // CONSULTA DE PLACA (chama /api/consulta-placa → proxy para consultaplaca.store)
   const handleSearchClick = async () => {
     if (mode === "plate") {
       const value = plate.trim().toUpperCase();
@@ -562,22 +562,59 @@ export default function Home() {
       setPlateResult(null);
 
       try {
-        const res = await fetch(`/api/placa?placa=${encodeURIComponent(value)}`);
-        const body = await res.json();
+        const res = await fetch("/api/consulta-placa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ placa: value }),
+        });
 
-        if (!res.ok || body.error) {
-          // 🔹 AQUI está o ajuste: aproveita a mensagem e o status vindo da API
-          const base = body.error || "Erro ao consultar a placa.";
-          if (body.statusCode) {
-            setPlateError(`${base} (código ${body.statusCode})`);
-          } else {
-            setPlateError(base);
-          }
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          const msg =
+            (typeof data.message === "string" && data.message) ||
+            "Erro ao consultar a placa.";
+          setPlateError(msg);
           return;
         }
 
-        const data = body.data as PlacaInfo;
-        setPlateResult(data);
+        const resp = data.response || {};
+
+        const placaInfo: PlacaInfo = {
+          placa: resp.placa || resp.PLACA || value,
+          titulo: null,
+          resumo: null,
+          marca: resp.marca || resp.MARCA || null,
+          modelo: resp.modelo || resp.MODELO || null,
+          ano:
+            resp.ano ||
+            resp.ANO ||
+            resp.anoModelo ||
+            resp.ANO_MODELO ||
+            null,
+          ano_modelo:
+            resp.ano_modelo ||
+            resp.anoModelo ||
+            resp.ANO_MODELO ||
+            null,
+          cor: resp.cor || resp.COR || null,
+          cilindrada: resp.cilindradas || resp.CILINDRADAS || null,
+          potencia: resp.potencia || resp.POTENCIA || null,
+          combustivel:
+            resp.combustivel ||
+            resp.COMBUSTIVEL ||
+            resp["combustível"] ||
+            null,
+          chassi_final: resp.chassi_final || resp.chassi || resp.CHASSI || null,
+          motor: resp.motor || resp.MOTOR || null,
+          passageiros: resp.lotacao || resp.LOTACAO || null,
+          uf: resp.uf || resp.UF || null,
+          municipio: resp.municipio || resp.MUNICIPIO || null,
+          segmento: resp.segmento || resp.SEGMENTO || null,
+          especie: resp.especie || resp.ESPECIE || null,
+        };
+
+        setPlateResult(placaInfo);
       } catch (e) {
         console.error(e);
         setPlateError("Falha ao consultar a placa.");
