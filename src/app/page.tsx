@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react";
 
-// Se você NÃO estiver usando Card/Button/Input/Label em outro lugar, pode remover esses imports:
+// Se não estiver usando Card/Button/Input/Label, pode remover estes imports:
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// 👉 agora usamos as funções da base nova
+// 👉 Agora usamos as funções da base nova
 import {
   getMarcas,
   getModelosByMarca,
@@ -16,8 +16,7 @@ import {
   type VeiculoDB,
 } from "@/lib/vehicle-data";
 
-/** RESUMO PRINCIPAL PARA EXIBIR NA TELA **/
-
+/** RESUMO PRINCIPAL PARA EXIBIR NA TELA (DADOS DA PLACA) **/
 type PlacaInfo = {
   placa: string;
   marca: string | null;
@@ -34,8 +33,66 @@ type PlacaInfo = {
   segmento: string | null;
   uf: string | null;
   municipio: string | null;
-  chassi: string | null; // 👈 NOVO CAMPO
+  chassi: string | null; // 👈 NOVO
 };
+
+/** HELPER: normalizar marca da placa para bater com a base interna **/
+function canonicalizarMarcaPlaca(marcaPlaca: string): string {
+  const up = marcaPlaca.toUpperCase().trim();
+
+  if (up === "VW" || up.includes("VOLKS")) return "VOLKSWAGEN";
+  if (up === "GM" || up.includes("CHEV")) return "CHEVROLET";
+  if (up.includes("MERCEDES")) return "MERCEDES BENZ";
+  if (up.includes("MERCEDES-BENZ")) return "MERCEDES BENZ";
+  if (up.includes("BMW") && up.includes("MOTO")) return "BMW MOTOS";
+  if (up.includes("HARLEY")) return "HARLEY DAVIDSON MOTOS";
+  if (up.includes("YAMAHA") && up.includes("MOTO")) return "YAMAHA MOTOS";
+  if (up.includes("HONDA") && up.includes("MOTO")) return "HONDA MOTOS";
+
+  return up;
+}
+
+/** HELPER: buscar veículos na base interna usando info da placa **/
+function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
+  if (!info.marca || !info.modelo) return [];
+
+  const marcaCanon = canonicalizarMarcaPlaca(info.marca);
+  const termoModelo = `${info.modelo} ${info.versao || ""}`.trim();
+
+  // 1) tenta marca normalizada + modelo+versão
+  let baseResults = buscarVeiculosPorMarcaModelo(marcaCanon, termoModelo);
+
+  // 2) se não achar nada, tenta só com modelo
+  if (!baseResults || baseResults.length === 0) {
+    baseResults = buscarVeiculosPorMarcaModelo(marcaCanon, info.modelo);
+  }
+
+  if (!baseResults || baseResults.length === 0) {
+    return [];
+  }
+
+  // 3) refina por ano modelo / ano fabricação, se existir
+  const anoStr = info.ano_modelo || info.ano;
+  const ano = anoStr ? parseInt(anoStr, 10) : NaN;
+
+  if (isNaN(ano)) {
+    return baseResults;
+  }
+
+  const filtrados = baseResults.filter((v) => {
+    const de = v.ano_de;
+    const ate = v.ano_ate;
+    if (de && ate) {
+      return ano >= de && ano <= ate;
+    }
+    if (de && !ate) {
+      return ano >= de;
+    }
+    return true;
+  });
+
+  return filtrados.length > 0 ? filtrados : baseResults;
+}
 
 /** ESTILOS **/
 
@@ -295,7 +352,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginRight: "auto",
   },
 
-  /* SEÇÃO "POR QUE ESCOLHER" COM CARDS */
+  /* SEÇÃO "POR QUE ESCOLHER" */
   whyOuter: {
     backgroundColor: "#020617",
     padding: "56px 16px 64px",
@@ -345,7 +402,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     lineHeight: 1.5,
   },
 
-  /* NEWSLETTER (BANNER TARTARUGAS) */
+  /* NEWSLETTER */
   newsletterOuter: {
     padding: "60px 16px 80px",
     backgroundColor: "#00b7ff",
@@ -394,7 +451,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
   },
 
-  /* FOOTER SIMPLIFICADO */
+  /* FOOTER */
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
@@ -468,13 +525,18 @@ export default function Home() {
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  // ESTADOS MARCA / MODELOS (usando a nova base)
+  // ESTADOS MARCA / MODELOS (usando a base interna)
   const [brand, setBrand] = useState("");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
 
   // RESULTADO DA BASE (modo manual)
   const [manualResults, setManualResults] = useState<VeiculoDB[]>([]);
+
+  // MATCHES DA BASE QUANDO CONSULTA POR PLACA
+  const [plateVehicleMatches, setPlateVehicleMatches] = useState<VeiculoDB[]>(
+    []
+  );
 
   // CONSULTA PLACA
   const [plate, setPlate] = useState("");
@@ -548,7 +610,230 @@ export default function Home() {
     setManualResults([]);
   };
 
-  // CONSULTA DE PLACA
+  // FUNÇÃO PARA RENDER UM BLOCO TÉCNICO DE UM VEÍCULO (reutilizada em placa + manual)
+  const renderVeiculoTecnico = (v: VeiculoDB, idx: number) => (
+    <div
+      key={idx}
+      style={{
+        marginBottom: 16,
+        borderTop: "1px solid rgba(148,163,184,0.4)",
+        paddingTop: 10,
+      }}
+    >
+      <div style={styles.resultGrid}>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Veículo</span>
+          <span style={styles.resultItemValue}>
+            {v.marca} {v.veiculo_raw}
+          </span>
+        </div>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Anos</span>
+          <span style={styles.resultItemValue}>
+            {v.ano_de
+              ? v.ano_ate
+                ? `${v.ano_de} até ${v.ano_ate}`
+                : `A partir de ${v.ano_de}`
+              : "—"}
+          </span>
+        </div>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Motor</span>
+          <span style={styles.resultItemValue}>
+            {[
+              v.motor_litros,
+              v.motor_valvulas,
+              v.potencia_cv ? `${v.potencia_cv} CV` : null,
+              v.combustivel,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "—"}
+          </span>
+        </div>
+      </div>
+
+      {/* ÓLEOS E FLUIDOS */}
+      <div style={{ marginTop: 8 }}>
+        <div
+          style={{ ...styles.resultSectionTitle, marginBottom: 6 }}
+        >
+          Óleos e fluidos
+        </div>
+        <div style={styles.resultGrid}>
+          <div style={styles.resultItem}>
+            <span style={styles.resultItemLabel}>Óleo do motor</span>
+            <span style={styles.resultItemValue}>
+              {v.oleo_motor_litros ? `${v.oleo_motor_litros} L` : "—"}
+            </span>
+            {v.oleo_motor_viscosidade && (
+              <span style={{ fontSize: 11, marginTop: 4 }}>
+                {v.oleo_motor_viscosidade}
+              </span>
+            )}
+            {v.oleo_motor_especificacao && (
+              <span style={{ fontSize: 11 }}>
+                {v.oleo_motor_especificacao}
+              </span>
+            )}
+          </div>
+
+          {(v.oleo_cambio_manual_litros ||
+            v.oleo_cambio_manual_viscosidade ||
+            v.oleo_cambio_manual_especificacao) && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Câmbio manual</span>
+              <span style={styles.resultItemValue}>
+                {v.oleo_cambio_manual_litros
+                  ? `${v.oleo_cambio_manual_litros} L`
+                  : "—"}
+              </span>
+              {v.oleo_cambio_manual_viscosidade && (
+                <span style={{ fontSize: 11, marginTop: 4 }}>
+                  {v.oleo_cambio_manual_viscosidade}
+                </span>
+              )}
+              {v.oleo_cambio_manual_especificacao && (
+                <span style={{ fontSize: 11 }}>
+                  {v.oleo_cambio_manual_especificacao}
+                </span>
+              )}
+            </div>
+          )}
+
+          {(v.oleo_cambio_auto_total_litros ||
+            v.oleo_cambio_auto_parcial_litros ||
+            v.oleo_cambio_auto_especificacao) && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Câmbio automático</span>
+              <span style={styles.resultItemValue}>
+                {v.oleo_cambio_auto_total_litros
+                  ? `Total: ${v.oleo_cambio_auto_total_litros} L`
+                  : "—"}
+              </span>
+              {v.oleo_cambio_auto_parcial_litros && (
+                <span style={{ fontSize: 11 }}>
+                  Parcial: {v.oleo_cambio_auto_parcial_litros} L
+                </span>
+              )}
+              {v.oleo_cambio_auto_especificacao && (
+                <span style={{ fontSize: 11 }}>
+                  {v.oleo_cambio_auto_especificacao}
+                </span>
+              )}
+            </div>
+          )}
+
+          {v.aditivo_radiador_litros && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>
+                Aditivo do radiador
+              </span>
+              <span style={styles.resultItemValue}>
+                {v.aditivo_radiador_litros} L
+              </span>
+              {v.aditivo_radiador_tipo && (
+                <span style={{ fontSize: 11, marginTop: 4 }}>
+                  {v.aditivo_radiador_tipo}
+                </span>
+              )}
+              {v.aditivo_radiador_cor && (
+                <span style={{ fontSize: 11 }}>
+                  {v.aditivo_radiador_cor}
+                </span>
+              )}
+            </div>
+          )}
+
+          {(v.fluido_freio_litros || v.fluido_freio_tipo) && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Fluido de freio</span>
+              <span style={styles.resultItemValue}>
+                {v.fluido_freio_litros
+                  ? `${v.fluido_freio_litros} L`
+                  : "—"}
+              </span>
+              {v.fluido_freio_tipo && (
+                <span style={{ fontSize: 11 }}>
+                  {v.fluido_freio_tipo}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* FILTROS */}
+      <div style={{ marginTop: 8 }}>
+        <div
+          style={{ ...styles.resultSectionTitle, marginBottom: 6 }}
+        >
+          Filtros
+        </div>
+        <div style={styles.resultGrid}>
+          {v.filtros?.oleo?.length > 0 && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Filtro de óleo</span>
+              {v.filtros.oleo.map((f, i) => (
+                <span key={i} style={{ fontSize: 11 }}>
+                  {f.marca}: {f.codigo}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {v.filtros?.ar?.length > 0 && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Filtro de ar</span>
+              {v.filtros.ar.map((f, i) => (
+                <span key={i} style={{ fontSize: 11 }}>
+                  {f.marca}: {f.codigo}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {v.filtros?.cabine?.length > 0 && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>Filtro de cabine</span>
+              {v.filtros.cabine.map((f, i) => (
+                <span key={i} style={{ fontSize: 11 }}>
+                  {f.marca}: {f.codigo}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {v.filtros?.combustivel?.length > 0 && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>
+                Filtro de combustível
+              </span>
+              {v.filtros.combustivel.map((f, i) => (
+                <span key={i} style={{ fontSize: 11 }}>
+                  {f.marca}: {f.codigo}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {v.filtros?.cambio_auto?.length > 0 && (
+            <div style={styles.resultItem}>
+              <span style={styles.resultItemLabel}>
+                Filtro do câmbio automático
+              </span>
+              {v.filtros.cambio_auto.map((f, i) => (
+                <span key={i} style={{ fontSize: 11 }}>
+                  {f.marca}: {f.codigo}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // CONSULTA DE PLACA / MANUAL
   const handleSearchClick = async () => {
     if (mode === "plate") {
       const value = plate.trim().toUpperCase();
@@ -557,6 +842,7 @@ export default function Home() {
         setPlateError("Digite a placa para realizar a consulta.");
         setPlateResult(null);
         setRawApiData(null);
+        setPlateVehicleMatches([]);
         return;
       }
 
@@ -564,6 +850,7 @@ export default function Home() {
       setPlateLoading(true);
       setPlateResult(null);
       setRawApiData(null);
+      setPlateVehicleMatches([]);
 
       try {
         const res = await fetch("/api/consulta-placa", {
@@ -614,10 +901,14 @@ export default function Home() {
             r.municipio ||
             (ex.municipio && ex.municipio.municipio) ||
             null,
-          chassi: ex.chassi || r.chassi || null, // 👈 AQUI PEGAMOS O CHASSI
+          chassi: ex.chassi || r.chassi || null,
         };
 
         setPlateResult(resumo);
+
+        // 👇 AQUI: tenta achar na base interna de veículos e salvar os matches
+        const matches = buscarVeiculosPorPlacaNaBase(resumo);
+        setPlateVehicleMatches(matches);
       } catch (e) {
         console.error(e);
         setPlateError("Falha ao consultar a placa.");
@@ -744,7 +1035,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* RESULTADO BONITINHO, EM CARDS */}
+                {/* RESULTADO DA PLACA */}
                 {plateResult && (
                   <div style={styles.resultWrapper}>
                     {/* 1. DADOS GERAIS */}
@@ -805,7 +1096,7 @@ export default function Home() {
                             {plateResult.tipo_veiculo || "—"}
                           </span>
                         </div>
-                        {/* 👇 CHASSI EM CARD */}
+                        {/* CHASSI */}
                         <div style={styles.resultItem}>
                           <span style={styles.resultItemLabel}>Chassi</span>
                           <span style={styles.resultItemValue}>
@@ -1001,6 +1292,18 @@ export default function Home() {
                         <span style={styles.tag}>{multasStatus}</span>
                       </div>
                     </div>
+
+                    {/* 5. INFORMAÇÕES DE MANUTENÇÃO (BASE INTERNA) */}
+                    {plateVehicleMatches.length > 0 && (
+                      <div style={styles.resultSection}>
+                        <div style={styles.resultSectionTitle}>
+                          Informações de manutenção (base interna)
+                        </div>
+                        {plateVehicleMatches
+                          .slice(0, 3)
+                          .map((v, idx) => renderVeiculoTecnico(v, idx))}
+                      </div>
+                    )}
                   </div>
                 )}
               </>
@@ -1068,7 +1371,7 @@ export default function Home() {
                   .
                 </div>
 
-                {/* RESULTADO DA BASE INTERNA */}
+                {/* RESULTADO DA BASE INTERNA (MANUAL) */}
                 {manualResults.length > 0 && (
                   <div style={styles.resultWrapper}>
                     <div style={styles.resultSection}>
@@ -1077,255 +1380,9 @@ export default function Home() {
                         {manualResults.length} versão(ões) encontrada(s))
                       </div>
 
-                      {manualResults.slice(0, 5).map((v, idx) => (
-                        <div
-                          key={idx}
-                          style={{ marginBottom: 16, borderTop: "1px solid rgba(148,163,184,0.4)", paddingTop: 10 }}
-                        >
-                          <div style={styles.resultGrid}>
-                            <div style={styles.resultItem}>
-                              <span style={styles.resultItemLabel}>
-                                Veículo
-                              </span>
-                              <span style={styles.resultItemValue}>
-                                {v.marca} {v.veiculo_raw}
-                              </span>
-                            </div>
-                            <div style={styles.resultItem}>
-                              <span style={styles.resultItemLabel}>Anos</span>
-                              <span style={styles.resultItemValue}>
-                                {v.ano_de
-                                  ? v.ano_ate
-                                    ? `${v.ano_de} até ${v.ano_ate}`
-                                    : `A partir de ${v.ano_de}`
-                                  : "—"}
-                              </span>
-                            </div>
-                            <div style={styles.resultItem}>
-                              <span style={styles.resultItemLabel}>Motor</span>
-                              <span style={styles.resultItemValue}>
-                                {[
-                                  v.motor_litros,
-                                  v.motor_valvulas,
-                                  v.potencia_cv
-                                    ? `${v.potencia_cv} CV`
-                                    : null,
-                                  v.combustivel,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" · ") || "—"}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* ÓLEOS E FLUIDOS */}
-                          <div style={{ marginTop: 8 }}>
-                            <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
-                              Óleos e fluidos
-                            </div>
-                            <div style={styles.resultGrid}>
-                              <div style={styles.resultItem}>
-                                <span style={styles.resultItemLabel}>
-                                  Óleo do motor
-                                </span>
-                                <span style={styles.resultItemValue}>
-                                  {v.oleo_motor_litros
-                                    ? `${v.oleo_motor_litros} L`
-                                    : "—"}
-                                </span>
-                                {v.oleo_motor_viscosidade && (
-                                  <span style={{ fontSize: 11, marginTop: 4 }}>
-                                    {v.oleo_motor_viscosidade}
-                                  </span>
-                                )}
-                                {v.oleo_motor_especificacao && (
-                                  <span style={{ fontSize: 11 }}>
-                                    {v.oleo_motor_especificacao}
-                                  </span>
-                                )}
-                              </div>
-
-                              {(v.oleo_cambio_manual_litros ||
-                                v.oleo_cambio_manual_viscosidade ||
-                                v.oleo_cambio_manual_especificacao) && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Câmbio manual
-                                  </span>
-                                  <span style={styles.resultItemValue}>
-                                    {v.oleo_cambio_manual_litros
-                                      ? `${v.oleo_cambio_manual_litros} L`
-                                      : "—"}
-                                  </span>
-                                  {v.oleo_cambio_manual_viscosidade && (
-                                    <span style={{ fontSize: 11, marginTop: 4 }}>
-                                      {v.oleo_cambio_manual_viscosidade}
-                                    </span>
-                                  )}
-                                  {v.oleo_cambio_manual_especificacao && (
-                                    <span style={{ fontSize: 11 }}>
-                                      {v.oleo_cambio_manual_especificacao}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-
-                              {(v.oleo_cambio_auto_total_litros ||
-                                v.oleo_cambio_auto_parcial_litros ||
-                                v.oleo_cambio_auto_especificacao) && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Câmbio automático
-                                  </span>
-                                  <span style={styles.resultItemValue}>
-                                    {v.oleo_cambio_auto_total_litros
-                                      ? `Total: ${v.oleo_cambio_auto_total_litros} L`
-                                      : "—"}
-                                  </span>
-                                  {v.oleo_cambio_auto_parcial_litros && (
-                                    <span style={{ fontSize: 11 }}>
-                                      Parcial: {v.oleo_cambio_auto_parcial_litros} L
-                                    </span>
-                                  )}
-                                  {v.oleo_cambio_auto_especificacao && (
-                                    <span style={{ fontSize: 11 }}>
-                                      {v.oleo_cambio_auto_especificacao}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-
-                              {v.aditivo_radiador_litros && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Aditivo do radiador
-                                  </span>
-                                  <span style={styles.resultItemValue}>
-                                    {v.aditivo_radiador_litros} L
-                                  </span>
-                                  {v.aditivo_radiador_tipo && (
-                                    <span style={{ fontSize: 11, marginTop: 4 }}>
-                                      {v.aditivo_radiador_tipo}
-                                    </span>
-                                  )}
-                                  {v.aditivo_radiador_cor && (
-                                    <span style={{ fontSize: 11 }}>
-                                      {v.aditivo_radiador_cor}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-
-                              {(v.fluido_freio_litros ||
-                                v.fluido_freio_tipo) && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Fluido de freio
-                                  </span>
-                                  <span style={styles.resultItemValue}>
-                                    {v.fluido_freio_litros
-                                      ? `${v.fluido_freio_litros} L`
-                                      : "—"}
-                                  </span>
-                                  {v.fluido_freio_tipo && (
-                                    <span style={{ fontSize: 11 }}>
-                                      {v.fluido_freio_tipo}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* FILTROS */}
-                          <div style={{ marginTop: 8 }}>
-                            <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
-                              Filtros
-                            </div>
-                            <div style={styles.resultGrid}>
-                              {v.filtros?.oleo?.length > 0 && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Filtro de óleo
-                                  </span>
-                                  {v.filtros.oleo.map((f, i) => (
-                                    <span
-                                      key={i}
-                                      style={{ fontSize: 11 }}
-                                    >
-                                      {f.marca}: {f.codigo}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              {v.filtros?.ar?.length > 0 && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Filtro de ar
-                                  </span>
-                                  {v.filtros.ar.map((f, i) => (
-                                    <span
-                                      key={i}
-                                      style={{ fontSize: 11 }}
-                                    >
-                                      {f.marca}: {f.codigo}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              {v.filtros?.cabine?.length > 0 && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Filtro de cabine
-                                  </span>
-                                  {v.filtros.cabine.map((f, i) => (
-                                    <span
-                                      key={i}
-                                      style={{ fontSize: 11 }}
-                                    >
-                                      {f.marca}: {f.codigo}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              {v.filtros?.combustivel?.length > 0 && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Filtro de combustível
-                                  </span>
-                                  {v.filtros.combustivel.map((f, i) => (
-                                    <span
-                                      key={i}
-                                      style={{ fontSize: 11 }}
-                                    >
-                                      {f.marca}: {f.codigo}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              {v.filtros?.cambio_auto?.length > 0 && (
-                                <div style={styles.resultItem}>
-                                  <span style={styles.resultItemLabel}>
-                                    Filtro do câmbio automático
-                                  </span>
-                                  {v.filtros.cambio_auto.map((f, i) => (
-                                    <span
-                                      key={i}
-                                      style={{ fontSize: 11 }}
-                                    >
-                                      {f.marca}: {f.codigo}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                      {manualResults
+                        .slice(0, 5)
+                        .map((v, idx) => renderVeiculoTecnico(v, idx))}
                     </div>
                   </div>
                 )}
