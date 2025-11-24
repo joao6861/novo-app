@@ -2,13 +2,13 @@
 
 import React, { useState, useRef } from "react";
 
-// Se não estiver usando Card/Button/Input/Label, pode remover estes imports:
+// Estes imports podem ser removidos se você não estiver usando esses componentes em outro lugar:
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// 👉 Agora usamos as funções da base nova
+// 👉 Funções e tipos da base interna de veículos
 import {
   getMarcas,
   getModelosByMarca,
@@ -33,7 +33,7 @@ type PlacaInfo = {
   segmento: string | null;
   uf: string | null;
   municipio: string | null;
-  chassi: string | null; // 👈 NOVO
+  chassi: string | null;
 };
 
 /** HELPER: normalizar marca da placa para bater com a base interna **/
@@ -42,8 +42,9 @@ function canonicalizarMarcaPlaca(marcaPlaca: string): string {
 
   if (up === "VW" || up.includes("VOLKS")) return "VOLKSWAGEN";
   if (up === "GM" || up.includes("CHEV")) return "CHEVROLET";
-  if (up.includes("MERCEDES")) return "MERCEDES BENZ";
-  if (up.includes("MERCEDES-BENZ")) return "MERCEDES BENZ";
+  if (up.includes("MERCEDES-BENZ") || up.includes("MERCEDES")) {
+    return "MERCEDES BENZ";
+  }
   if (up.includes("BMW") && up.includes("MOTO")) return "BMW MOTOS";
   if (up.includes("HARLEY")) return "HARLEY DAVIDSON MOTOS";
   if (up.includes("YAMAHA") && up.includes("MOTO")) return "YAMAHA MOTOS";
@@ -52,26 +53,81 @@ function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   return up;
 }
 
-/** HELPER: buscar veículos na base interna usando info da placa **/
+/** HELPER: buscar veículos na base interna usando info da placa (versão melhorada) **/
 function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
   if (!info.marca || !info.modelo) return [];
 
   const marcaCanon = canonicalizarMarcaPlaca(info.marca);
-  const termoModelo = `${info.modelo} ${info.versao || ""}`.trim();
 
-  // 1) tenta marca normalizada + modelo+versão
-  let baseResults = buscarVeiculosPorMarcaModelo(marcaCanon, termoModelo);
+  const modeloUp = info.modelo.toUpperCase();
+  const versaoUp = (info.versao || "").toUpperCase();
 
-  // 2) se não achar nada, tenta só com modelo
-  if (!baseResults || baseResults.length === 0) {
-    baseResults = buscarVeiculosPorMarcaModelo(marcaCanon, info.modelo);
+  const tokens = modeloUp.split(/\s+/).filter(Boolean);
+
+  // token principal: primeira palavra “forte” (sem número, sem FLEX/combustível)
+  const mainToken =
+    tokens.find(
+      (t) =>
+        !/\d/.test(t) &&
+        t.length > 2 &&
+        !["FLEX", "GASOLINA", "ETANOL", "ÁLCOOL", "ALCOOL", "DIESEL"].includes(
+          t
+        )
+    ) || tokens[0];
+
+  // Monta uma lista de termos para tentar, do mais específico pro mais genérico
+  const searchTerms: string[] = [];
+
+  const fullWithVersion = `${modeloUp} ${versaoUp}`.trim();
+  if (fullWithVersion) searchTerms.push(fullWithVersion);
+
+  if (modeloUp && !searchTerms.includes(modeloUp)) {
+    searchTerms.push(modeloUp);
   }
 
-  if (!baseResults || baseResults.length === 0) {
+  if (mainToken && !searchTerms.includes(mainToken)) {
+    searchTerms.push(mainToken);
+  }
+
+  // Também tenta cada token “limpo”
+  const cleanTokens = tokens.filter(
+    (t) =>
+      !/\d/.test(t) &&
+      t.length > 2 &&
+      !["FLEX", "GASOLINA", "ETANOL", "ÁLCOOL", "ALCOOL", "DIESEL"].includes(t)
+  );
+  for (const t of cleanTokens) {
+    if (!searchTerms.includes(t)) {
+      searchTerms.push(t);
+    }
+  }
+
+  // Tenta buscar usando todos esses termos
+  let baseResults: VeiculoDB[] = [];
+
+  for (const term of searchTerms) {
+    const r = buscarVeiculosPorMarcaModelo(marcaCanon, term);
+    if (r && r.length > 0) {
+      baseResults = baseResults.concat(r);
+    }
+  }
+
+  // Remove duplicados (pelo veiculo_raw + marca)
+  if (baseResults.length > 0) {
+    const seen = new Set<string>();
+    baseResults = baseResults.filter((v) => {
+      const key = `${v.marca}::${v.veiculo_raw}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  if (baseResults.length === 0) {
     return [];
   }
 
-  // 3) refina por ano modelo / ano fabricação, se existir
+  // Refina por ano modelo / ano de fabricação, se existir
   const anoStr = info.ano_modelo || info.ano;
   const ano = anoStr ? parseInt(anoStr, 10) : NaN;
 
@@ -106,7 +162,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: "border-box",
   },
 
-  /* TOPO (logo + sistema + cards + barra de busca) */
   topArea: {
     padding: "24px 16px 0",
   },
@@ -189,8 +244,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
     borderRadius: 8,
     border: "1px solid #00b7ff",
-    background: "#ffffff", // fundo branco
-    color: "#000000", // texto preto
+    background: "#ffffff",
+    color: "#000000",
     padding: "10px 16px",
     fontSize: 13,
   },
@@ -209,7 +264,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  /* CAMPOS MANUAIS (Marca + Modelo) */
   manualGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -238,7 +292,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "flex-end",
   },
 
-  /* RESULTADO DA CONSULTA – CARDS BONITOS */
   resultWrapper: {
     marginTop: 12,
     display: "flex",
@@ -298,7 +351,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "rgba(15,23,42,0.96)",
   },
 
-  /* HERO ESCURO EM LARGURA TOTAL */
   heroOuter: {
     background:
       "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
@@ -352,7 +404,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginRight: "auto",
   },
 
-  /* SEÇÃO "POR QUE ESCOLHER" */
   whyOuter: {
     backgroundColor: "#020617",
     padding: "56px 16px 64px",
@@ -402,7 +453,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     lineHeight: 1.5,
   },
 
-  /* NEWSLETTER */
   newsletterOuter: {
     padding: "60px 16px 80px",
     backgroundColor: "#00b7ff",
@@ -451,7 +501,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
   },
 
-  /* FOOTER */
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
@@ -610,7 +659,7 @@ export default function Home() {
     setManualResults([]);
   };
 
-  // FUNÇÃO PARA RENDER UM BLOCO TÉCNICO DE UM VEÍCULO (reutilizada em placa + manual)
+  // Renderiza um bloco técnico de um veículo (reutilizado em placa + manual)
   const renderVeiculoTecnico = (v: VeiculoDB, idx: number) => (
     <div
       key={idx}
@@ -906,7 +955,7 @@ export default function Home() {
 
         setPlateResult(resumo);
 
-        // 👇 AQUI: tenta achar na base interna de veículos e salvar os matches
+        // 👉 AQUI faz o match com a base interna
         const matches = buscarVeiculosPorPlacaNaBase(resumo);
         setPlateVehicleMatches(matches);
       } catch (e) {
@@ -936,7 +985,6 @@ export default function Home() {
     }
   };
 
-  // opções de marca vindas da base
   const brandOptions = getMarcas();
 
   return (
@@ -1035,7 +1083,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* RESULTADO DA PLACA */}
+                {/* RESULTADO DA PLACA + BASE INTERNA */}
                 {plateResult && (
                   <div style={styles.resultWrapper}>
                     {/* 1. DADOS GERAIS */}
@@ -1096,7 +1144,6 @@ export default function Home() {
                             {plateResult.tipo_veiculo || "—"}
                           </span>
                         </div>
-                        {/* CHASSI */}
                         <div style={styles.resultItem}>
                           <span style={styles.resultItemLabel}>Chassi</span>
                           <span style={styles.resultItemValue}>
