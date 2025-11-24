@@ -36,15 +36,41 @@ type PlacaInfo = {
   chassi: string | null;
 };
 
+/** NORMALIZA TEXTO EM TOKENS (pra comparar modelo/versão) **/
+function tokenize(str: string | null | undefined): string[] {
+  if (!str) return [];
+  return str
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // tira acento
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter((t) => t.length > 1);
+}
+
 /** HELPER: normalizar marca da placa para bater com a base interna **/
 function canonicalizarMarcaPlaca(marcaPlaca: string): string {
-  const up = marcaPlaca.toUpperCase().trim();
+  let up = marcaPlaca.toUpperCase().trim();
+
+  // Trata coisas do tipo "GM/CHEVROLET", "FIAT/ABARTH", etc.
+  if (up.includes("/")) {
+    const partes = up.split("/").map((p) => p.trim());
+    // Se tiver ABARTH em alguma parte, prioriza ABARTH
+    if (partes.includes("ABARTH")) return "ABARTH";
+    // Se tiver CHEVROLET, prioriza CHEVROLET
+    if (partes.includes("CHEVROLET")) return "CHEVROLET";
+    // Caso contrário, pega a primeira parte
+    up = partes[0];
+  }
 
   if (up === "VW" || up.includes("VOLKS")) return "VOLKSWAGEN";
   if (up === "GM" || up.includes("CHEV")) return "CHEVROLET";
   if (up.includes("MERCEDES-BENZ") || up.includes("MERCEDES")) {
     return "MERCEDES BENZ";
   }
+  if (up.includes("FIAT")) return "FIAT";
+  if (up.includes("ABARTH")) return "ABARTH";
   if (up.includes("BMW") && up.includes("MOTO")) return "BMW MOTOS";
   if (up.includes("HARLEY")) return "HARLEY DAVIDSON MOTOS";
   if (up.includes("YAMAHA") && up.includes("MOTO")) return "YAMAHA MOTOS";
@@ -53,7 +79,115 @@ function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   return up;
 }
 
-/** HELPER: buscar veículos na base interna usando info da placa (versão melhorada) **/
+/** SCORE DE SEMELHANÇA ENTRE DADOS DA PLACA E UM VEÍCULO DA BASE **/
+function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
+  let score = 0;
+
+  // MODELO + VERSÃO
+  const placaModelFull = `${info.modelo || ""} ${info.versao || ""}`;
+  const placaTokens = tokenize(placaModelFull);
+  const veicTokens = tokenize((v as any).veiculo_raw || "");
+
+  const placaSet = new Set(placaTokens);
+  const veicSet = new Set(veicTokens);
+
+  let comuns = 0;
+  placaSet.forEach((t) => {
+    if (veicSet.has(t)) comuns++;
+  });
+
+  // Tokens importantes (sem número, sem FLEX/combustível)
+  const importantTokens = placaTokens.filter(
+    (t) =>
+      !/^\d+$/.test(t) &&
+      t.length > 2 &&
+      !["FLEX", "GASOLINA", "ETANOL", "ALCOOL", "ÁLCOOL", "DIESEL"].includes(t)
+  );
+  let comunsImportantes = 0;
+  for (const t of importantTokens) {
+    if (veicSet.has(t)) comunsImportantes++;
+  }
+
+  if (comuns === 0) {
+    score -= 10; // nada em comum? forte penalização
+  } else {
+    score += comuns * 4;
+    score += comunsImportantes * 3;
+  }
+
+  // ANO
+  const anoStr = info.ano_modelo || info.ano;
+  const ano = anoStr ? parseInt(anoStr, 10) : NaN;
+  const anoDe = (v as any).ano_de as number | undefined;
+  const anoAte = (v as any).ano_ate as number | undefined;
+
+  if (!isNaN(ano)) {
+    if (anoDe && anoAte) {
+      if (ano >= anoDe && ano <= anoAte) {
+        score += 10;
+      } else {
+        const dist = ano < anoDe ? anoDe - ano : ano - anoAte;
+        score -= Math.min(10, dist * 2);
+      }
+    } else if (anoDe && !anoAte) {
+      if (ano >= anoDe) {
+        score += 8;
+      } else {
+        score -= Math.min(8, (anoDe - ano) * 2);
+      }
+    }
+  }
+
+  // COMBUSTÍVEL
+  if (info.combustivel && (v as any).combustivel) {
+    const ci = info.combustivel.toUpperCase();
+    const cv = String((v as any).combustivel).toUpperCase();
+
+    const normalizeFuel = (s: string) => {
+      if (s.includes("DIE")) return "DIESEL";
+      if (s.includes("ALC") || s.includes("ETAN")) return "ALCOOL";
+      if (s.includes("FLEX")) return "FLEX";
+      if (s.includes("GAS")) return "GASOLINA";
+      return s;
+    };
+
+    const fi = normalizeFuel(ci);
+    const fv = normalizeFuel(cv);
+
+    if (fi === fv) {
+      score += 6;
+    } else if (
+      (fi === "FLEX" && (fv === "GASOLINA" || fv === "ALCOOL")) ||
+      (fv === "FLEX" && (fi === "GASOLINA" || fi === "ALCOOL"))
+    ) {
+      score += 3;
+    } else {
+      score -= 2;
+    }
+  }
+
+  // POTÊNCIA
+  if (info.potencia && (v as any).potencia_cv != null) {
+    const pi = parseInt(info.potencia.replace(/\D+/g, ""), 10);
+    const pvRaw = (v as any).potencia_cv;
+    const pv =
+      typeof pvRaw === "number"
+        ? pvRaw
+        : parseInt(String(pvRaw).replace(/\D+/g, ""), 10);
+
+    if (!isNaN(pi) && !isNaN(pv)) {
+      const diff = Math.abs(pi - pv);
+      if (diff <= 5) score += 6;
+      else if (diff <= 15) score += 3;
+      else if (diff <= 30) score += 1;
+      else score -= 2;
+    }
+  }
+
+  return score;
+}
+
+/** HELPER: buscar veículos na base interna usando info da placa (versão com score) **/
 function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
   if (!info.marca || !info.modelo) return [];
 
@@ -61,10 +195,9 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
 
   const modeloUp = info.modelo.toUpperCase();
   const versaoUp = (info.versao || "").toUpperCase();
-
   const tokens = modeloUp.split(/\s+/).filter(Boolean);
 
-  // token principal: primeira palavra “forte” (sem número, sem FLEX/combustível)
+  // token principal: primeira palavra "forte"
   const mainToken =
     tokens.find(
       (t) =>
@@ -75,7 +208,6 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
         )
     ) || tokens[0];
 
-  // Monta uma lista de termos para tentar, do mais específico pro mais genérico
   const searchTerms: string[] = [];
 
   const fullWithVersion = `${modeloUp} ${versaoUp}`.trim();
@@ -89,7 +221,6 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
     searchTerms.push(mainToken);
   }
 
-  // Também tenta cada token “limpo”
   const cleanTokens = tokens.filter(
     (t) =>
       !/\d/.test(t) &&
@@ -102,52 +233,68 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
     }
   }
 
-  // Tenta buscar usando todos esses termos
-  let baseResults: VeiculoDB[] = [];
+  // Junta candidatos de todas as buscas
+  let candidatos: VeiculoDB[] = [];
 
   for (const term of searchTerms) {
     const r = buscarVeiculosPorMarcaModelo(marcaCanon, term);
     if (r && r.length > 0) {
-      baseResults = baseResults.concat(r);
+      candidatos = candidatos.concat(r);
     }
   }
 
-  // Remove duplicados (pelo veiculo_raw + marca)
-  if (baseResults.length > 0) {
-    const seen = new Set<string>();
-    baseResults = baseResults.filter((v) => {
-      const key = `${v.marca}::${v.veiculo_raw}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }
+  if (candidatos.length === 0) return [];
 
-  if (baseResults.length === 0) {
-    return [];
-  }
-
-  // Refina por ano modelo / ano de fabricação, se existir
-  const anoStr = info.ano_modelo || info.ano;
-  const ano = anoStr ? parseInt(anoStr, 10) : NaN;
-
-  if (isNaN(ano)) {
-    return baseResults;
-  }
-
-  const filtrados = baseResults.filter((v) => {
-    const de = v.ano_de;
-    const ate = v.ano_ate;
-    if (de && ate) {
-      return ano >= de && ano <= ate;
-    }
-    if (de && !ate) {
-      return ano >= de;
-    }
+  // Remove duplicados (marca + veiculo_raw)
+  const seen = new Set<string>();
+  candidatos = candidatos.filter((v: any) => {
+    const key = `${v.marca}::${v.veiculo_raw}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 
-  return filtrados.length > 0 ? filtrados : baseResults;
+  // Calcula score para cada candidato
+  const scored = candidatos.map((v) => ({
+    v,
+    score: calcularScoreMatch(info, v),
+  }));
+
+  // Se nenhum tem score positivo, não arrisca chute errado
+  const maxScore = scored.reduce(
+    (max, cur) => (cur.score > max ? cur.score : max),
+    -Infinity
+  );
+  if (maxScore <= 0) return [];
+
+  // Mantém apenas os que estão próximos do melhor
+  const limite = Math.max(12, maxScore * 0.65); // 65% do melhor, mínimo 12 pontos
+  const filtrados = scored
+    .filter((s) => s.score >= limite)
+    .sort((a, b) => b.score - a.score);
+
+  // Evita encher a tela: limita a no máximo 3 modelos
+  const principais = filtrados.slice(0, 3);
+
+  // Se ainda assim tiver 3, mas o terceiro estiver bem abaixo, corta
+  if (principais.length === 3) {
+    const s0 = principais[0].score;
+    const s2 = principais[2].score;
+    if (s0 - s2 > 6) {
+      return principais.slice(0, 2).map((x) => x.v);
+    }
+  }
+
+  // Se segundo for muito abaixo do primeiro, mostra só 1
+  if (principais.length >= 2) {
+    const s0 = principais[0].score;
+    const s1 = principais[1].score;
+    if (s0 - s1 > 8) {
+      return [principais[0].v];
+    }
+  }
+
+  return principais.map((x) => x.v);
 }
 
 /** ESTILOS **/
@@ -673,16 +820,16 @@ export default function Home() {
         <div style={styles.resultItem}>
           <span style={styles.resultItemLabel}>Veículo</span>
           <span style={styles.resultItemValue}>
-            {v.marca} {v.veiculo_raw}
+            {(v as any).marca} {(v as any).veiculo_raw}
           </span>
         </div>
         <div style={styles.resultItem}>
           <span style={styles.resultItemLabel}>Anos</span>
           <span style={styles.resultItemValue}>
-            {v.ano_de
-              ? v.ano_ate
-                ? `${v.ano_de} até ${v.ano_ate}`
-                : `A partir de ${v.ano_de}`
+            (v as any).ano_de
+              ? (v as any).ano_ate
+                ? `${(v as any).ano_de} até ${(v as any).ano_ate}`
+                : `A partir de ${(v as any).ano_de}`
               : "—"}
           </span>
         </div>
@@ -690,10 +837,12 @@ export default function Home() {
           <span style={styles.resultItemLabel}>Motor</span>
           <span style={styles.resultItemValue}>
             {[
-              v.motor_litros,
-              v.motor_valvulas,
-              v.potencia_cv ? `${v.potencia_cv} CV` : null,
-              v.combustivel,
+              (v as any).motor_litros,
+              (v as any).motor_valvulas,
+              (v as any).potencia_cv
+                ? `${(v as any).potencia_cv} CV`
+                : null,
+              (v as any).combustivel,
             ]
               .filter(Boolean)
               .join(" · ") || "—"}
@@ -712,98 +861,101 @@ export default function Home() {
           <div style={styles.resultItem}>
             <span style={styles.resultItemLabel}>Óleo do motor</span>
             <span style={styles.resultItemValue}>
-              {v.oleo_motor_litros ? `${v.oleo_motor_litros} L` : "—"}
+              {(v as any).oleo_motor_litros
+                ? `${(v as any).oleo_motor_litros} L`
+                : "—"}
             </span>
-            {v.oleo_motor_viscosidade && (
+            {(v as any).oleo_motor_viscosidade && (
               <span style={{ fontSize: 11, marginTop: 4 }}>
-                {v.oleo_motor_viscosidade}
+                {(v as any).oleo_motor_viscosidade}
               </span>
             )}
-            {v.oleo_motor_especificacao && (
+            {(v as any).oleo_motor_especificacao && (
               <span style={{ fontSize: 11 }}>
-                {v.oleo_motor_especificacao}
+                {(v as any).oleo_motor_especificacao}
               </span>
             )}
           </div>
 
-          {(v.oleo_cambio_manual_litros ||
-            v.oleo_cambio_manual_viscosidade ||
-            v.oleo_cambio_manual_especificacao) && (
+          {((v as any).oleo_cambio_manual_litros ||
+            (v as any).oleo_cambio_manual_viscosidade ||
+            (v as any).oleo_cambio_manual_especificacao) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Câmbio manual</span>
               <span style={styles.resultItemValue}>
-                {v.oleo_cambio_manual_litros
-                  ? `${v.oleo_cambio_manual_litros} L`
+                {(v as any).oleo_cambio_manual_litros
+                  ? `${(v as any).oleo_cambio_manual_litros} L`
                   : "—"}
               </span>
-              {v.oleo_cambio_manual_viscosidade && (
+              {(v as any).oleo_cambio_manual_viscosidade && (
                 <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {v.oleo_cambio_manual_viscosidade}
+                  {(v as any).oleo_cambio_manual_viscosidade}
                 </span>
               )}
-              {v.oleo_cambio_manual_especificacao && (
+              {(v as any).oleo_cambio_manual_especificacao && (
                 <span style={{ fontSize: 11 }}>
-                  {v.oleo_cambio_manual_especificacao}
+                  {(v as any).oleo_cambio_manual_especificacao}
                 </span>
               )}
             </div>
           )}
 
-          {(v.oleo_cambio_auto_total_litros ||
-            v.oleo_cambio_auto_parcial_litros ||
-            v.oleo_cambio_auto_especificacao) && (
+          {((v as any).oleo_cambio_auto_total_litros ||
+            (v as any).oleo_cambio_auto_parcial_litros ||
+            (v as any).oleo_cambio_auto_especificacao) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Câmbio automático</span>
               <span style={styles.resultItemValue}>
-                {v.oleo_cambio_auto_total_litros
-                  ? `Total: ${v.oleo_cambio_auto_total_litros} L`
+                {(v as any).oleo_cambio_auto_total_litros
+                  ? `Total: ${(v as any).oleo_cambio_auto_total_litros} L`
                   : "—"}
               </span>
-              {v.oleo_cambio_auto_parcial_litros && (
+              {(v as any).oleo_cambio_auto_parcial_litros && (
                 <span style={{ fontSize: 11 }}>
-                  Parcial: {v.oleo_cambio_auto_parcial_litros} L
+                  Parcial: {(v as any).oleo_cambio_auto_parcial_litros} L
                 </span>
               )}
-              {v.oleo_cambio_auto_especificacao && (
+              {(v as any).oleo_cambio_auto_especificacao && (
                 <span style={{ fontSize: 11 }}>
-                  {v.oleo_cambio_auto_especificacao}
+                  {(v as any).oleo_cambio_auto_especificacao}
                 </span>
               )}
             </div>
           )}
 
-          {v.aditivo_radiador_litros && (
+          {(v as any).aditivo_radiador_litros && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Aditivo do radiador
               </span>
               <span style={styles.resultItemValue}>
-                {v.aditivo_radiador_litros} L
+                {(v as any).aditivo_radiador_litros} L
               </span>
-              {v.aditivo_radiador_tipo && (
+              {(v as any).aditivo_radiador_tipo && (
                 <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {v.aditivo_radiador_tipo}
+                  {(v as any).aditivo_radiador_tipo}
                 </span>
               )}
-              {v.aditivo_radiador_cor && (
+              {(v as any).aditivo_radiador_cor && (
                 <span style={{ fontSize: 11 }}>
-                  {v.aditivo_radiador_cor}
+                  {(v as any).aditivo_radiador_cor}
                 </span>
               )}
             </div>
           )}
 
-          {(v.fluido_freio_litros || v.fluido_freio_tipo) && (
+          {((v as any).fluido_freio_litros ||
+            (v as any).fluido_freio_tipo) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Fluido de freio</span>
               <span style={styles.resultItemValue}>
-                {v.fluido_freio_litros
-                  ? `${v.fluido_freio_litros} L`
+                {(v as any).fluido_freio_litros
+                  ? `${(v as any).fluido_freio_litros} L`
                   : "—"}
               </span>
-              {v.fluido_freio_tipo && (
+              {(v as any).fluido_freio_tipo && (
                 <span style={{ fontSize: 11 }}>
-                  {v.fluido_freio_tipo}
+                  {(v as any).fluido_freio_tipo}
                 </span>
               )}
             </div>
@@ -819,10 +971,10 @@ export default function Home() {
           Filtros
         </div>
         <div style={styles.resultGrid}>
-          {v.filtros?.oleo?.length > 0 && (
+          {(v as any).filtros?.oleo?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de óleo</span>
-              {v.filtros.oleo.map((f, i) => (
+              {(v as any).filtros.oleo.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -830,10 +982,10 @@ export default function Home() {
             </div>
           )}
 
-          {v.filtros?.ar?.length > 0 && (
+          {(v as any).filtros?.ar?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de ar</span>
-              {v.filtros.ar.map((f, i) => (
+              {(v as any).filtros.ar.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -841,10 +993,10 @@ export default function Home() {
             </div>
           )}
 
-          {v.filtros?.cabine?.length > 0 && (
+          {(v as any).filtros?.cabine?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de cabine</span>
-              {v.filtros.cabine.map((f, i) => (
+              {(v as any).filtros.cabine.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -852,12 +1004,12 @@ export default function Home() {
             </div>
           )}
 
-          {v.filtros?.combustivel?.length > 0 && (
+          {(v as any).filtros?.combustivel?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Filtro de combustível
               </span>
-              {v.filtros.combustivel.map((f, i) => (
+              {(v as any).filtros.combustivel.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -865,12 +1017,12 @@ export default function Home() {
             </div>
           )}
 
-          {v.filtros?.cambio_auto?.length > 0 && (
+          {(v as any).filtros?.cambio_auto?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Filtro do câmbio automático
               </span>
-              {v.filtros.cambio_auto.map((f, i) => (
+              {(v as any).filtros.cambio_auto.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -955,7 +1107,7 @@ export default function Home() {
 
         setPlateResult(resumo);
 
-        // 👉 AQUI faz o match com a base interna
+        // 👉 Agora faz o match com a base interna usando score
         const matches = buscarVeiculosPorPlacaNaBase(resumo);
         setPlateVehicleMatches(matches);
       } catch (e) {
