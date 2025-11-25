@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// endpoint que o site usa
 const REMOTE_ENDPOINT = "https://consultaplaca.store/proxy.php";
 
 async function consultarNoSite(placa: string) {
@@ -14,15 +13,14 @@ async function consultarNoSite(placa: string) {
     };
   }
 
-  // form-data x-www-form-urlencoded (igual o navegador)
+  // Monta o form igual o site (x-www-form-urlencoded)
   const form = new URLSearchParams();
-  form.set("placa", cleanPlate); // 🔵 se no Payload tiver outro nome, trocamos aqui
+  form.set("placa", cleanPlate);
 
   const res = await fetch(REMOTE_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      // alguns sites gostam de ver esses headers:
       Origin: "https://consultaplaca.store",
       Referer: "https://consultaplaca.store/",
       "X-Requested-With": "XMLHttpRequest",
@@ -36,7 +34,7 @@ async function consultarNoSite(placa: string) {
   try {
     data = JSON.parse(text);
   } catch {
-    // se der erro pra ler JSON, devolve o texto bruto pra debug
+    // Se não for JSON puro, devolve texto pra debug
     return {
       error: true,
       message: `A resposta do site não é JSON puro (HTTP ${res.status}).`,
@@ -45,7 +43,8 @@ async function consultarNoSite(placa: string) {
     };
   }
 
-  // ainda não estamos “adaptando” o formato, só devolvendo o JSON do site
+  // Aqui só repassamos o JSON recebido dentro de "response"
+  // para não quebrar o page.tsx
   return {
     error: false,
     message: "Consulta feita via consultaplaca.store",
@@ -96,7 +95,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/consulta-placa?placa=ABC1D23 (pra testar no navegador)
+// GET /api/consulta-placa?placa=ABC1D23 para testar direto no navegador
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const placa = searchParams.get("placa") || undefined;
@@ -126,4 +125,14 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(result, { status: 200 });
-  } catch (err
+  } catch (err: any) {
+    console.error("Erro interno em /api/consulta-placa (GET):", err);
+    return NextResponse.json(
+      {
+        error: true,
+        message: "Erro interno ao consultar a placa.",
+      },
+      { status: 500 }
+    );
+  }
+}
