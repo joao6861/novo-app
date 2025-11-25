@@ -13,13 +13,14 @@ export async function POST(req: NextRequest) {
     }
 
     // ============================================
-    //  AQUI VOCÊ COLOCA A MESMA API QUE JÁ USAVA
+    //  AQUI: MESMA URL E MESMO TOKEN QUE JÁ FUNCIONAVAM
     // ============================================
-    // Exemplo genérico – TROQUE pelos dados reais:
-    const API_URL = "https://SUA-API-DE-PLACAS.com/consulta"; // ⬅ coloque aqui a URL que funcionava
+
+    // EXEMPLO — TROQUE PELO QUE VOCÊ USA DE VERDADE:
+    const API_URL = "https://SUA-API-DE-PLACAS.com/consulta"; // ⬅ coloque aqui a URL da API
     const API_TOKEN = "SEU_TOKEN_AQUI";                        // ⬅ coloque aqui o token/chave
 
-    // Se sua API já recebia assim (GET com ?placa=&token=), esse exemplo funciona:
+    // Se a sua API recebe assim (?placa=&token=) esse bloco já funciona:
     const url = `${API_URL}?placa=${encodeURIComponent(
       placa
     )}&token=${encodeURIComponent(API_TOKEN)}`;
@@ -28,8 +29,7 @@ export async function POST(req: NextRequest) {
       method: "GET",
       headers: {
         Accept: "application/json",
-        // Se a sua API usava Authorization em vez de query string,
-        // você pode fazer algo assim:
+        // Se a sua API usava header em vez de query, faria algo assim:
         // Authorization: `Bearer ${API_TOKEN}`,
       },
     });
@@ -43,13 +43,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Algumas APIs já retornam { error, message, response }
-    const erro = !!(data && typeof data === "object" && data.error);
+    const erro =
+      !!(data && typeof data === "object" && (data.error || data.erro));
     const mensagem =
-      (data && typeof data === "object" && data.message) ||
+      (data && typeof data === "object" && (data.message || data.mensagem)) ||
       (typeof data === "string" ? data : "");
     const responseField =
       data && typeof data === "object" && "response" in data
-        ? data.response
+        ? (data as any).response
         : data;
 
     if (!externalRes.ok || erro) {
