@@ -265,6 +265,73 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   return principais.map((x) => x.v);
 }
 
+/**
+ * MONTA UM ÚNICO CAMPO DE TEXTO COM OS DADOS DO VEÍCULO
+ * Usando a resposta COMPLETA da API (response + extra)
+ */
+function montarDetalhesVeiculo(r: any): string {
+  const extra = r.extra || {};
+  const mm = r.marca_modelo || extra.marca_modelo || {};
+
+  const marca = r.marca || r.MARCA || mm.marca;
+  const modelo = r.modelo || r.MODELO || mm.modelo;
+  const versao = r.VERSAO || mm.versao;
+  const anoFab = extra.ano_fabricacao || r.ano;
+  const anoMod = extra.ano_modelo || r.ano_modelo || r.anoModelo;
+  const placa = r.placa_modelo_novo || r.placa || extra.placa;
+  const chassi = extra.chassi || r.chassi;
+  const tipoVeiculo = r.tipo_veiculo?.tipo_veiculo;
+  const segmento = mm.segmento;
+  const cor =
+    r.cor_veiculo?.cor ||
+    extra.cor_veiculo?.cor ||
+    r.cor ||
+    extra.cor;
+  const combustivel = extra.combustivel || r.combustivel;
+  const potencia = extra.potencia || r.potencia;
+  const cilindradas = extra.cilindradas || r.cilindradas;
+  const passageiros =
+    extra.quantidade_passageiro || r.quantidade_passageiro;
+  const municipio = extra.municipio?.municipio || r.municipio;
+  const uf =
+    extra.municipio?.uf ||
+    r.uf_placa ||
+    r.uf ||
+    extra.uf_placa ||
+    extra.uf;
+  const renavam = extra.renavam ?? "Não informado";
+
+  const partes: string[] = [];
+
+  if (marca || modelo) {
+    partes.push([marca, modelo, versao].filter(Boolean).join(" "));
+  }
+  if (tipoVeiculo) partes.push(`Tipo: ${tipoVeiculo}`);
+  if (segmento) partes.push(`Segmento: ${segmento}`);
+
+  if (anoFab || anoMod) {
+    partes.push(`Ano: ${anoFab || "?"}/${anoMod || "?"}`);
+  }
+
+  if (placa) partes.push(`Placa: ${placa}`);
+  if (chassi) partes.push(`Chassi: ${chassi}`);
+
+  if (cor) partes.push(`Cor: ${cor}`);
+  if (combustivel) partes.push(`Combustível: ${combustivel}`);
+  if (potencia) partes.push(`Potência: ${potencia} cv`);
+  if (cilindradas) partes.push(`Cilindradas: ${cilindradas} cc`);
+  if (passageiros) partes.push(`Passageiros: ${passageiros}`);
+
+  if (municipio || uf) {
+    partes.push(`Local: ${municipio || "?"}/${uf || "?"}`);
+  }
+
+  // Sempre mostra Renavam, mesmo se vier null
+  partes.push(`Renavam: ${renavam}`);
+
+  return partes.join(" • ");
+}
+
 /** ESTILOS INLINE (mantém a mesma pegada visual) */
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
@@ -712,6 +779,10 @@ export default function Home() {
     resp.multas?.dados && resp.multas.dados.length > 0
       ? `${resp.multas.dados.length} multa(s) encontrada(s)`
       : "Nenhuma multa encontrada na consulta";
+
+  // CAMPO ÚNICO com todas as informações do veículo
+  const detalhesVeiculo =
+    rawApiData?.response ? montarDetalhesVeiculo(rawApiData.response) : "";
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -1370,6 +1441,13 @@ export default function Home() {
                             {extra.tipo_doc_prop?.tipo_pessoa || "—"}
                           </span>
                         </div>
+                        {/* RENAVAM SEMPRE APARECENDO */}
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Renavam</span>
+                          <span style={styles.resultItemValue}>
+                            {extra.renavam ?? "Não informado"}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -1420,7 +1498,22 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 5. INFORMAÇÕES DE MANUTENÇÃO (BASE INTERNA) */}
+                    {/* 5. RESUMO COMPLETO EM UM ÚNICO CAMPO */}
+                    {detalhesVeiculo && (
+                      <div style={styles.resultSection}>
+                        <div style={styles.resultSectionTitle}>
+                          Resumo completo (campo único)
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Detalhes</span>
+                          <span style={styles.resultItemValue}>
+                            {detalhesVeiculo}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 6. INFORMAÇÕES DE MANUTENÇÃO (BASE INTERNA) */}
                     {plateVehicleMatches.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
