@@ -28,6 +28,12 @@ type PlacaInfo = {
   chassi: string | null;
 };
 
+type MaintenanceItem = {
+  label: string;
+  value: string;
+  searchTerm: string;
+};
+
 /** Utilitário: transforma string em lista de tokens normalizados */
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
@@ -733,7 +739,66 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.8,
     marginTop: 4,
   },
+
+  // NOVOS ESTILOS PARA A SEÇÃO DE MANUTENÇÃO COM BOTÃO
+  maintenanceRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    padding: "8px 10px",
+    borderRadius: 12,
+    border: "1px solid rgba(148,163,184,0.55)",
+    background:
+      "radial-gradient(circle at top, #0b1120 0%, #020617 60%, #020617 100%)",
+    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
+  },
+  maintenanceText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+  },
+  maintenanceLabel: {
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    opacity: 0.7,
+  },
+  maintenanceValue: {
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  maintenanceButton: {
+    fontSize: 11,
+    padding: "6px 10px",
+    borderRadius: 999,
+    border: "1px solid #0ea5e9",
+    backgroundColor: "transparent",
+    color: "#e0f2fe",
+    cursor: "pointer",
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  },
 };
+
+const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
+
+function SearchButton({ term }: { term: string }) {
+  if (!term) return null;
+
+  const url = `${TUREGGON_SEARCH_BASE_URL}${encodeURIComponent(term)}`;
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={styles.maintenanceButton}
+    >
+      Buscar na Tureggon
+    </a>
+  );
+}
 
 /** Componente principal da página */
 export default function Home() {
@@ -783,6 +848,170 @@ export default function Home() {
   // CAMPO ÚNICO com todas as informações do veículo
   const detalhesVeiculo =
     rawApiData?.response ? montarDetalhesVeiculo(rawApiData.response) : "";
+
+  // Veículo principal da base interna para puxar manutenção
+  const principalVeiculo = plateVehicleMatches[0] || null;
+
+  const manutencaoFromBase: MaintenanceItem[] = [];
+  if (principalVeiculo) {
+    const v: any = principalVeiculo;
+
+    // Óleo do motor
+    const motorParts: string[] = [];
+    if (v.oleo_motor_litros) motorParts.push(`${v.oleo_motor_litros} L`);
+    if (v.oleo_motor_viscosidade)
+      motorParts.push(String(v.oleo_motor_viscosidade));
+    if (v.oleo_motor_especificacao)
+      motorParts.push(String(v.oleo_motor_especificacao));
+    if (motorParts.length) {
+      manutencaoFromBase.push({
+        label: "Óleo do motor",
+        value: motorParts.join(" · "),
+        searchTerm:
+          v.oleo_motor_viscosidade ||
+          v.oleo_motor_especificacao ||
+          "óleo motor",
+      });
+    }
+
+    // Câmbio manual
+    if (
+      v.oleo_cambio_manual_litros ||
+      v.oleo_cambio_manual_viscosidade ||
+      v.oleo_cambio_manual_especificacao
+    ) {
+      const parts: string[] = [];
+      if (v.oleo_cambio_manual_litros)
+        parts.push(`${v.oleo_cambio_manual_litros} L`);
+      if (v.oleo_cambio_manual_viscosidade)
+        parts.push(String(v.oleo_cambio_manual_viscosidade));
+      if (v.oleo_cambio_manual_especificacao)
+        parts.push(String(v.oleo_cambio_manual_especificacao));
+
+      manutencaoFromBase.push({
+        label: "Óleo do câmbio manual",
+        value: parts.join(" · "),
+        searchTerm:
+          v.oleo_cambio_manual_viscosidade ||
+          v.oleo_cambio_manual_especificacao ||
+          "óleo câmbio manual",
+      });
+    }
+
+    // Câmbio automático
+    if (
+      v.oleo_cambio_auto_total_litros ||
+      v.oleo_cambio_auto_parcial_litros ||
+      v.oleo_cambio_auto_especificacao
+    ) {
+      const parts: string[] = [];
+      if (v.oleo_cambio_auto_total_litros)
+        parts.push(`Total: ${v.oleo_cambio_auto_total_litros} L`);
+      if (v.oleo_cambio_auto_parcial_litros)
+        parts.push(`Parcial: ${v.oleo_cambio_auto_parcial_litros} L`);
+      if (v.oleo_cambio_auto_especificacao)
+        parts.push(String(v.oleo_cambio_auto_especificacao));
+
+      manutencaoFromBase.push({
+        label: "Óleo do câmbio automático",
+        value: parts.join(" · "),
+        searchTerm:
+          v.oleo_cambio_auto_especificacao ||
+          "ATF câmbio automático",
+      });
+    }
+
+    // Aditivo do radiador
+    if (v.aditivo_radiador_litros || v.aditivo_radiador_tipo) {
+      const parts: string[] = [];
+      if (v.aditivo_radiador_litros)
+        parts.push(`${v.aditivo_radiador_litros} L`);
+      if (v.aditivo_radiador_tipo)
+        parts.push(String(v.aditivo_radiador_tipo));
+      if (v.aditivo_radiador_cor)
+        parts.push(String(v.aditivo_radiador_cor));
+
+      manutencaoFromBase.push({
+        label: "Líquido de arrefecimento",
+        value: parts.join(" · "),
+        searchTerm:
+          v.aditivo_radiador_tipo ||
+          v.aditivo_radiador_cor ||
+          "aditivo radiador",
+      });
+    }
+
+    // Fluido de freio
+    if (v.fluido_freio_litros || v.fluido_freio_tipo) {
+      const parts: string[] = [];
+      if (v.fluido_freio_litros)
+        parts.push(`${v.fluido_freio_litros} L`);
+      if (v.fluido_freio_tipo)
+        parts.push(String(v.fluido_freio_tipo));
+
+      manutencaoFromBase.push({
+        label: "Fluido de freio",
+        value: parts.join(" · "),
+        searchTerm: v.fluido_freio_tipo || "fluido freio",
+      });
+    }
+
+    // FILTROS - todos com botão
+    if (v.filtros?.oleo?.length > 0) {
+      v.filtros.oleo.forEach((f: any) => {
+        if (!f) return;
+        manutencaoFromBase.push({
+          label: `Filtro de óleo (${f.marca || "WEGA"})`,
+          value: String(f.codigo || "—"),
+          searchTerm: f.codigo || `${f.marca || ""} filtro óleo`,
+        });
+      });
+    }
+
+    if (v.filtros?.ar?.length > 0) {
+      v.filtros.ar.forEach((f: any) => {
+        if (!f) return;
+        manutencaoFromBase.push({
+          label: `Filtro de ar (${f.marca || "WEGA"})`,
+          value: String(f.codigo || "—"),
+          searchTerm: f.codigo || `${f.marca || ""} filtro ar`,
+        });
+      });
+    }
+
+    if (v.filtros?.cabine?.length > 0) {
+      v.filtros.cabine.forEach((f: any) => {
+        if (!f) return;
+        manutencaoFromBase.push({
+          label: `Filtro de cabine (${f.marca || "WEGA"})`,
+          value: String(f.codigo || "—"),
+          searchTerm: f.codigo || `${f.marca || ""} filtro cabine`,
+        });
+      });
+    }
+
+    if (v.filtros?.combustivel?.length > 0) {
+      v.filtros.combustivel.forEach((f: any) => {
+        if (!f) return;
+        manutencaoFromBase.push({
+          label: `Filtro de combustível (${f.marca || "WEGA"})`,
+          value: String(f.codigo || "—"),
+          searchTerm: f.codigo || `${f.marca || ""} filtro combustível`,
+        });
+      });
+    }
+
+    if (v.filtros?.cambio_auto?.length > 0) {
+      v.filtros.cambio_auto.forEach((f: any) => {
+        if (!f) return;
+        manutencaoFromBase.push({
+          label: `Filtro do câmbio automático (${f.marca || "WEGA"})`,
+          value: String(f.codigo || "—"),
+          searchTerm: f.codigo || `${f.marca || ""} filtro câmbio automático`,
+        });
+      });
+    }
+  }
 
   const scrollToSearch = (target: "plate" | "manual") => {
     if (searchBlockRef.current) {
@@ -1312,6 +1541,30 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* 1.1 INFORMAÇÕES DE MANUTENÇÃO (logo abaixo de Dados gerais) */}
+                    {principalVeiculo && manutencaoFromBase.length > 0 && (
+                      <div style={styles.resultSection}>
+                        <div style={styles.resultSectionTitle}>
+                          Informações de manutenção (base interna)
+                        </div>
+                        <div style={styles.resultGrid}>
+                          {manutencaoFromBase.map((item, idx) => (
+                            <div key={idx} style={styles.maintenanceRow}>
+                              <div style={styles.maintenanceText}>
+                                <span style={styles.maintenanceLabel}>
+                                  {item.label}
+                                </span>
+                                <span style={styles.maintenanceValue}>
+                                  {item.value}
+                                </span>
+                              </div>
+                              <SearchButton term={item.searchTerm} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* 2. ESPECIFICAÇÕES TÉCNICAS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
@@ -1513,11 +1766,11 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* 6. INFORMAÇÕES DE MANUTENÇÃO (BASE INTERNA) */}
+                    {/* 6. DETALHES TÉCNICOS COMPLETOS DA BASE INTERNA */}
                     {plateVehicleMatches.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
-                          Informações de manutenção (base interna)
+                          Detalhes técnicos da base interna
                         </div>
                         {plateVehicleMatches
                           .slice(0, 3)
