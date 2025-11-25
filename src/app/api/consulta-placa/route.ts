@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// 🔴 TROQUE AQUI PELA URL EXATA QUE APARECE NO "Request URL" DO proxy.php
-// Exemplo provável: "https://consultaplaca.store/proxy.php"
-// ou então "https://apiplaca.blogweb.space/autocheck_proxy.php"
+// endpoint que o site usa
 const REMOTE_ENDPOINT = "https://consultaplaca.store/proxy.php";
 
 async function consultarNoSite(placa: string) {
@@ -16,20 +14,18 @@ async function consultarNoSite(placa: string) {
     };
   }
 
-  // 🚨 IMPORTANTE:
-  // Pelo DevTools você vê se o método é GET ou POST.
-  // O mais comum nesses sites é POST com form-data (x-www-form-urlencoded).
-  // Vou assumir POST + form "placa", que é o padrão.
-  //
-  // Se no Network aparecer outros campos (ex: "token", "acao"...),
-  // é só adicionar mais form.set("nome_campo", "valor").
+  // form-data x-www-form-urlencoded (igual o navegador)
   const form = new URLSearchParams();
-  form.set("placa", cleanPlate);
+  form.set("placa", cleanPlate); // 🔵 se no Payload tiver outro nome, trocamos aqui
 
   const res = await fetch(REMOTE_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      // alguns sites gostam de ver esses headers:
+      Origin: "https://consultaplaca.store",
+      Referer: "https://consultaplaca.store/",
+      "X-Requested-With": "XMLHttpRequest",
     },
     body: form.toString(),
   });
@@ -40,18 +36,16 @@ async function consultarNoSite(placa: string) {
   try {
     data = JSON.parse(text);
   } catch {
-    // Se não for JSON puro, devolve o texto pra você debugar
+    // se der erro pra ler JSON, devolve o texto bruto pra debug
     return {
       error: true,
-      message:
-        `A resposta do site não é JSON puro (HTTP ${res.status}).`,
+      message: `A resposta do site não é JSON puro (HTTP ${res.status}).`,
       status: res.status || 500,
       raw: text,
     };
   }
 
-  // Aqui eu ainda NÃO faço mapeamento fino pro formato antigo.
-  // Só embrulho tudo em "response" pra não quebrar o front.
+  // ainda não estamos “adaptando” o formato, só devolvendo o JSON do site
   return {
     error: false,
     message: "Consulta feita via consultaplaca.store",
@@ -102,7 +96,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Opcional: GET /api/consulta-placa?placa=ABC1D23 pra você testar no navegador
+// GET /api/consulta-placa?placa=ABC1D23 (pra testar no navegador)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const placa = searchParams.get("placa") || undefined;
@@ -132,14 +126,4 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(result, { status: 200 });
-  } catch (err: any) {
-    console.error("Erro interno em /api/consulta-placa (GET):", err);
-    return NextResponse.json(
-      {
-        error: true,
-        message: "Erro interno ao consultar a placa.",
-      },
-      { status: 500 }
-    );
-  }
-}
+  } catch (err
