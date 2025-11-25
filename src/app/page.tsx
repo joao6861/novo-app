@@ -2,21 +2,13 @@
 
 import React, { useState, useRef } from "react";
 
-// Estes imports podem ser removidos se você não estiver usando esses componentes em outro lugar:
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-// 👉 Funções e tipos da base interna de veículos
 import {
   getMarcas,
   getModelosByMarca,
   buscarVeiculosPorMarcaModelo,
-  type VeiculoDB,
 } from "@/lib/vehicle-data";
 
-/** RESUMO PRINCIPAL PARA EXIBIR NA TELA (DADOS DA PLACA) **/
+/** Tipo simplificado para os dados principais da placa exibidos na tela */
 type PlacaInfo = {
   placa: string;
   marca: string | null;
@@ -36,31 +28,28 @@ type PlacaInfo = {
   chassi: string | null;
 };
 
-/** NORMALIZA TEXTO EM TOKENS (pra comparar modelo/versão) **/
+/** Utilitário: transforma string em lista de tokens normalizados */
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
   return str
     .toUpperCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // tira acento
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^A-Z0-9]+/g, " ")
     .trim()
     .split(/\s+/)
     .filter((t) => t.length > 1);
 }
 
-/** HELPER: normalizar marca da placa para bater com a base interna **/
+/** Normaliza a marca para bater com a base interna */
 function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   let up = marcaPlaca.toUpperCase().trim();
 
-  // Trata coisas do tipo "GM/CHEVROLET", "FIAT/ABARTH", etc.
+  // Trata coisas tipo "GM/CHEVROLET", "FIAT/ABARTH" etc.
   if (up.includes("/")) {
     const partes = up.split("/").map((p) => p.trim());
-    // Se tiver ABARTH em alguma parte, prioriza ABARTH
     if (partes.includes("ABARTH")) return "ABARTH";
-    // Se tiver CHEVROLET, prioriza CHEVROLET
     if (partes.includes("CHEVROLET")) return "CHEVROLET";
-    // Caso contrário, pega a primeira parte
     up = partes[0];
   }
 
@@ -79,15 +68,13 @@ function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   return up;
 }
 
-/** SCORE DE SEMELHANÇA ENTRE DADOS DA PLACA E UM VEÍCULO DA BASE **/
-function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
+/** Calcula um score de similaridade entre os dados da placa e um veículo da base */
+function calcularScoreMatch(info: PlacaInfo, v: any): number {
   let score = 0;
 
-  // MODELO + VERSÃO
-  const placaModelFull = `${info.modelo || ""} ${info.versao || ""}`;
-  const placaTokens = tokenize(placaModelFull);
-  const veicTokens = tokenize((v as any).veiculo_raw || "");
-
+  // MODELO + VERSÃO (tokens em comum)
+  const placaTokens = tokenize(`${info.modelo || ""} ${info.versao || ""}`);
+  const veicTokens = tokenize(v.veiculo_raw || "");
   const placaSet = new Set(placaTokens);
   const veicSet = new Set(veicTokens);
 
@@ -96,20 +83,20 @@ function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
     if (veicSet.has(t)) comuns++;
   });
 
-  // Tokens importantes (sem número, sem FLEX/combustível)
   const importantTokens = placaTokens.filter(
     (t) =>
       !/^\d+$/.test(t) &&
       t.length > 2 &&
       !["FLEX", "GASOLINA", "ETANOL", "ALCOOL", "ÁLCOOL", "DIESEL"].includes(t)
   );
+
   let comunsImportantes = 0;
-  for (const t of importantTokens) {
+  importantTokens.forEach((t) => {
     if (veicSet.has(t)) comunsImportantes++;
-  }
+  });
 
   if (comuns === 0) {
-    score -= 10; // nada em comum? forte penalização
+    score -= 10;
   } else {
     score += comuns * 4;
     score += comunsImportantes * 3;
@@ -118,8 +105,8 @@ function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
   // ANO
   const anoStr = info.ano_modelo || info.ano;
   const ano = anoStr ? parseInt(anoStr, 10) : NaN;
-  const anoDe = (v as any).ano_de as number | undefined;
-  const anoAte = (v as any).ano_ate as number | undefined;
+  const anoDe = v.ano_de as number | undefined;
+  const anoAte = v.ano_ate as number | undefined;
 
   if (!isNaN(ano)) {
     if (anoDe && anoAte) {
@@ -139,20 +126,18 @@ function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
   }
 
   // COMBUSTÍVEL
-  if (info.combustivel && (v as any).combustivel) {
-    const ci = info.combustivel.toUpperCase();
-    const cv = String((v as any).combustivel).toUpperCase();
-
+  if (info.combustivel && v.combustivel) {
     const normalizeFuel = (s: string) => {
-      if (s.includes("DIE")) return "DIESEL";
-      if (s.includes("ALC") || s.includes("ETAN")) return "ALCOOL";
-      if (s.includes("FLEX")) return "FLEX";
-      if (s.includes("GAS")) return "GASOLINA";
-      return s;
+      const upFuel = s.toUpperCase();
+      if (upFuel.includes("DIE")) return "DIESEL";
+      if (upFuel.includes("ALC") || upFuel.includes("ETAN")) return "ALCOOL";
+      if (upFuel.includes("FLEX")) return "FLEX";
+      if (upFuel.includes("GAS")) return "GASOLINA";
+      return upFuel;
     };
 
-    const fi = normalizeFuel(ci);
-    const fv = normalizeFuel(cv);
+    const fi = normalizeFuel(info.combustivel);
+    const fv = normalizeFuel(String(v.combustivel));
 
     if (fi === fv) {
       score += 6;
@@ -167,9 +152,9 @@ function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
   }
 
   // POTÊNCIA
-  if (info.potencia && (v as any).potencia_cv != null) {
+  if (info.potencia && v.potencia_cv != null) {
     const pi = parseInt(info.potencia.replace(/\D+/g, ""), 10);
-    const pvRaw = (v as any).potencia_cv;
+    const pvRaw = v.potencia_cv;
     const pv =
       typeof pvRaw === "number"
         ? pvRaw
@@ -187,23 +172,22 @@ function calcularScoreMatch(info: PlacaInfo, v: VeiculoDB): number {
   return score;
 }
 
-/** HELPER: buscar veículos na base interna usando info da placa (versão com score) **/
-function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
+/** Usa os dados da placa para buscar os melhores veículos na base */
+function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   if (!info.marca || !info.modelo) return [];
 
   const marcaCanon = canonicalizarMarcaPlaca(info.marca);
 
-  const modeloUp = info.modelo.toUpperCase();
+  const modeloUp = (info.modelo || "").toUpperCase();
   const versaoUp = (info.versao || "").toUpperCase();
   const tokens = modeloUp.split(/\s+/).filter(Boolean);
 
-  // token principal: primeira palavra "forte"
   const mainToken =
     tokens.find(
       (t) =>
         !/\d/.test(t) &&
         t.length > 2 &&
-        !["FLEX", "GASOLINA", "ETANOL", "ÁLCOOL", "ALCOOL", "DIESEL"].includes(
+        !["FLEX", "GASOLINA", "ETANOL", "ALCOOL", "ÁLCOOL", "DIESEL"].includes(
           t
         )
     ) || tokens[0];
@@ -212,29 +196,20 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
 
   const fullWithVersion = `${modeloUp} ${versaoUp}`.trim();
   if (fullWithVersion) searchTerms.push(fullWithVersion);
-
-  if (modeloUp && !searchTerms.includes(modeloUp)) {
-    searchTerms.push(modeloUp);
-  }
-
-  if (mainToken && !searchTerms.includes(mainToken)) {
-    searchTerms.push(mainToken);
-  }
+  if (modeloUp && !searchTerms.includes(modeloUp)) searchTerms.push(modeloUp);
+  if (mainToken && !searchTerms.includes(mainToken)) searchTerms.push(mainToken);
 
   const cleanTokens = tokens.filter(
     (t) =>
       !/\d/.test(t) &&
       t.length > 2 &&
-      !["FLEX", "GASOLINA", "ETANOL", "ÁLCOOL", "ALCOOL", "DIESEL"].includes(t)
+      !["FLEX", "GASOLINA", "ETANOL", "ALCOOL", "ÁLCOOL", "DIESEL"].includes(t)
   );
   for (const t of cleanTokens) {
-    if (!searchTerms.includes(t)) {
-      searchTerms.push(t);
-    }
+    if (!searchTerms.includes(t)) searchTerms.push(t);
   }
 
-  // Junta candidatos de todas as buscas
-  let candidatos: VeiculoDB[] = [];
+  let candidatos: any[] = [];
 
   for (const term of searchTerms) {
     const r = buscarVeiculosPorMarcaModelo(marcaCanon, term);
@@ -245,38 +220,32 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
 
   if (candidatos.length === 0) return [];
 
-  // Remove duplicados (marca + veiculo_raw)
   const seen = new Set<string>();
-  candidatos = candidatos.filter((v: any) => {
+  candidatos = candidatos.filter((v) => {
     const key = `${v.marca}::${v.veiculo_raw}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
-  // Calcula score para cada candidato
   const scored = candidatos.map((v) => ({
     v,
     score: calcularScoreMatch(info, v),
   }));
 
-  // Se nenhum tem score positivo, não arrisca chute errado
   const maxScore = scored.reduce(
     (max, cur) => (cur.score > max ? cur.score : max),
     -Infinity
   );
   if (maxScore <= 0) return [];
 
-  // Mantém apenas os que estão próximos do melhor
-  const limite = Math.max(12, maxScore * 0.65); // 65% do melhor, mínimo 12 pontos
+  const limite = Math.max(12, maxScore * 0.65);
   const filtrados = scored
     .filter((s) => s.score >= limite)
     .sort((a, b) => b.score - a.score);
 
-  // Evita encher a tela: limita a no máximo 3 modelos
   const principais = filtrados.slice(0, 3);
 
-  // Se ainda assim tiver 3, mas o terceiro estiver bem abaixo, corta
   if (principais.length === 3) {
     const s0 = principais[0].score;
     const s2 = principais[2].score;
@@ -285,7 +254,6 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
     }
   }
 
-  // Se segundo for muito abaixo do primeiro, mostra só 1
   if (principais.length >= 2) {
     const s0 = principais[0].score;
     const s1 = principais[1].score;
@@ -297,8 +265,7 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): VeiculoDB[] {
   return principais.map((x) => x.v);
 }
 
-/** ESTILOS **/
-
+/** ESTILOS INLINE (mantém a mesma pegada visual) */
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
@@ -308,7 +275,6 @@ const styles: { [key: string]: React.CSSProperties } = {
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     boxSizing: "border-box",
   },
-
   topArea: {
     padding: "24px 16px 0",
   },
@@ -341,7 +307,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "rgba(0,0,0,0.18)",
     cursor: "pointer",
   },
-
   cardsRow: {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
@@ -376,12 +341,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   cardLabel: {
     fontWeight: 500,
   },
-
   searchWrapper: {
     marginTop: 8,
     marginBottom: 8,
   },
-
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
@@ -410,7 +373,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.85,
     marginTop: 4,
   },
-
   manualGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -438,7 +400,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     justifyContent: "flex-end",
   },
-
   resultWrapper: {
     marginTop: 12,
     display: "flex",
@@ -497,7 +458,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid rgba(148,163,184,0.7)",
     background: "rgba(15,23,42,0.96)",
   },
-
   heroOuter: {
     background:
       "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
@@ -550,7 +510,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginLeft: "auto",
     marginRight: "auto",
   },
-
   whyOuter: {
     backgroundColor: "#020617",
     padding: "56px 16px 64px",
@@ -599,7 +558,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#9ca3af",
     lineHeight: 1.5,
   },
-
   newsletterOuter: {
     padding: "60px 16px 80px",
     backgroundColor: "#00b7ff",
@@ -647,7 +605,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 13,
     cursor: "pointer",
   },
-
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
@@ -658,7 +615,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: 1100,
     margin: "0 auto",
   },
-
   footerBottom: {
     display: "flex",
     flexDirection: "column",
@@ -672,7 +628,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: 40,
     flexWrap: "wrap",
   },
-
   paymentSection: {
     display: "flex",
     alignItems: "center",
@@ -695,7 +650,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "#111827",
     border: "1px solid #1f2937",
   },
-
   ratingRow: {
     display: "flex",
     justifyContent: "center",
@@ -706,7 +660,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     objectFit: "contain",
     display: "block",
   },
-
   footerCopy: {
     textAlign: "center",
     fontSize: 11,
@@ -715,33 +668,29 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
+/** Componente principal da página */
 export default function Home() {
   const [mode, setMode] = useState<"plate" | "manual">("plate");
   const plateInputRef = useRef<HTMLInputElement | null>(null);
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  // ESTADOS MARCA / MODELOS (usando a base interna)
+  // estados para busca manual
   const [brand, setBrand] = useState("");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
 
-  // RESULTADO DA BASE (modo manual)
-  const [manualResults, setManualResults] = useState<VeiculoDB[]>([]);
+  // resultados base interna
+  const [manualResults, setManualResults] = useState<any[]>([]);
+  const [plateVehicleMatches, setPlateVehicleMatches] = useState<any[]>([]);
 
-  // MATCHES DA BASE QUANDO CONSULTA POR PLACA
-  const [plateVehicleMatches, setPlateVehicleMatches] = useState<VeiculoDB[]>(
-    []
-  );
-
-  // CONSULTA PLACA
+  // estados consulta de placa
   const [plate, setPlate] = useState("");
   const [plateLoading, setPlateLoading] = useState(false);
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateResult, setPlateResult] = useState<PlacaInfo | null>(null);
   const [rawApiData, setRawApiData] = useState<any | null>(null);
 
-  // DERIVADOS DO RAW (extra, status FIPE, multas, restrições...)
   const resp = rawApiData?.response || {};
   const extra = resp.extra || {};
   const restricoes =
@@ -771,13 +720,9 @@ export default function Home() {
         block: "start",
       });
     }
-
     setTimeout(() => {
-      if (target === "plate") {
-        plateInputRef.current?.focus();
-      } else {
-        brandSelectRef.current?.focus();
-      }
+      if (target === "plate") plateInputRef.current?.focus();
+      else brandSelectRef.current?.focus();
     }, 300);
   };
 
@@ -806,8 +751,7 @@ export default function Home() {
     setManualResults([]);
   };
 
-  // Renderiza um bloco técnico de um veículo (reutilizado em placa + manual)
-  const renderVeiculoTecnico = (v: VeiculoDB, idx: number) => (
+  const renderVeiculoTecnico = (v: any, idx: number) => (
     <div
       key={idx}
       style={{
@@ -820,16 +764,16 @@ export default function Home() {
         <div style={styles.resultItem}>
           <span style={styles.resultItemLabel}>Veículo</span>
           <span style={styles.resultItemValue}>
-            {(v as any).marca} {(v as any).veiculo_raw}
+            {v.marca} {v.veiculo_raw}
           </span>
         </div>
         <div style={styles.resultItem}>
           <span style={styles.resultItemLabel}>Anos</span>
           <span style={styles.resultItemValue}>
-            (v as any).ano_de
-              ? (v as any).ano_ate
-                ? `${(v as any).ano_de} até ${(v as any).ano_ate}`
-                : `A partir de ${(v as any).ano_de}`
+            {v.ano_de
+              ? v.ano_ate
+                ? `${v.ano_de} até ${v.ano_ate}`
+                : `A partir de ${v.ano_de}`
               : "—"}
           </span>
         </div>
@@ -837,12 +781,10 @@ export default function Home() {
           <span style={styles.resultItemLabel}>Motor</span>
           <span style={styles.resultItemValue}>
             {[
-              (v as any).motor_litros,
-              (v as any).motor_valvulas,
-              (v as any).potencia_cv
-                ? `${(v as any).potencia_cv} CV`
-                : null,
-              (v as any).combustivel,
+              v.motor_litros,
+              v.motor_valvulas,
+              v.potencia_cv ? `${v.potencia_cv} CV` : null,
+              v.combustivel,
             ]
               .filter(Boolean)
               .join(" · ") || "—"}
@@ -852,111 +794,102 @@ export default function Home() {
 
       {/* ÓLEOS E FLUIDOS */}
       <div style={{ marginTop: 8 }}>
-        <div
-          style={{ ...styles.resultSectionTitle, marginBottom: 6 }}
-        >
+        <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
           Óleos e fluidos
         </div>
         <div style={styles.resultGrid}>
           <div style={styles.resultItem}>
             <span style={styles.resultItemLabel}>Óleo do motor</span>
             <span style={styles.resultItemValue}>
-              {(v as any).oleo_motor_litros
-                ? `${(v as any).oleo_motor_litros} L`
-                : "—"}
+              {v.oleo_motor_litros ? `${v.oleo_motor_litros} L` : "—"}
             </span>
-            {(v as any).oleo_motor_viscosidade && (
+            {v.oleo_motor_viscosidade && (
               <span style={{ fontSize: 11, marginTop: 4 }}>
-                {(v as any).oleo_motor_viscosidade}
+                {v.oleo_motor_viscosidade}
               </span>
             )}
-            {(v as any).oleo_motor_especificacao && (
+            {v.oleo_motor_especificacao && (
               <span style={{ fontSize: 11 }}>
-                {(v as any).oleo_motor_especificacao}
+                {v.oleo_motor_especificacao}
               </span>
             )}
           </div>
 
-          {((v as any).oleo_cambio_manual_litros ||
-            (v as any).oleo_cambio_manual_viscosidade ||
-            (v as any).oleo_cambio_manual_especificacao) && (
+          {(v.oleo_cambio_manual_litros ||
+            v.oleo_cambio_manual_viscosidade ||
+            v.oleo_cambio_manual_especificacao) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Câmbio manual</span>
               <span style={styles.resultItemValue}>
-                {(v as any).oleo_cambio_manual_litros
-                  ? `${(v as any).oleo_cambio_manual_litros} L`
+                {v.oleo_cambio_manual_litros
+                  ? `${v.oleo_cambio_manual_litros} L`
                   : "—"}
               </span>
-              {(v as any).oleo_cambio_manual_viscosidade && (
+              {v.oleo_cambio_manual_viscosidade && (
                 <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {(v as any).oleo_cambio_manual_viscosidade}
+                  {v.oleo_cambio_manual_viscosidade}
                 </span>
               )}
-              {(v as any).oleo_cambio_manual_especificacao && (
+              {v.oleo_cambio_manual_especificacao && (
                 <span style={{ fontSize: 11 }}>
-                  {(v as any).oleo_cambio_manual_especificacao}
+                  {v.oleo_cambio_manual_especificacao}
                 </span>
               )}
             </div>
           )}
 
-          {((v as any).oleo_cambio_auto_total_litros ||
-            (v as any).oleo_cambio_auto_parcial_litros ||
-            (v as any).oleo_cambio_auto_especificacao) && (
+          {(v.oleo_cambio_auto_total_litros ||
+            v.oleo_cambio_auto_parcial_litros ||
+            v.oleo_cambio_auto_especificacao) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Câmbio automático</span>
               <span style={styles.resultItemValue}>
-                {(v as any).oleo_cambio_auto_total_litros
-                  ? `Total: ${(v as any).oleo_cambio_auto_total_litros} L`
+                {v.oleo_cambio_auto_total_litros
+                  ? `Total: ${v.oleo_cambio_auto_total_litros} L`
                   : "—"}
               </span>
-              {(v as any).oleo_cambio_auto_parcial_litros && (
+              {v.oleo_cambio_auto_parcial_litros && (
                 <span style={{ fontSize: 11 }}>
-                  Parcial: {(v as any).oleo_cambio_auto_parcial_litros} L
+                  Parcial: {v.oleo_cambio_auto_parcial_litros} L
                 </span>
               )}
-              {(v as any).oleo_cambio_auto_especificacao && (
+              {v.oleo_cambio_auto_especificacao && (
                 <span style={{ fontSize: 11 }}>
-                  {(v as any).oleo_cambio_auto_especificacao}
+                  {v.oleo_cambio_auto_especificacao}
                 </span>
               )}
             </div>
           )}
 
-          {(v as any).aditivo_radiador_litros && (
+          {v.aditivo_radiador_litros && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Aditivo do radiador
               </span>
               <span style={styles.resultItemValue}>
-                {(v as any).aditivo_radiador_litros} L
+                {v.aditivo_radiador_litros} L
               </span>
-              {(v as any).aditivo_radiador_tipo && (
+              {v.aditivo_radiador_tipo && (
                 <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {(v as any).aditivo_radiador_tipo}
+                  {v.aditivo_radiador_tipo}
                 </span>
               )}
-              {(v as any).aditivo_radiador_cor && (
+              {v.aditivo_radiador_cor && (
                 <span style={{ fontSize: 11 }}>
-                  {(v as any).aditivo_radiador_cor}
+                  {v.aditivo_radiador_cor}
                 </span>
               )}
             </div>
           )}
 
-          {((v as any).fluido_freio_litros ||
-            (v as any).fluido_freio_tipo) && (
+          {(v.fluido_freio_litros || v.fluido_freio_tipo) && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Fluido de freio</span>
               <span style={styles.resultItemValue}>
-                {(v as any).fluido_freio_litros
-                  ? `${(v as any).fluido_freio_litros} L`
-                  : "—"}
+                {v.fluido_freio_litros ? `${v.fluido_freio_litros} L` : "—"}
               </span>
-              {(v as any).fluido_freio_tipo && (
-                <span style={{ fontSize: 11 }}>
-                  {(v as any).fluido_freio_tipo}
-                </span>
+              {v.fluido_freio_tipo && (
+                <span style={{ fontSize: 11 }}>{v.fluido_freio_tipo}</span>
               )}
             </div>
           )}
@@ -965,16 +898,14 @@ export default function Home() {
 
       {/* FILTROS */}
       <div style={{ marginTop: 8 }}>
-        <div
-          style={{ ...styles.resultSectionTitle, marginBottom: 6 }}
-        >
+        <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
           Filtros
         </div>
         <div style={styles.resultGrid}>
-          {(v as any).filtros?.oleo?.length > 0 && (
+          {v.filtros?.oleo?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de óleo</span>
-              {(v as any).filtros.oleo.map((f: any, i: number) => (
+              {v.filtros.oleo.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -982,10 +913,10 @@ export default function Home() {
             </div>
           )}
 
-          {(v as any).filtros?.ar?.length > 0 && (
+          {v.filtros?.ar?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de ar</span>
-              {(v as any).filtros.ar.map((f: any, i: number) => (
+              {v.filtros.ar.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -993,10 +924,10 @@ export default function Home() {
             </div>
           )}
 
-          {(v as any).filtros?.cabine?.length > 0 && (
+          {v.filtros?.cabine?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>Filtro de cabine</span>
-              {(v as any).filtros.cabine.map((f: any, i: number) => (
+              {v.filtros.cabine.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -1004,12 +935,12 @@ export default function Home() {
             </div>
           )}
 
-          {(v as any).filtros?.combustivel?.length > 0 && (
+          {v.filtros?.combustivel?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Filtro de combustível
               </span>
-              {(v as any).filtros.combustivel.map((f: any, i: number) => (
+              {v.filtros.combustivel.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -1017,12 +948,12 @@ export default function Home() {
             </div>
           )}
 
-          {(v as any).filtros?.cambio_auto?.length > 0 && (
+          {v.filtros?.cambio_auto?.length > 0 && (
             <div style={styles.resultItem}>
               <span style={styles.resultItemLabel}>
                 Filtro do câmbio automático
               </span>
-              {(v as any).filtros.cambio_auto.map((f: any, i: number) => (
+              {v.filtros.cambio_auto.map((f: any, i: number) => (
                 <span key={i} style={{ fontSize: 11 }}>
                   {f.marca}: {f.codigo}
                 </span>
@@ -1034,11 +965,9 @@ export default function Home() {
     </div>
   );
 
-  // CONSULTA DE PLACA / MANUAL
   const handleSearchClick = async () => {
     if (mode === "plate") {
       const value = plate.trim().toUpperCase();
-
       if (!value) {
         setPlateError("Digite a placa para realizar a consulta.");
         setPlateResult(null);
@@ -1107,7 +1036,6 @@ export default function Home() {
 
         setPlateResult(resumo);
 
-        // 👉 Agora faz o match com a base interna usando score
         const matches = buscarVeiculosPorPlacaNaBase(resumo);
         setPlateVehicleMatches(matches);
       } catch (e) {
@@ -1117,14 +1045,12 @@ export default function Home() {
         setPlateLoading(false);
       }
     } else {
-      // BUSCA MANUAL USANDO A BASE INTERNA
       if (!brand || !selectedModel) {
         alert("Selecione marca e modelo para realizar a consulta.");
         return;
       }
 
       const resultados = buscarVeiculosPorMarcaModelo(brand, selectedModel);
-
       if (!resultados || resultados.length === 0) {
         alert(
           "Nenhum veículo encontrado na base interna para essa marca/modelo."
@@ -1132,7 +1058,6 @@ export default function Home() {
         setManualResults([]);
         return;
       }
-
       setManualResults(resultados);
     }
   };
@@ -1141,7 +1066,7 @@ export default function Home() {
 
   return (
     <main style={styles.page}>
-      {/* TOPO */}
+      {/* TOPO / MENU */}
       <section style={styles.topArea}>
         <div style={styles.topInner}>
           <header style={styles.header}>
@@ -1163,6 +1088,7 @@ export default function Home() {
             </button>
           </header>
 
+          {/* CARDS: POR PLACA / SEM PLACA / OFICINAS */}
           <div style={styles.cardsRow}>
             <button
               type="button"
@@ -1198,9 +1124,11 @@ export default function Home() {
             </button>
           </div>
 
+          {/* BLOCO DAS BUSCAS */}
           <div style={styles.searchWrapper} ref={searchBlockRef}>
             {mode === "plate" && (
               <>
+                {/* BUSCA POR PLACA */}
                 <div style={styles.searchRow}>
                   <input
                     ref={plateInputRef}
@@ -1508,6 +1436,7 @@ export default function Home() {
               </>
             )}
 
+            {/* MODO MANUAL */}
             {mode === "manual" && (
               <>
                 <div style={styles.manualGrid}>
@@ -1570,7 +1499,7 @@ export default function Home() {
                   .
                 </div>
 
-                {/* RESULTADO DA BASE INTERNA (MANUAL) */}
+                {/* RESULTADO BASE INTERNA - MANUAL */}
                 {manualResults.length > 0 && (
                   <div style={styles.resultWrapper}>
                     <div style={styles.resultSection}>
@@ -1591,7 +1520,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HERO ESCURO */}
+      {/* HERO */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -1611,7 +1540,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE ESCOLHER A TUREGGON */}
+      {/* POR QUE TUREGGON */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
