@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = "https://api.consultarplaca.com.br/v2/consultarPlaca";
 
-// 🔐 Coloque aqui SEU e-mail e sua API KEY do Consultar Placa
-// (Autenticação Basic Auth: email como usuário e api_key como senha)
-const API_USER = "SEU_EMAIL_CADASTRADO_AQUI";
-const API_KEY = "SUA_API_KEY_AQUI";
+// 🔐 ALTERE AQUI: use o MESMO e-mail da sua conta ConsultarPlaca
+//     e a API KEY gerada no menu "API" do site.
+const API_USER = "SEU_EMAIL_DA_CONTA_NO_CONSULTARPLACA";
+const API_KEY = "SUA_API_KEY_GERADA_NO_PAINEL";
 
-// Normaliza e extrai os campos principais da resposta do Consultar Placa
+// Normaliza / mapeia a resposta do Consultar Placa para o formato
+// que o seu front já estava usando.
 function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) {
   const dados = apiData?.dados?.informacoes_veiculo || {};
   const dv = dados.dados_veiculo || {};
@@ -17,8 +18,7 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
   const placa = dv.placa || placaConsulta;
 
   const response = {
-    // CAMPOS PRINCIPAIS
-    placa: placa,
+    placa,
     placa_modelo_antigo: placa,
     placa_modelo_novo: placa,
     placa_nova: "f",
@@ -29,7 +29,6 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
 
     marca: dv.marca || null,
     modelo: dv.modelo || null,
-    // estrutura “marca_modelo” parecida com a API antiga
     marca_modelo: {
       marca: dv.marca || null,
       modelo: dv.modelo || null,
@@ -59,14 +58,12 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
     eixos: dc.numero_eixos || null,
     capacidade_carga: null,
 
-    // TIPO DO VEÍCULO
     tipo_veiculo: {
       tipo_veiculo: dt.tipo_veiculo || null,
     },
 
-    // CAMPOS “EXTRA” (para manter compatibilidade com o page.tsx atual)
     extra: {
-      placa: placa,
+      placa,
       placa_modelo_antigo: placa,
       placa_modelo_novo: placa,
       placa_nova: "f",
@@ -102,10 +99,8 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
       uf: dv.uf_municipio || null,
       uf_placa: dv.uf_municipio || null,
 
-      // 🔹 A API básica não traz Renavam -> deixamos null
-      renavam: null,
+      renavam: null, // essa rota básica não traz renavam
 
-      // campos de faturado / proprietário não vêm nessa rota
       faturado: null,
       tipo_doc_faturado: {
         tipo_pessoa: null,
@@ -114,17 +109,14 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
         tipo_pessoa: null,
       },
 
-      // datas de atualização (a API retorna data_solicitacao)
       data_atualizacao: apiData?.data_solicitacao || null,
 
-      // restrições (não vêm aqui – ficam como vazias)
       restricao1: { restricao: "" },
       restricao2: { restricao: "" },
       restricao3: { restricao: "" },
       restricao4: { restricao: "" },
     },
 
-    // CAMPOS “STATUS” / METADADOS
     codigoRetorno: apiData?.status === "ok" ? "0" : "1",
     codigoSituacao: "0",
     situacao_chassi: null,
@@ -138,11 +130,9 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
     ultima_atualizacao: apiData?.data_solicitacao || null,
     info: apiData?.data_solicitacao || null,
 
-    // FIPE / MULTAS – essa rota básica não traz esses dados, deixamos vazio
     fipe: { dados: [] },
     multas: { dados: [] },
 
-    // LOGO e SERVER (opcional – você pode trocar a logo se quiser)
     server: "https://api.consultarplaca.com.br",
     version: "v2",
     logo: null,
@@ -151,7 +141,6 @@ function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) 
   return response;
 }
 
-// Função auxiliar: executa a consulta na API Consultar Placa
 async function consultarPlacaExterna(placa: string) {
   const cleanPlate = placa.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 
@@ -165,9 +154,9 @@ async function consultarPlacaExterna(placa: string) {
   }
 
   const credentials = Buffer.from(`${API_USER}:${API_KEY}`).toString("base64");
-
   const url = `${API_URL}?placa=${encodeURIComponent(cleanPlate)}`;
 
+  // 🔍 Faz a requisição e guarda texto bruto pra debug
   const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -176,24 +165,37 @@ async function consultarPlacaExterna(placa: string) {
     },
   });
 
-  const data = await res.json().catch(() => null);
+  const text = await res.text();
+  let data: any = null;
 
+  try {
+    data = JSON.parse(text);
+  } catch {
+    console.error(
+      "Resposta NÃO-JSON da API Consultar Placa:",
+      `HTTP ${res.status}`,
+      text
+    );
+  }
+
+  // Se deu erro HTTP ou não deu pra parsear JSON
   if (!res.ok || !data) {
     return {
       error: true,
       message:
         data?.mensagem ||
-        "Erro ao consultar a placa na API Consultar Placa.",
+        `Erro ao consultar a placa na API Consultar Placa. HTTP ${res.status}.`,
       status: res.status || 500,
+      raw: text,
     };
   }
 
-  // A própria API já sinaliza sucesso com status = "ok"
   if (data.status !== "ok") {
     return {
       error: true,
       message: data.mensagem || "Consulta não retornou dados.",
       status: 400,
+      raw: data,
     };
   }
 
@@ -202,7 +204,6 @@ async function consultarPlacaExterna(placa: string) {
     cleanPlate
   );
 
-  // Mantemos o formato { error: false, message, response, ... }
   return {
     error: false,
     message: data.mensagem || "Consulta realizada com sucesso.",
@@ -211,7 +212,6 @@ async function consultarPlacaExterna(placa: string) {
   };
 }
 
-// 🔹 POST /api/consulta-placa  (usado pelo seu page.tsx)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -231,16 +231,14 @@ export async function POST(req: NextRequest) {
 
     if (result.error) {
       return NextResponse.json(
-        { error: true, message: result.message },
+        { error: true, message: result.message, raw: result.raw },
         { status: result.status || 400 }
       );
     }
 
-    // Devolvemos no mesmo padrão que o seu front já espera:
-    // { error: false, message, response, raw }
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
-    console.error("Erro interno em /api/consulta-placa:", err);
+    console.error("Erro interno em /api/consulta-placa (POST):", err);
     return NextResponse.json(
       {
         error: true,
@@ -251,7 +249,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// (Opcional) também aceitar GET /api/consulta-placa?placa=ABC1D23
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const placa = searchParams.get("placa") || undefined;
@@ -271,14 +268,14 @@ export async function GET(req: NextRequest) {
 
     if (result.error) {
       return NextResponse.json(
-        { error: true, message: result.message },
+        { error: true, message: result.message, raw: result.raw },
         { status: result.status || 400 }
       );
     }
 
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
-    console.error("Erro interno em GET /api/consulta-placa:", err);
+    console.error("Erro interno em /api/consulta-placa (GET):", err);
     return NextResponse.json(
       {
         error: true,
