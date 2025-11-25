@@ -1,168 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_URL = "https://api.consultarplaca.com.br/v2/consultarPlaca";
+// 🔴 TROQUE AQUI PELA URL EXATA QUE APARECE NO "Request URL" DO proxy.php
+// Exemplo provável: "https://consultaplaca.store/proxy.php"
+// ou então "https://apiplaca.blogweb.space/autocheck_proxy.php"
+const REMOTE_ENDPOINT = "https://consultaplaca.store/proxy.php";
 
-// 🔐 ALTERE AQUI: use o MESMO e-mail da sua conta ConsultarPlaca
-//     e a API KEY gerada no menu "API" do site.
-const API_USER = "SEU_EMAIL_DA_CONTA_NO_CONSULTARPLACA";
-const API_KEY = "SUA_API_KEY_GERADA_NO_PAINEL";
-
-// Normaliza / mapeia a resposta do Consultar Placa para o formato
-// que o seu front já estava usando.
-function mapConsultarPlacaToLegacyResponse(apiData: any, placaConsulta: string) {
-  const dados = apiData?.dados?.informacoes_veiculo || {};
-  const dv = dados.dados_veiculo || {};
-  const dt = dados.dados_tecnicos || {};
-  const dc = dados.dados_carga || {};
-
-  const placa = dv.placa || placaConsulta;
-
-  const response = {
-    placa,
-    placa_modelo_antigo: placa,
-    placa_modelo_novo: placa,
-    placa_nova: "f",
-
-    chassi: dv.chassi || null,
-    ano: dv.ano_fabricacao || null,
-    anoModelo: dv.ano_modelo || null,
-
-    marca: dv.marca || null,
-    modelo: dv.modelo || null,
-    marca_modelo: {
-      marca: dv.marca || null,
-      modelo: dv.modelo || null,
-      segmento: dv.segmento || null,
-      versao: null,
-    },
-
-    cor: dv.cor || null,
-    cor_veiculo: {
-      cor: dv.cor || null,
-    },
-
-    segmento: dv.segmento || null,
-    combustivel: dv.combustivel || null,
-    potencia: dt.potencia || null,
-    cilindradas: dt.cilindradas || null,
-
-    municipio: dv.municipio || null,
-    uf: dv.uf_municipio || null,
-    uf_placa: dv.uf_municipio || null,
-
-    nacionalidade: {
-      nacionalidade: dv.procedencia || null,
-    },
-
-    quantidade_passageiro: dc.capacidade_passageiro || null,
-    eixos: dc.numero_eixos || null,
-    capacidade_carga: null,
-
-    tipo_veiculo: {
-      tipo_veiculo: dt.tipo_veiculo || null,
-    },
-
-    extra: {
-      placa,
-      placa_modelo_antigo: placa,
-      placa_modelo_novo: placa,
-      placa_nova: "f",
-
-      ano_fabricacao: dv.ano_fabricacao || null,
-      ano_modelo: dv.ano_modelo || null,
-
-      chassi: dv.chassi || null,
-      motor: dt.numero_motor || null,
-      caixa_cambio: dt.numero_caixa_cambio || null,
-
-      cor_veiculo: {
-        cor: dv.cor || null,
-      },
-
-      combustivel: dv.combustivel || null,
-      potencia: dt.potencia || null,
-      cilindradas: dt.cilindradas || null,
-      quantidade_passageiro: dc.capacidade_passageiro || null,
-      eixos: dc.numero_eixos || null,
-
-      cap_maxima_tracao: dc.capacidade_maxima_tracao || null,
-      capacidade_carga: null,
-      peso_bruto_total: null,
-
-      nacionalidade: dv.procedencia || null,
-
-      municipio: {
-        municipio: dv.municipio || null,
-        uf: dv.uf_municipio || null,
-      },
-
-      uf: dv.uf_municipio || null,
-      uf_placa: dv.uf_municipio || null,
-
-      renavam: null, // essa rota básica não traz renavam
-
-      faturado: null,
-      tipo_doc_faturado: {
-        tipo_pessoa: null,
-      },
-      tipo_doc_prop: {
-        tipo_pessoa: null,
-      },
-
-      data_atualizacao: apiData?.data_solicitacao || null,
-
-      restricao1: { restricao: "" },
-      restricao2: { restricao: "" },
-      restricao3: { restricao: "" },
-      restricao4: { restricao: "" },
-    },
-
-    codigoRetorno: apiData?.status === "ok" ? "0" : "1",
-    codigoSituacao: "0",
-    situacao_chassi: null,
-    situacao_veiculo: null,
-
-    linha: null,
-    caixa_cambio: dt.numero_caixa_cambio || null,
-    eixo_traseiro_dif: null,
-    terceiro_eixo: null,
-
-    ultima_atualizacao: apiData?.data_solicitacao || null,
-    info: apiData?.data_solicitacao || null,
-
-    fipe: { dados: [] },
-    multas: { dados: [] },
-
-    server: "https://api.consultarplaca.com.br",
-    version: "v2",
-    logo: null,
-  };
-
-  return response;
-}
-
-async function consultarPlacaExterna(placa: string) {
+async function consultarNoSite(placa: string) {
   const cleanPlate = placa.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 
   if (!cleanPlate || (cleanPlate.length !== 7 && cleanPlate.length !== 8)) {
     return {
       error: true,
-      message:
-        "Placa inválida. Use o formato ABC1234 ou ABC1D23.",
+      message: "Placa inválida. Use o formato ABC1234 ou ABC1D23.",
       status: 400,
     };
   }
 
-  const credentials = Buffer.from(`${API_USER}:${API_KEY}`).toString("base64");
-  const url = `${API_URL}?placa=${encodeURIComponent(cleanPlate)}`;
+  // 🚨 IMPORTANTE:
+  // Pelo DevTools você vê se o método é GET ou POST.
+  // O mais comum nesses sites é POST com form-data (x-www-form-urlencoded).
+  // Vou assumir POST + form "placa", que é o padrão.
+  //
+  // Se no Network aparecer outros campos (ex: "token", "acao"...),
+  // é só adicionar mais form.set("nome_campo", "valor").
+  const form = new URLSearchParams();
+  form.set("placa", cleanPlate);
 
-  // 🔍 Faz a requisição e guarda texto bruto pra debug
-  const res = await fetch(url, {
-    method: "GET",
+  const res = await fetch(REMOTE_ENDPOINT, {
+    method: "POST",
     headers: {
-      Authorization: `Basic ${credentials}`,
-      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     },
+    body: form.toString(),
   });
 
   const text = await res.text();
@@ -171,44 +40,24 @@ async function consultarPlacaExterna(placa: string) {
   try {
     data = JSON.parse(text);
   } catch {
-    console.error(
-      "Resposta NÃO-JSON da API Consultar Placa:",
-      `HTTP ${res.status}`,
-      text
-    );
-  }
-
-  // Se deu erro HTTP ou não deu pra parsear JSON
-  if (!res.ok || !data) {
+    // Se não for JSON puro, devolve o texto pra você debugar
     return {
       error: true,
       message:
-        data?.mensagem ||
-        `Erro ao consultar a placa na API Consultar Placa. HTTP ${res.status}.`,
+        `A resposta do site não é JSON puro (HTTP ${res.status}).`,
       status: res.status || 500,
       raw: text,
     };
   }
 
-  if (data.status !== "ok") {
-    return {
-      error: true,
-      message: data.mensagem || "Consulta não retornou dados.",
-      status: 400,
-      raw: data,
-    };
-  }
-
-  const mappedResponse = mapConsultarPlacaToLegacyResponse(
-    data,
-    cleanPlate
-  );
-
+  // Aqui eu ainda NÃO faço mapeamento fino pro formato antigo.
+  // Só embrulho tudo em "response" pra não quebrar o front.
   return {
     error: false,
-    message: data.mensagem || "Consulta realizada com sucesso.",
-    response: mappedResponse,
+    message: "Consulta feita via consultaplaca.store",
+    response: data,
     raw: data,
+    status: 200,
   };
 }
 
@@ -227,11 +76,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await consultarPlacaExterna(placa);
+    const result = await consultarNoSite(placa);
 
     if (result.error) {
       return NextResponse.json(
-        { error: true, message: result.message, raw: result.raw },
+        {
+          error: true,
+          message: result.message,
+          raw: result.raw,
+        },
         { status: result.status || 400 }
       );
     }
@@ -249,6 +102,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Opcional: GET /api/consulta-placa?placa=ABC1D23 pra você testar no navegador
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const placa = searchParams.get("placa") || undefined;
@@ -264,11 +118,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const result = await consultarPlacaExterna(placa);
+    const result = await consultarNoSite(placa);
 
     if (result.error) {
       return NextResponse.json(
-        { error: true, message: result.message, raw: result.raw },
+        {
+          error: true,
+          message: result.message,
+          raw: result.raw,
+        },
         { status: result.status || 400 }
       );
     }
