@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 const REMOTE_ENDPOINT = "https://consultaplaca.store/proxy.php";
 
+/**
+ * Consulta a placa no consultaplaca.store (proxy.php)
+ * e devolve NO MESMO FORMATO que a API antiga do apiveiculos,
+ * para o page.tsx não precisar mudar nada.
+ */
 async function consultarNoSite(placa: string) {
   const cleanPlate = placa.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 
@@ -13,7 +18,7 @@ async function consultarNoSite(placa: string) {
     };
   }
 
-  // Monta o form igual o site (x-www-form-urlencoded)
+  // Monta o form igual o site: x-www-form-urlencoded com "placa"
   const form = new URLSearchParams();
   form.set("placa", cleanPlate);
 
@@ -34,7 +39,7 @@ async function consultarNoSite(placa: string) {
   try {
     data = JSON.parse(text);
   } catch {
-    // Se não for JSON puro, devolve texto pra debug
+    // Se não for JSON puro, erro
     return {
       error: true,
       message: `A resposta do site não é JSON puro (HTTP ${res.status}).`,
@@ -43,15 +48,39 @@ async function consultarNoSite(placa: string) {
     };
   }
 
-  // Aqui só repassamos o JSON recebido dentro de "response"
-  // para não quebrar o page.tsx
-  return {
+  // Esperado a partir do consultaplaca:
+  // {
+  //   error: false,
+  //   message: "Requisição processada com sucesso",
+  //   response: { ...DADOS DO CARRO... },
+  //   api_limit: ...,
+  //   api_limit_for: ...,
+  //   api_limit_used: ...
+  // }
+
+  if (!res.ok || data.error) {
+    return {
+      error: true,
+      message: data?.message || data?.mensagem || "Erro na consulta.",
+      status: res.status || 400,
+      raw: data,
+    };
+  }
+
+  // 🔴 AQUI É O PULO DO GATO:
+  // Transformo o retorno em algo idêntico à API antiga (apiveiculos),
+  // ou seja: um único "response" com os campos do veículo.
+  const mapped = {
     error: false,
-    message: "Consulta feita via consultaplaca.store",
-    response: data,
-    raw: data,
-    status: 200,
+    message: data.message || "Requisição processada com sucesso",
+    response: data.response, // <- AGORA é o objeto que tem MARCA, MODELO, extra, etc
+    api_limit: data.api_limit,
+    api_limit_for: data.api_limit_for,
+    api_limit_used: data.api_limit_used,
+    raw: data, // guardo o original se quiser depurar depois
   };
+
+  return mapped;
 }
 
 export async function POST(req: NextRequest) {
@@ -76,12 +105,13 @@ export async function POST(req: NextRequest) {
         {
           error: true,
           message: result.message,
-          raw: result.raw,
+          raw: (result as any).raw,
         },
-        { status: result.status || 400 }
+        { status: (result as any).status || 400 }
       );
     }
 
+    // Devolvemos exatamente no formato que o page.tsx espera
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
     console.error("Erro interno em /api/consulta-placa (POST):", err);
@@ -95,7 +125,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/consulta-placa?placa=ABC1D23 para testar direto no navegador
+// GET /api/consulta-placa?placa=ABC1D23 (pra testar direto no navegador)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const placa = searchParams.get("placa") || undefined;
@@ -118,9 +148,9 @@ export async function GET(req: NextRequest) {
         {
           error: true,
           message: result.message,
-          raw: result.raw,
+          raw: (result as any).raw,
         },
-        { status: result.status || 400 }
+        { status: (result as any).status || 400 }
       );
     }
 
