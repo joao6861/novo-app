@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type PlateApiRoot = {
-  error: boolean;
-  message: string;
-  response: any;
-};
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -18,28 +12,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 👉 CONFIGURAÇÃO DA SUA API DE PLACAS
-    // Coloque na Vercel (ou .env.local):
-    // PLATE_API_URL  -> URL base da API
-    // PLATE_API_TOKEN -> seu token / chave de acesso
-    const API_URL = process.env.PLATE_API_URL;
-    const API_TOKEN = process.env.PLATE_API_TOKEN;
+    // ============================================
+    //  AQUI VOCÊ COLOCA A MESMA API QUE JÁ USAVA
+    // ============================================
+    // Exemplo genérico – TROQUE pelos dados reais:
+    const API_URL = "https://SUA-API-DE-PLACAS.com/consulta"; // ⬅ coloque aqui a URL que funcionava
+    const API_TOKEN = "SEU_TOKEN_AQUI";                        // ⬅ coloque aqui o token/chave
 
-    if (!API_URL || !API_TOKEN) {
-      console.error("Faltando PLATE_API_URL ou PLATE_API_TOKEN nas envs.");
-      return NextResponse.json(
-        {
-          error: true,
-          message:
-            "Configuração do servidor incompleta (PLATE_API_URL / PLATE_API_TOKEN).",
-          response: null,
-        },
-        { status: 500 }
-      );
-    }
-
-    // 👉 MONTE A URL CONFORME A SUA API DE PLACAS
-    // Exemplo de API que recebe GET com query ?placa=...&token=...
+    // Se sua API já recebia assim (GET com ?placa=&token=), esse exemplo funciona:
     const url = `${API_URL}?placa=${encodeURIComponent(
       placa
     )}&token=${encodeURIComponent(API_TOKEN)}`;
@@ -48,6 +28,9 @@ export async function POST(req: NextRequest) {
       method: "GET",
       headers: {
         Accept: "application/json",
+        // Se a sua API usava Authorization em vez de query string,
+        // você pode fazer algo assim:
+        // Authorization: `Bearer ${API_TOKEN}`,
       },
     });
 
@@ -59,31 +42,35 @@ export async function POST(req: NextRequest) {
       data = text;
     }
 
-    // Se a API externa já manda { error, message, response }
-    const maybePlate = data as Partial<PlateApiRoot>;
+    // Algumas APIs já retornam { error, message, response }
+    const erro = !!(data && typeof data === "object" && data.error);
+    const mensagem =
+      (data && typeof data === "object" && data.message) ||
+      (typeof data === "string" ? data : "");
+    const responseField =
+      data && typeof data === "object" && "response" in data
+        ? data.response
+        : data;
 
-    if (!externalRes.ok || maybePlate.error) {
+    if (!externalRes.ok || erro) {
       console.error("Erro API placas:", externalRes.status, data);
       return NextResponse.json(
         {
           error: true,
           message:
-            maybePlate.message ||
-            (typeof data === "string"
-              ? data
-              : "Erro ao consultar a API de placas."),
-          response: maybePlate.response ?? data,
+            mensagem || "Erro ao consultar a API de placas.",
+          response: responseField,
         },
         { status: externalRes.status }
       );
     }
 
-    // Normaliza sempre para o formato que o page.tsx espera
+    // Normaliza para o formato que o page.tsx espera
     return NextResponse.json(
       {
         error: false,
-        message: maybePlate.message || "OK",
-        response: maybePlate.response ?? data,
+        message: mensagem || "OK",
+        response: responseField,
       },
       { status: 200 }
     );
