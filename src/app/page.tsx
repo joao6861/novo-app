@@ -28,13 +28,18 @@ type PlacaInfo = {
 };
 
 type MaintenanceRow = {
-  col1: string; // item
-  col2: string; // especificação / código
+  label: string; // item ou marca, dependendo do tipo de módulo
+  value: string; // especificação ou código
   searchTerm: string;
+  extra?: {
+    brand?: string;
+    code?: string;
+  };
 };
 
 type MaintenanceModule = {
-  title: string;
+  title: string; // ex: "Óleos e fluidos" ou "Filtro de óleo"
+  kind: "generic" | "filters"; // generic = ITEM/ESPECIFICAÇÃO, filters = MARCA/CÓDIGO
   rows: MaintenanceRow[];
 };
 
@@ -775,7 +780,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "#ffffff",
     borderTop: "1px solid #e5e7eb",
     fontSize: 12,
-    color: "#111827",        // <<< COR DO TEXTO DAS LINHAS
+    color: "#111827",
   },
   filterCell: {
     padding: "8px 12px",
@@ -870,16 +875,21 @@ export default function Home() {
   if (principalVeiculo) {
     const v: any = principalVeiculo;
 
-    const ensureModule = (title: string): MaintenanceModule => {
-      let m = maintenanceModules.find((mm) => mm.title === title);
+    const ensureModule = (
+      title: string,
+      kind: "generic" | "filters"
+    ): MaintenanceModule => {
+      let m = maintenanceModules.find(
+        (mm) => mm.title === title && mm.kind === kind
+      );
       if (!m) {
-        m = { title, rows: [] };
+        m = { title, kind, rows: [] };
         maintenanceModules.push(m);
       }
       return m;
     };
 
-    const addRow = (
+    const addGenericRow = (
       title: string,
       label: string,
       value: unknown,
@@ -888,11 +898,33 @@ export default function Home() {
       if (value === null || value === undefined) return;
       const valStr = String(value).trim();
       if (!valStr) return;
-      const mod = ensureModule(title);
+
+      const mod = ensureModule(title, "generic");
       mod.rows.push({
-        col1: label,
-        col2: valStr,
+        label,
+        value: valStr,
         searchTerm: searchTerm || valStr,
+      });
+    };
+
+    const addFilterRow = (
+      filterTitle: string,
+      brand: unknown,
+      code: unknown
+    ) => {
+      const brandStr = (brand ?? "").toString().trim();
+      const codeStr = (code ?? "").toString().trim();
+      if (!brandStr && !codeStr) return;
+
+      const mod = ensureModule(filterTitle, "filters");
+      mod.rows.push({
+        label: brandStr || "—",
+        value: codeStr || "—",
+        searchTerm: codeStr || brandStr,
+        extra: {
+          brand: brandStr || "—",
+          code: codeStr || "—",
+        },
       });
     };
 
@@ -903,7 +935,7 @@ export default function Home() {
         .replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
-    // Campos "bonitinhos" conhecidos
+    // Campos conhecidos - ÓLEOS E FLUIDOS (um módulo único)
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -914,7 +946,7 @@ export default function Home() {
       if (v.oleo_motor_viscosidade) parts.push(String(v.oleo_motor_viscosidade));
       if (v.oleo_motor_especificacao)
         parts.push(String(v.oleo_motor_especificacao));
-      addRow("Óleos e fluidos", "Óleo do motor", parts.join(" · "));
+      addGenericRow("Óleos e fluidos", "Óleo do motor", parts.join(" · "));
     }
 
     if (
@@ -929,7 +961,11 @@ export default function Home() {
         parts.push(String(v.oleo_cambio_manual_viscosidade));
       if (v.oleo_cambio_manual_especificacao)
         parts.push(String(v.oleo_cambio_manual_especificacao));
-      addRow("Óleos e fluidos", "Óleo do câmbio manual", parts.join(" · "));
+      addGenericRow(
+        "Óleos e fluidos",
+        "Óleo do câmbio manual",
+        parts.join(" · ")
+      );
     }
 
     if (
@@ -944,7 +980,11 @@ export default function Home() {
         parts.push(`Parcial: ${v.oleo_cambio_auto_parcial_litros} L`);
       if (v.oleo_cambio_auto_especificacao)
         parts.push(String(v.oleo_cambio_auto_especificacao));
-      addRow("Óleos e fluidos", "Óleo do câmbio automático", parts.join(" · "));
+      addGenericRow(
+        "Óleos e fluidos",
+        "Óleo do câmbio automático",
+        parts.join(" · ")
+      );
     }
 
     if (v.aditivo_radiador_litros || v.aditivo_radiador_tipo) {
@@ -953,40 +993,46 @@ export default function Home() {
         parts.push(`${v.aditivo_radiador_litros} L`);
       if (v.aditivo_radiador_tipo) parts.push(String(v.aditivo_radiador_tipo));
       if (v.aditivo_radiador_cor) parts.push(String(v.aditivo_radiador_cor));
-      addRow("Óleos e fluidos", "Líquido de arrefecimento", parts.join(" · "));
+      addGenericRow(
+        "Óleos e fluidos",
+        "Líquido de arrefecimento",
+        parts.join(" · ")
+      );
     }
 
     if (v.fluido_freio_litros || v.fluido_freio_tipo) {
       const parts: string[] = [];
       if (v.fluido_freio_litros) parts.push(`${v.fluido_freio_litros} L`);
       if (v.fluido_freio_tipo) parts.push(String(v.fluido_freio_tipo));
-      addRow("Óleos e fluidos", "Fluido de freio", parts.join(" · "));
+      addGenericRow("Óleos e fluidos", "Fluido de freio", parts.join(" · "));
     }
 
-    // Filtros em objeto "filtros"
+    // Filtros estruturados (cada TIPO de filtro vira um módulo separado)
     if (v.filtros && typeof v.filtros === "object") {
       const f = v.filtros;
-      const handleFilterArray = (arr: any[], labelPrefix: string) => {
+
+      const handleFilterArray = (arr: any[], tituloModulo: string) => {
         arr.forEach((item: any) => {
           if (!item) return;
-          const brand = String(item.marca || "—");
-          const code = String(item.codigo || "—");
-          const desc = `${brand} · ${code}`;
-          addRow("Filtros", `${labelPrefix}`, desc, code);
+          addFilterRow(tituloModulo, item.marca, item.codigo);
         });
       };
 
-      if (Array.isArray(f.oleo)) handleFilterArray(f.oleo, "Filtro de óleo");
+      if (Array.isArray(f.oleo))
+        handleFilterArray(f.oleo, "Filtro de óleo");
       if (Array.isArray(f.ar)) handleFilterArray(f.ar, "Filtro de ar");
       if (Array.isArray(f.cabine))
         handleFilterArray(f.cabine, "Filtro de cabine");
       if (Array.isArray(f.combustivel))
         handleFilterArray(f.combustivel, "Filtro de combustível");
       if (Array.isArray(f.cambio_auto))
-        handleFilterArray(f.cambio_auto, "Filtro de câmbio automático");
+        handleFilterArray(
+          f.cambio_auto,
+          "Filtro de câmbio automático"
+        );
     }
 
-    // Varredura genérica: qualquer campo vai pra algum módulo
+    // Varredura genérica dos demais campos (exceto "filtro", que já foi tratado acima)
     Object.entries(v).forEach(([key, value]) => {
       if (value === null || value === undefined) return;
       if (typeof value === "object") return;
@@ -994,6 +1040,9 @@ export default function Home() {
       if (!valStr) return;
 
       const k = key.toLowerCase();
+
+      // pular campos de filtro aqui, pois já estamos pegando do objeto v.filtros
+      if (k.includes("filtro")) return;
 
       let title: string;
 
@@ -1009,8 +1058,6 @@ export default function Home() {
         k.includes("direcao")
       ) {
         title = "Óleos e fluidos";
-      } else if (k.includes("filtro")) {
-        title = "Filtros";
       } else if (k.includes("palheta") || k.includes("limpador")) {
         title = "Palhetas / Limpadores";
       } else if (
@@ -1026,7 +1073,7 @@ export default function Home() {
       }
 
       const label = niceLabelFromKey(key);
-      addRow(title, label, valStr);
+      addGenericRow(title, label, valStr);
     });
   }
 
@@ -1381,7 +1428,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* TABELAS COM TODOS ITENS DA BASE INTERNA */}
+                    {/* TABELAS DE MANUTENÇÃO */}
                     {principalVeiculo && maintenanceModules.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
@@ -1389,23 +1436,39 @@ export default function Home() {
                         </div>
 
                         {maintenanceModules.map((mod) => (
-                          <div key={mod.title} style={styles.filterModule}>
+                          <div key={`${mod.kind}-${mod.title}`} style={styles.filterModule}>
                             <div style={styles.filterModuleTitleBar}>
                               <div style={styles.filterModuleTitleText}>
-                                {mod.title}
+                                {mod.title.toUpperCase()}
                               </div>
                             </div>
                             <div style={styles.filterTable}>
                               <div style={styles.filterHeaderRow}>
-                                <div style={styles.filterHeaderCell}>
-                                  ITEM
-                                </div>
-                                <div style={styles.filterHeaderCell}>
-                                  ESPECIFICAÇÃO / CÓDIGO
-                                </div>
-                                <div style={styles.filterHeaderCell}>
-                                  BUSCAR NA LOJA
-                                </div>
+                                {mod.kind === "filters" ? (
+                                  <>
+                                    <div style={styles.filterHeaderCell}>
+                                      MARCA
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      CÓDIGO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div style={styles.filterHeaderCell}>
+                                      ITEM
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      ESPECIFICAÇÃO / CÓDIGO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
+                                  </>
+                                )}
                               </div>
                               {mod.rows.map((row, idx) => (
                                 <div
@@ -1413,10 +1476,14 @@ export default function Home() {
                                   style={styles.filterRow}
                                 >
                                   <div style={styles.filterCell}>
-                                    {row.col1}
+                                    {mod.kind === "filters"
+                                      ? row.extra?.brand || row.label
+                                      : row.label}
                                   </div>
                                   <div style={styles.filterCell}>
-                                    {row.col2}
+                                    {mod.kind === "filters"
+                                      ? row.extra?.code || row.value
+                                      : row.value}
                                   </div>
                                   <div style={styles.filterCellAction}>
                                     <SearchButton term={row.searchTerm} />
