@@ -34,6 +34,12 @@ type MaintenanceItem = {
   searchTerm: string;
 };
 
+type FilterRow = {
+  brand: string;
+  code: string;
+  searchTerm: string;
+};
+
 /** Utilitário: transforma string em lista de tokens normalizados */
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
@@ -740,7 +746,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  // NOVOS ESTILOS PARA A SEÇÃO DE MANUTENÇÃO EM FORMATO DE TABELA
+  /* TABELA DE FLUÍDOS (produto/especificação + botão) */
   maintenanceTable: {
     marginTop: 4,
     borderRadius: 8,
@@ -786,7 +792,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
     borderRight: "1px solid #e5e7eb",
-    backgroundColor: "#facc15",
+    backgroundColor: "#facc15", // amarelo do ícone
     fontSize: 14,
   },
   maintenanceMainCell: {
@@ -825,6 +831,67 @@ const styles: { [key: string]: React.CSSProperties } = {
     textDecoration: "none",
     whiteSpace: "nowrap",
     fontWeight: 600,
+  },
+
+  /* MÓDULOS DE FILTROS (3 colunas: Marca, Código, Botão) */
+  filterModule: {
+    marginTop: 18,
+  },
+  filterModuleTitleBar: {
+    backgroundColor: "#000000",
+    padding: "4px 10px",
+    borderRadius: "8px 8px 0 0",
+    border: "1px solid #111827",
+    borderBottom: "none",
+    color: "#f9fafb",
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+    fontWeight: 600,
+  },
+  filterModuleTitleText: {
+    textAlign: "center",
+  },
+  filterTable: {
+    borderRadius: "0 0 8px 8px",
+    overflow: "hidden",
+    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
+    border: "1px solid #111827",
+    backgroundColor: "#ffffff",
+  },
+  filterHeaderRow: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 1.4fr 1fr",
+    backgroundColor: "#111827",
+    color: "#f9fafb",
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+    fontWeight: 600,
+  },
+  filterHeaderCell: {
+    padding: "6px 12px",
+    borderRight: "1px solid #1f2937",
+    textAlign: "center",
+  },
+  filterRow: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 1.4fr 1fr",
+    backgroundColor: "#ffffff",
+    borderTop: "1px solid #e5e7eb",
+    fontSize: 12,
+  },
+  filterCell: {
+    padding: "8px 12px",
+    display: "flex",
+    alignItems: "center",
+    borderRight: "1px solid #e5e7eb",
+  },
+  filterCellAction: {
+    padding: "8px 12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 };
 
@@ -899,7 +966,14 @@ export default function Home() {
   // Veículo principal da base interna para puxar manutenção
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  const manutencaoFromBase: MaintenanceItem[] = [];
+  // >>> NOVO: separar fluidos e filtros <<<
+  const fluidMaintenance: MaintenanceItem[] = [];
+  const filterOilRows: FilterRow[] = [];
+  const filterAirRows: FilterRow[] = [];
+  const filterCabinRows: FilterRow[] = [];
+  const filterFuelRows: FilterRow[] = [];
+  const filterTransRows: FilterRow[] = [];
+
   if (principalVeiculo) {
     const v: any = principalVeiculo;
 
@@ -911,7 +985,7 @@ export default function Home() {
     if (v.oleo_motor_especificacao)
       motorParts.push(String(v.oleo_motor_especificacao));
     if (motorParts.length) {
-      manutencaoFromBase.push({
+      fluidMaintenance.push({
         label: "Óleo do motor",
         value: motorParts.join(" · "),
         searchTerm:
@@ -935,7 +1009,7 @@ export default function Home() {
       if (v.oleo_cambio_manual_especificacao)
         parts.push(String(v.oleo_cambio_manual_especificacao));
 
-      manutencaoFromBase.push({
+      fluidMaintenance.push({
         label: "Óleo do câmbio manual",
         value: parts.join(" · "),
         searchTerm:
@@ -959,7 +1033,7 @@ export default function Home() {
       if (v.oleo_cambio_auto_especificacao)
         parts.push(String(v.oleo_cambio_auto_especificacao));
 
-      manutencaoFromBase.push({
+      fluidMaintenance.push({
         label: "Óleo do câmbio automático",
         value: parts.join(" · "),
         searchTerm:
@@ -978,7 +1052,7 @@ export default function Home() {
       if (v.aditivo_radiador_cor)
         parts.push(String(v.aditivo_radiador_cor));
 
-      manutencaoFromBase.push({
+      fluidMaintenance.push({
         label: "Líquido de arrefecimento",
         value: parts.join(" · "),
         searchTerm:
@@ -996,21 +1070,23 @@ export default function Home() {
       if (v.fluido_freio_tipo)
         parts.push(String(v.fluido_freio_tipo));
 
-      manutencaoFromBase.push({
+      fluidMaintenance.push({
         label: "Fluido de freio",
         value: parts.join(" · "),
         searchTerm: v.fluido_freio_tipo || "fluido freio",
       });
     }
 
-    // FILTROS - todos com botão
+    // FILTROS - cada tipo vira um módulo
     if (v.filtros?.oleo?.length > 0) {
       v.filtros.oleo.forEach((f: any) => {
         if (!f) return;
-        manutencaoFromBase.push({
-          label: `Filtro de óleo (${f.marca || "WEGA"})`,
-          value: String(f.codigo || "—"),
-          searchTerm: f.codigo || `${f.marca || ""} filtro óleo`,
+        const brand = String(f.marca || "WEGA");
+        const code = String(f.codigo || "—");
+        filterOilRows.push({
+          brand,
+          code,
+          searchTerm: code || `${brand} filtro óleo`,
         });
       });
     }
@@ -1018,10 +1094,12 @@ export default function Home() {
     if (v.filtros?.ar?.length > 0) {
       v.filtros.ar.forEach((f: any) => {
         if (!f) return;
-        manutencaoFromBase.push({
-          label: `Filtro de ar (${f.marca || "WEGA"})`,
-          value: String(f.codigo || "—"),
-          searchTerm: f.codigo || `${f.marca || ""} filtro ar`,
+        const brand = String(f.marca || "WEGA");
+        const code = String(f.codigo || "—");
+        filterAirRows.push({
+          brand,
+          code,
+          searchTerm: code || `${brand} filtro ar`,
         });
       });
     }
@@ -1029,10 +1107,12 @@ export default function Home() {
     if (v.filtros?.cabine?.length > 0) {
       v.filtros.cabine.forEach((f: any) => {
         if (!f) return;
-        manutencaoFromBase.push({
-          label: `Filtro de cabine (${f.marca || "WEGA"})`,
-          value: String(f.codigo || "—"),
-          searchTerm: f.codigo || `${f.marca || ""} filtro cabine`,
+        const brand = String(f.marca || "WEGA");
+        const code = String(f.codigo || "—");
+        filterCabinRows.push({
+          brand,
+          code,
+          searchTerm: code || `${brand} filtro cabine`,
         });
       });
     }
@@ -1040,10 +1120,12 @@ export default function Home() {
     if (v.filtros?.combustivel?.length > 0) {
       v.filtros.combustivel.forEach((f: any) => {
         if (!f) return;
-        manutencaoFromBase.push({
-          label: `Filtro de combustível (${f.marca || "WEGA"})`,
-          value: String(f.codigo || "—"),
-          searchTerm: f.codigo || `${f.marca || ""} filtro combustível`,
+        const brand = String(f.marca || "WEGA");
+        const code = String(f.codigo || "—");
+        filterFuelRows.push({
+          brand,
+          code,
+          searchTerm: code || `${brand} filtro combustível`,
         });
       });
     }
@@ -1051,10 +1133,12 @@ export default function Home() {
     if (v.filtros?.cambio_auto?.length > 0) {
       v.filtros.cambio_auto.forEach((f: any) => {
         if (!f) return;
-        manutencaoFromBase.push({
-          label: `Filtro do câmbio automático (${f.marca || "WEGA"})`,
-          value: String(f.codigo || "—"),
-          searchTerm: f.codigo || `${f.marca || ""} filtro câmbio automático`,
+        const brand = String(f.marca || "WEGA");
+        const code = String(f.codigo || "—");
+        filterTransRows.push({
+          brand,
+          code,
+          searchTerm: code || `${brand} filtro câmbio automático`,
         });
       });
     }
@@ -1243,7 +1327,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FILTROS */}
+      {/* FILTROS (técnico – continua como antes) */}
       <div style={{ marginTop: 8 }}>
         <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
           Filtros
@@ -1430,7 +1514,7 @@ export default function Home() {
               />
             </a>
 
-          <button type="button" style={styles.systemButton}>
+            <button type="button" style={styles.systemButton}>
               Sistema Online
             </button>
           </header>
@@ -1588,43 +1672,329 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 1.1 INFORMAÇÕES DE MANUTENÇÃO (logo abaixo de Dados gerais) */}
-                    {principalVeiculo && manutencaoFromBase.length > 0 && (
-                      <div style={styles.resultSection}>
-                        <div style={styles.resultSectionTitle}>
-                          Informações de manutenção (base interna)
-                        </div>
-
-                        <div style={styles.maintenanceTable}>
-                          <div style={styles.maintenanceHeaderRow}>
-                            <div style={styles.maintenanceHeaderIconCell}></div>
-                            <div style={styles.maintenanceHeaderMainCell}>
-                              PRODUTO / ESPECIFICAÇÃO
-                            </div>
-                            <div style={styles.maintenanceHeaderBrandCell}>
-                              BUSCAR NA LOJA
-                            </div>
+                    {/* 1.1 INFORMAÇÕES DE MANUTENÇÃO */}
+                    {principalVeiculo &&
+                      (fluidMaintenance.length > 0 ||
+                        filterOilRows.length > 0 ||
+                        filterAirRows.length > 0 ||
+                        filterCabinRows.length > 0 ||
+                        filterFuelRows.length > 0 ||
+                        filterTransRows.length > 0) && (
+                        <div style={styles.resultSection}>
+                          <div style={styles.resultSectionTitle}>
+                            Informações de manutenção (base interna)
                           </div>
 
-                          {manutencaoFromBase.map((item, idx) => (
-                            <div key={idx} style={styles.maintenanceRow}>
-                              <div style={styles.maintenanceIconCell}>🔎</div>
-                              <div style={styles.maintenanceMainCell}>
-                                <div style={styles.maintenanceValue}>
-                                  {item.value}
+                          {/* FLUÍDOS EM TABELA ÚNICA */}
+                          {fluidMaintenance.length > 0 && (
+                            <div style={styles.maintenanceTable}>
+                              <div style={styles.maintenanceHeaderRow}>
+                                <div
+                                  style={
+                                    styles.maintenanceHeaderIconCell
+                                  }
+                                />
+                                <div
+                                  style={
+                                    styles.maintenanceHeaderMainCell
+                                  }
+                                >
+                                  PRODUTO / ESPECIFICAÇÃO
                                 </div>
-                                <div style={styles.maintenanceLabel}>
-                                  {item.label}
+                                <div
+                                  style={
+                                    styles.maintenanceHeaderBrandCell
+                                  }
+                                >
+                                  BUSCAR NA LOJA
                                 </div>
                               </div>
-                              <div style={styles.maintenanceActionCell}>
-                                <SearchButton term={item.searchTerm} />
+
+                              {fluidMaintenance.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  style={styles.maintenanceRow}
+                                >
+                                  <div
+                                    style={styles.maintenanceIconCell}
+                                  >
+                                    🔎
+                                  </div>
+                                  <div
+                                    style={styles.maintenanceMainCell}
+                                  >
+                                    <div
+                                      style={styles.maintenanceValue}
+                                    >
+                                      {item.value}
+                                    </div>
+                                    <div
+                                      style={styles.maintenanceLabel}
+                                    >
+                                      {item.label}
+                                    </div>
+                                  </div>
+                                  <div
+                                    style={
+                                      styles.maintenanceActionCell
+                                    }
+                                  >
+                                    <SearchButton
+                                      term={item.searchTerm}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* MÓDULOS DE FILTROS */}
+                          {filterOilRows.length > 0 && (
+                            <div style={styles.filterModule}>
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  FILTRO DE ÓLEO
+                                </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                <div style={styles.filterHeaderRow}>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    MARCA
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    CÓDIGO
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                                {filterOilRows.map((row, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.brand}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.code}
+                                    </div>
+                                    <div
+                                      style={styles.filterCellAction}
+                                    >
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
-                          ))}
+                          )}
+
+                          {filterAirRows.length > 0 && (
+                            <div style={styles.filterModule}>
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  FILTRO DE AR
+                                </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                <div style={styles.filterHeaderRow}>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    MARCA
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    CÓDIGO
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                                {filterAirRows.map((row, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.brand}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.code}
+                                    </div>
+                                    <div
+                                      style={styles.filterCellAction}
+                                    >
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {filterCabinRows.length > 0 && (
+                            <div style={styles.filterModule}>
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  FILTRO DE CABINE
+                                </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                <div style={styles.filterHeaderRow}>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    MARCA
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    CÓDIGO
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                                {filterCabinRows.map((row, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.brand}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.code}
+                                    </div>
+                                    <div
+                                      style={styles.filterCellAction}
+                                    >
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {filterFuelRows.length > 0 && (
+                            <div style={styles.filterModule}>
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  FILTRO DE COMBUSTÍVEL
+                                </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                <div style={styles.filterHeaderRow}>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    MARCA
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    CÓDIGO
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                                {filterFuelRows.map((row, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.brand}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.code}
+                                    </div>
+                                    <div
+                                      style={styles.filterCellAction}
+                                    >
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {filterTransRows.length > 0 && (
+                            <div style={styles.filterModule}>
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  FILTRO CÂMBIO AUTOMÁTICO
+                                </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                <div style={styles.filterHeaderRow}>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    MARCA
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    CÓDIGO
+                                  </div>
+                                  <div
+                                    style={styles.filterHeaderCell}
+                                  >
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                                {filterTransRows.map((row, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.brand}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.code}
+                                    </div>
+                                    <div
+                                      style={styles.filterCellAction}
+                                    >
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* 2. ESPECIFICAÇÕES TÉCNICAS */}
                     <div style={styles.resultSection}>
