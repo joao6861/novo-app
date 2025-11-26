@@ -775,6 +775,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "#ffffff",
     borderTop: "1px solid #e5e7eb",
     fontSize: 12,
+    color: "#111827",        // <<< COR DO TEXTO DAS LINHAS
   },
   filterCell: {
     padding: "8px 12px",
@@ -804,7 +805,7 @@ function SearchButton({ term }: { term: string }) {
         fontSize: 11,
         padding: "6px 12px",
         borderRadius: 999,
-        border: "1px solid #00b8ff",
+        border: "1px solid #00b7ff",
         backgroundColor: "transparent",
         color: "#0284c7",
         cursor: "pointer",
@@ -863,7 +864,7 @@ export default function Home() {
 
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  // ---- NOVO: construção dos módulos de manutenção (tudo que vier do banco) ----
+  // ----------------- MONTAGEM DOS MÓDULOS DE MANUTENÇÃO -----------------
   const maintenanceModules: MaintenanceModule[] = [];
 
   if (principalVeiculo) {
@@ -902,7 +903,7 @@ export default function Home() {
         .replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
-    // 1) Campos conhecidos (monta descrições mais bonitas)
+    // Campos "bonitinhos" conhecidos
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -962,7 +963,7 @@ export default function Home() {
       addRow("Óleos e fluidos", "Fluido de freio", parts.join(" · "));
     }
 
-    // Filtros em objeto "filtros" (se existir)
+    // Filtros em objeto "filtros"
     if (v.filtros && typeof v.filtros === "object") {
       const f = v.filtros;
       const handleFilterArray = (arr: any[], labelPrefix: string) => {
@@ -985,16 +986,16 @@ export default function Home() {
         handleFilterArray(f.cambio_auto, "Filtro de câmbio automático");
     }
 
-    // 2) Varredura genérica de TODOS os campos do veículo
+    // Varredura genérica: qualquer campo vai pra algum módulo
     Object.entries(v).forEach(([key, value]) => {
       if (value === null || value === undefined) return;
-      if (typeof value === "object") return; // objetos tratamos separadamente
+      if (typeof value === "object") return;
       const valStr = String(value).trim();
       if (!valStr) return;
 
       const k = key.toLowerCase();
 
-      let title: string | null = null;
+      let title: string;
 
       if (
         k.includes("oleo") ||
@@ -1021,7 +1022,6 @@ export default function Home() {
       ) {
         title = "Lâmpadas / Iluminação";
       } else {
-        // Se não bater com nada, joga em "Outros itens de manutenção"
         title = "Outros itens de manutenção";
       }
 
@@ -1381,7 +1381,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* NOVO BLOCO: TABELAS EM MÓDULOS */}
+                    {/* TABELAS COM TODOS ITENS DA BASE INTERNA */}
                     {principalVeiculo && maintenanceModules.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
