@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-
 import {
   getMarcas,
   getModelosByMarca,
   buscarVeiculosPorMarcaModelo,
 } from "@/lib/vehicle-data";
+
+// ====== TIPOS ======
 
 type PlacaInfo = {
   placa: string;
@@ -45,6 +46,8 @@ type MaintenanceModule = {
   kind: "generic" | "filters" | "diff";
   rows: MaintenanceRow[];
 };
+
+// ====== HELPERS DE TEXTO ======
 
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
@@ -336,6 +339,15 @@ function montarDetalhesVeiculo(r: any): string {
   return partes.join(" • ");
 }
 
+function niceLabelFromKey(key: string): string {
+  return key
+    .replace(/^filtros?_?/i, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// ====== ESTILOS ======
+
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
@@ -346,7 +358,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: "border-box",
   },
   topArea: {
-    padding: "24px 16px 0",
+    padding: "24px 16px 24px",
   },
   topInner: {
     width: "100%",
@@ -411,7 +423,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   cardLabel: {
     fontWeight: 500,
   },
-
   subTabsRow: {
     display: "inline-flex",
     gap: 8,
@@ -419,6 +430,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: "rgba(15,23,42,0.45)",
     borderRadius: 999,
     marginBottom: 10,
+    marginTop: 10,
   },
   subTabBtn: {
     borderRadius: 999,
@@ -434,7 +446,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#0f172a",
     fontWeight: 600,
   },
-
   searchWrapper: {
     marginTop: 8,
     marginBottom: 8,
@@ -471,6 +482,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: 10,
+    marginTop: 6,
   },
   manualField: {
     display: "flex",
@@ -495,10 +507,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "flex-end",
   },
   resultWrapper: {
-    marginTop: 12,
+    marginTop: 20,
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 20,
+    marginBottom: 40,
   },
   resultSection: {
     padding: "12px 0 4px",
@@ -509,15 +522,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: "left",
   },
   resultSectionTitle: {
-    fontWeight: 700,
+    fontWeight: 800,
     marginBottom: 14,
-    fontSize: 16,
+    fontSize: 18,
     textTransform: "uppercase",
-    letterSpacing: "0.12em",
+    letterSpacing: "0.18em",
   },
   resultGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: 10,
   },
   resultItem: {
@@ -554,219 +567,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid rgba(148,163,184,0.7)",
     background: "rgba(15,23,42,0.96)",
   },
-
-  heroOuter: {
-    background:
-      "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
-    padding: "56px 16px 48px",
-    boxShadow: "0 -12px 32px rgba(0,0,0,0.45)",
-  },
-  heroInner: {
-    width: "100%",
-    maxWidth: 1200,
-    margin: "0 auto",
-    textAlign: "center",
-  },
-  heroBadge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    borderRadius: 999,
-    border: "1px solid rgba(56,189,248,0.7)",
-    padding: "7px 20px",
-    fontSize: 11,
-    marginBottom: 26,
-    background:
-      "linear-gradient(135deg, rgba(15,23,42,0.95), rgba(8,47,73,0.95))",
-  },
-  heroBadgeIcon: {
-    fontSize: 13,
-  },
-  heroBadgeText: {
-    letterSpacing: "0.16em",
-    textTransform: "uppercase",
-    opacity: 0.9,
-  },
-  heroTitleLine1: {
-    fontSize: 46,
-    fontWeight: 800,
-    margin: "0 0 4px 0",
-  },
-  heroTitleLine2: {
-    fontSize: 46,
-    fontWeight: 800,
-    margin: 0,
-    color: "#60a5fa",
-  },
-  heroText: {
-    marginTop: 20,
-    marginBottom: 0,
-    fontSize: 15,
-    opacity: 0.95,
-    maxWidth: 780,
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-
-  whyOuter: {
-    backgroundColor: "#020617",
-    padding: "56px 16px 64px",
-  },
-  whyInner: {
-    width: "100%",
-    maxWidth: 1100,
-    margin: "0 auto",
-    textAlign: "center",
-    color: "#e5e7eb",
-  },
-  whyTitle: {
-    marginTop: 0,
-    marginBottom: 8,
-    fontSize: 24,
-    fontWeight: 700,
-  },
-  whySub: {
-    marginTop: 0,
-    marginBottom: 32,
-    fontSize: 14,
-    color: "#9ca3af",
-  },
-  featureGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 24,
-  },
-  featureCard: {
-    background:
-      "radial-gradient(circle at top, #111827 0%, #020617 45%, #020617 100%)",
-    borderRadius: 24,
-    padding: "32px 28px 30px",
-    boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
-    border: "1px solid rgba(148,163,184,0.12)",
-    textAlign: "center",
-  },
-  featureTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    marginBottom: 10,
-    color: "#f9fafb",
-  },
-  featureText: {
-    fontSize: 14,
-    color: "#9ca3af",
-    lineHeight: 1.5,
-  },
-
-  newsletterOuter: {
-    padding: "60px 16px 80px",
-    backgroundColor: "#00b7ff",
-    backgroundImage: "url('/newsletter-banner.png')",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center bottom",
-    backgroundSize: "contain",
-  },
-  newsletterInner: {
-    width: "100%",
-    maxWidth: 720,
-    margin: "0 auto",
-    textAlign: "center",
-  },
-  newsletterTitle: {
-    fontSize: 32,
-    fontWeight: 700,
-    marginBottom: 8,
-  },
-  newsletterText: {
-    fontSize: 14,
-    marginBottom: 20,
-  },
-  newsletterForm: {
-    display: "flex",
-    maxWidth: 520,
-    margin: "0 auto",
-    marginTop: 4,
-  },
-  newsletterInput: {
-    flex: 1,
-    border: "none",
-    borderRadius: "4px 0 0 4px",
-    padding: "10px 12px",
-    fontSize: 14,
-    outline: "none",
-  },
-  newsletterButton: {
-    border: "none",
-    borderRadius: "0 4px 4px 0",
-    padding: "0 18px",
-    backgroundColor: "#39ff14",
-    color: "#000000",
-    fontWeight: 700,
-    fontSize: 13,
-    cursor: "pointer",
-  },
-
-  footerOuter: {
-    backgroundColor: "#000000",
-    color: "#ffffff",
-    padding: "24px 16px 16px",
-  },
-  footerInner: {
-    width: "100%",
-    maxWidth: 1100,
-    margin: "0 auto",
-  },
-  footerBottom: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 18,
-    paddingTop: 4,
-  },
-  footerBottomRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 40,
-    flexWrap: "wrap",
-  },
-  paymentSection: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
-  },
-  paymentTitle: {
-    fontSize: 13,
-    fontWeight: 500,
-  },
-  paymentBadges: {
-    display: "flex",
-    gap: 6,
-    flexWrap: "wrap",
-  },
-  paymentBadge: {
-    fontSize: 11,
-    padding: "4px 8px",
-    borderRadius: 4,
-    backgroundColor: "#111827",
-    border: "1px solid #1f2937",
-  },
-  ratingRow: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 10,
-  },
-  ratingImage: {
-    height: 48,
-    objectFit: "contain",
-    display: "block",
-  },
-  footerCopy: {
-    textAlign: "center",
-    fontSize: 11,
-    opacity: 0.8,
-    marginTop: 4,
-  },
-
   filterModule: {
     marginTop: 18,
   },
@@ -829,9 +629,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
+// ====== CONSTANTES ======
+
 const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
 const OFICINAS_URL =
-  "https://tureggon.com/pages/oficinas-parceiras"; // troque pelo link que preferir
+  "https://tureggon.com/pages/oficinas-parceiras"; // ajuste aqui o link final
+
+// ====== COMPONENTES MENORES ======
 
 function SearchButton({ term }: { term: string }) {
   if (!term) return null;
@@ -859,32 +663,32 @@ function SearchButton({ term }: { term: string }) {
   );
 }
 
+// ====== PÁGINA PRINCIPAL ======
+
 export default function Home() {
   const [mainTab, setMainTab] = useState<"buscar" | "oficina">("buscar");
   const [mode, setMode] = useState<"plate" | "manual">("plate");
 
-  const plateInputRef = useRef<HTMLInputElement | null>(null);
-  const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
   const [brand, setBrand] = useState("");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
-  const [manualResults, setManualResults] = useState<any[]>([]);
-  const [plateVehicleMatches, setPlateVehicleMatches] = useState<any[]>([]);
-
   const [yearFrom, setYearFrom] = useState("");
   const [yearTo, setYearTo] = useState("");
   const [engine, setEngine] = useState("");
+  const [manualResults, setManualResults] = useState<any[]>([]);
 
   const [plate, setPlate] = useState("");
   const [plateLoading, setPlateLoading] = useState(false);
   const [plateError, setPlateError] = useState<string | null>(null);
   const [plateResult, setPlateResult] = useState<PlacaInfo | null>(null);
   const [rawApiData, setRawApiData] = useState<any | null>(null);
+  const [plateVehicleMatches, setPlateVehicleMatches] = useState<any[]>([]);
 
   const resp = rawApiData?.response || {};
   const extra = resp.extra || {};
+
   const restricoes =
     [
       extra.restricao1?.restricao,
@@ -910,7 +714,8 @@ export default function Home() {
 
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  // ==== montagem dos módulos de manutenção (igual versão anterior) ====
+  // ==== MONTAGEM DOS MÓDULOS DE MANUTENÇÃO ====
+
   const maintenanceModules: MaintenanceModule[] = [];
 
   if (principalVeiculo) {
@@ -978,11 +783,11 @@ export default function Home() {
 
     const addFilterRow = (
       filterTitle: string,
-      brand: unknown,
-      code: unknown
+      brandValue: unknown,
+      codeValue: unknown
     ) => {
-      const brandStr = (brand ?? "").toString().trim();
-      const codeStr = (code ?? "").toString().trim();
+      const brandStr = (brandValue ?? "").toString().trim();
+      const codeStr = (codeValue ?? "").toString().trim();
       if (!brandStr && !codeStr) return;
 
       const mod = ensureModule(filterTitle, "filters");
@@ -1022,14 +827,7 @@ export default function Home() {
       });
     };
 
-    const niceLabelFromKey = (key: string) => {
-      return key
-        .replace(/^filtros?_?/i, "")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-    };
-
-    // FLUIDOS principais
+    // ÓLEOS PRINCIPAIS
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -1152,14 +950,7 @@ export default function Home() {
         );
     }
 
-    // OUTROS CAMPOS
-    const niceLabelFromKey = (key: string) => {
-      return key
-        .replace(/^filtros?_?/i, "")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-    };
-
+    // OUTROS CAMPOS DE MANUTENÇÃO
     Object.entries(v).forEach(([key, value]) => {
       if (handledKeys.has(key)) return;
       if (value === null || value === undefined) return;
@@ -1182,9 +973,9 @@ export default function Home() {
         k.includes("caixa") ||
         k.includes("direcao")
       ) {
-        title = "Óleos e fluidos";
+        title = "Óleos e fluidos (outros)";
       } else if (k.includes("palheta") || k.includes("limpador")) {
-        title = "Palhetas / Limpadores";
+        title = "Palhetas / limpadores";
       } else if (
         k.includes("lamp") ||
         k.includes("farol") ||
@@ -1192,7 +983,11 @@ export default function Home() {
         k.includes("seta") ||
         k.includes("pisca")
       ) {
-        title = "Lâmpadas / Iluminação";
+        title = "Lâmpadas / iluminação";
+      } else if (k.includes("bateria")) {
+        title = "Bateria";
+      } else if (k.includes("nivel_cambio") || k.includes("nível_cambio")) {
+        title = "Aferição nível do câmbio";
       } else {
         title = "Outros itens de manutenção";
       }
@@ -1201,6 +996,8 @@ export default function Home() {
       addGenericRow(title, label, valStr);
     });
   }
+
+  // ====== HANDLERS ======
 
   const scrollToSearch = () => {
     if (searchBlockRef.current) {
@@ -1219,48 +1016,9 @@ export default function Home() {
     setManualResults([]);
   };
 
-  const renderVeiculoTecnico = (v: any, idx: number) => (
-    <div
-      key={idx}
-      style={{
-        marginBottom: 16,
-        borderTop: "1px solid rgba(148,163,184,0.4)",
-        paddingTop: 10,
-      }}
-    >
-      <div style={styles.resultGrid}>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Veículo</span>
-          <span style={styles.resultItemValue}>
-            {v.marca} {v.veiculo_raw}
-          </span>
-        </div>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Anos</span>
-          <span style={styles.resultItemValue}>
-            {v.ano_de
-              ? v.ano_ate
-                ? `${v.ano_de} até ${v.ano_ate}`
-                : `A partir de ${v.ano_de}`
-              : "—"}
-          </span>
-        </div>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Motor</span>
-          <span style={styles.resultItemValue}>
-            {[
-              v.motor_litros,
-              v.motor_valvulas,
-              v.potencia_cv ? `${v.potencia_cv} CV` : null,
-              v.combustivel,
-            ]
-              .filter(Boolean)
-              .join(" · ") || "—"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+  const handleAgendarOficina = () => {
+    window.open(OFICINAS_URL, "_blank");
+  };
 
   const handleSearchClick = async () => {
     if (mode === "plate") {
@@ -1347,9 +1105,9 @@ export default function Home() {
         return;
       }
 
-      let resultados = buscarVeiculosPorMarcaModelo(brand, selectedModel) || [];
+      let resultados =
+        buscarVeiculosPorMarcaModelo(brand, selectedModel) || [];
 
-      // FILTRO POR ANO
       const fromNum = yearFrom ? parseInt(yearFrom, 10) : NaN;
       const toNum = yearTo ? parseInt(yearTo, 10) : NaN;
 
@@ -1379,7 +1137,6 @@ export default function Home() {
         });
       }
 
-      // FILTRO POR MOTOR (1.0, 1.8, 2.0, etc)
       if (engine.trim()) {
         const eng = engine.replace(/\s+/g, "").toUpperCase();
         resultados = resultados.filter((v: any) => {
@@ -1387,10 +1144,7 @@ export default function Home() {
             ? String(v.motor_litros).toUpperCase()
             : "";
           const veic = v.veiculo_raw ? String(v.veiculo_raw).toUpperCase() : "";
-          return (
-            motorLitros.includes(eng) ||
-            veic.includes(eng)
-          );
+          return motorLitros.includes(eng) || veic.includes(eng);
         });
       }
 
@@ -1406,9 +1160,50 @@ export default function Home() {
 
   const brandOptions = getMarcas();
 
-  const handleAgendarOficina = () => {
-    window.open(OFICINAS_URL, "_blank");
-  };
+  const renderVeiculoTecnico = (v: any, idx: number) => (
+    <div
+      key={idx}
+      style={{
+        marginBottom: 16,
+        borderTop: "1px solid rgba(148,163,184,0.4)",
+        paddingTop: 10,
+      }}
+    >
+      <div style={styles.resultGrid}>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Veículo</span>
+          <span style={styles.resultItemValue}>
+            {v.marca} {v.veiculo_raw}
+          </span>
+        </div>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Anos</span>
+          <span style={styles.resultItemValue}>
+            {v.ano_de
+              ? v.ano_ate
+                ? `${v.ano_de} até ${v.ano_ate}`
+                : `A partir de ${v.ano_de}`
+              : "—"}
+          </span>
+        </div>
+        <div style={styles.resultItem}>
+          <span style={styles.resultItemLabel}>Motor</span>
+          <span style={styles.resultItemValue}>
+            {[
+              v.motor_litros,
+              v.motor_valvulas,
+              v.potencia_cv ? `${v.potencia_cv} CV` : null,
+              v.combustivel,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "—"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ====== RENDER ======
 
   return (
     <main style={styles.page}>
@@ -1433,7 +1228,7 @@ export default function Home() {
             </button>
           </header>
 
-          {/* CABEÇALHO NOVO */}
+          {/* BOTÕES PRINCIPAIS */}
           <div style={styles.cardsRow}>
             <button
               type="button"
@@ -1443,8 +1238,8 @@ export default function Home() {
               }}
               onClick={() => {
                 setMainTab("buscar");
-                scrollToSearch();
                 setMode("plate");
+                scrollToSearch();
               }}
             >
               <span style={styles.cardIcon}>🚗</span>
@@ -1463,10 +1258,11 @@ export default function Home() {
             </button>
           </div>
 
+          {/* ÁREA DE BUSCA */}
           <div style={styles.searchWrapper} ref={searchBlockRef}>
             {mainTab === "buscar" ? (
               <>
-                {/* SUB-ABAS: PLACA x MARCA/MODELO/ANO/MOTOR */}
+                {/* SUB-ABAS */}
                 <div style={styles.subTabsRow}>
                   <button
                     type="button"
@@ -1495,11 +1291,11 @@ export default function Home() {
                   </button>
                 </div>
 
+                {/* BUSCA POR PLACA */}
                 {mode === "plate" && (
                   <>
                     <div style={styles.searchRow}>
                       <input
-                        ref={plateInputRef}
                         type="text"
                         placeholder="Digite a placa (ex: ABC1D23)"
                         style={styles.searchInput}
@@ -1518,9 +1314,9 @@ export default function Home() {
                       </button>
                     </div>
                     <div style={styles.searchHint}>
-                      Opção atual: <strong>buscar veículo usando apenas a placa</strong>.
+                      Opção atual:{" "}
+                      <strong>buscar veículo usando apenas a placa</strong>.
                     </div>
-
                     {plateError && (
                       <div
                         style={{
@@ -1535,13 +1331,13 @@ export default function Home() {
                   </>
                 )}
 
+                {/* BUSCA MANUAL */}
                 {mode === "manual" && (
                   <>
                     <div style={styles.manualGrid}>
                       <div style={styles.manualField}>
                         <label style={styles.manualLabel}>Marca</label>
                         <select
-                          ref={brandSelectRef}
                           style={styles.manualSelect}
                           value={brand}
                           onChange={(e) => handleBrandChange(e.target.value)}
@@ -1579,12 +1375,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div
-                      style={{
-                        ...styles.manualGrid,
-                        marginTop: 8,
-                      }}
-                    >
+                    <div style={styles.manualGrid}>
                       <div style={styles.manualField}>
                         <label style={styles.manualLabel}>Ano de</label>
                         <input
@@ -1639,13 +1430,11 @@ export default function Home() {
                   </>
                 )}
 
-                {/* RESULTADOS (placa ou manual) – resto igual versão anterior */}
-                {plateResult && mode === "plate" && (
-                  <div style={styles.resultWrapper}>
-                    {/* Dados gerais, manutenção, etc. (mesmo código anterior) */}
-                    {/* --- BLOCO COMPLETO DE RESULTADOS DA PLACA --- */}
-                    {/* (para manter a resposta aqui mais curta, não repito todos os comentários) */}
+                {/* RESULTADOS */}
 
+                {mode === "plate" && plateResult && (
+                  <div style={styles.resultWrapper}>
+                    {/* DADOS GERAIS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
                         Dados gerais do veículo
@@ -1717,9 +1506,16 @@ export default function Home() {
                             Segmento: {plateResult.segmento}
                           </span>
                         )}
+                        {plateResult.municipio && (
+                          <span style={styles.tag}>
+                            Local: {plateResult.municipio}
+                            {plateResult.uf ? `/${plateResult.uf}` : ""}
+                          </span>
+                        )}
                       </div>
                     </div>
 
+                    {/* MANUTENÇÃO */}
                     {principalVeiculo && maintenanceModules.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
@@ -1844,13 +1640,31 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* ... resto dos blocos de especificações, localização, situação e resumo
-                        (idênticos à versão anterior, mantive tudo igual). */}
-                    {/* Para não ficar ainda maior aqui, mantive exatamente o mesmo conteúdo
-                        que você já tem no arquivo anterior. */}
+                    {/* RESUMO DA CONSULTA */}
+                    {detalhesVeiculo && (
+                      <div style={styles.resultSection}>
+                        <div style={styles.resultSectionTitle}>
+                          Resumo da consulta
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Detalhes FIPE / cadastro
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {detalhesVeiculo}
+                          </span>
+                        </div>
+                        <div style={styles.tagRow}>
+                          <span style={styles.tag}>{restricoes}</span>
+                          <span style={styles.tag}>{fipeStatus}</span>
+                          <span style={styles.tag}>{multasStatus}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
+                {/* RESULTADOS BUSCA MANUAL */}
                 {mode === "manual" && manualResults.length > 0 && (
                   <div style={styles.resultWrapper}>
                     <div style={styles.resultSection}>
@@ -1858,7 +1672,6 @@ export default function Home() {
                         Informações técnicas da base interna (
                         {manualResults.length} versão(ões) encontrada(s))
                       </div>
-
                       {manualResults
                         .slice(0, 5)
                         .map((v, idx) => renderVeiculoTecnico(v, idx))}
@@ -1867,6 +1680,7 @@ export default function Home() {
                 )}
               </>
             ) : (
+              // ABA DE OFICINAS PARCEIRAS
               <div
                 style={{
                   marginTop: 16,
@@ -1878,18 +1692,35 @@ export default function Home() {
                   fontSize: 13,
                 }}
               >
-                Clique em{" "}
-                <strong>“Agendar serviço em uma oficina parceira”</strong> para
-                abrir a página de agendamento. Você pode ajustar o link no
-                código na constante <code>OFICINAS_URL</code>.
+                <p style={{ marginBottom: 12 }}>
+                  Para agendar um serviço em uma{" "}
+                  <strong>oficina parceira Tureggon</strong>, clique no botão
+                  abaixo. Você pode alterar o link direto no código, na
+                  constante <code>OFICINAS_URL</code>.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAgendarOficina}
+                  style={{
+                    marginTop: 4,
+                    borderRadius: 999,
+                    border: "1px solid #22c55e",
+                    padding: "8px 22px",
+                    background:
+                      "linear-gradient(135deg, #22c55e, #16a34a)",
+                    color: "#022c22",
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                  }}
+                >
+                  Abrir página de agendamento
+                </button>
               </div>
             )}
           </div>
         </div>
       </section>
-
-      {/* Seções de hero, vantagens, newsletter e rodapé permanecem iguais à versão anterior */}
-      {/* ... (mantenha tudo o que você já tinha, sem alterações) ... */}
     </main>
   );
 }
