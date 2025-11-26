@@ -7,8 +7,7 @@ import {
   buscarVeiculosPorMarcaModelo,
 } from "@/lib/vehicle-data";
 
-// ====== TIPOS ======
-
+/** Tipo simplificado para os dados principais da placa exibidos na tela */
 type PlacaInfo = {
   placa: string;
   marca: string | null;
@@ -28,6 +27,7 @@ type PlacaInfo = {
   chassi: string | null;
 };
 
+/** Linhas de manutenção que serão renderizadas nas tabelas */
 type MaintenanceRow = {
   label: string;
   value: string;
@@ -41,13 +41,14 @@ type MaintenanceRow = {
   };
 };
 
+/** Cada módulo de manutenção (Óleo motor, Filtro de óleo, Dif dianteiro etc.) */
 type MaintenanceModule = {
   title: string;
   kind: "generic" | "filters" | "diff";
   rows: MaintenanceRow[];
 };
 
-// ====== HELPERS DE TEXTO ======
+/* ------------------------ helpers de texto e matching ----------------------- */
 
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
@@ -346,7 +347,7 @@ function niceLabelFromKey(key: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// ====== ESTILOS ======
+/* --------------------------------- styles ---------------------------------- */
 
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
@@ -627,15 +628,260 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
   },
-};
 
-// ====== CONSTANTES ======
+  /* HERO / POR QUE USAR / NEWSLETTER / FOOTER (como eram antes) */
+
+  heroOuter: {
+    background:
+      "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
+    padding: "56px 16px 48px",
+    boxShadow: "0 -12px 32px rgba(0,0,0,0.45)",
+  },
+  heroInner: {
+    width: "100%",
+    maxWidth: 1200,
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  heroBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: 999,
+    border: "1px solid rgba(56,189,248,0.7)",
+    padding: "7px 20px",
+    fontSize: 11,
+    marginBottom: 26,
+    background:
+      "linear-gradient(135deg, rgba(15,23,42,0.95), rgba(8,47,73,0.95))",
+  },
+  heroBadgeIcon: {
+    fontSize: 13,
+  },
+  heroBadgeText: {
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    opacity: 0.9,
+  },
+  heroTitleLine1: {
+    fontSize: 46,
+    fontWeight: 800,
+    margin: "0 0 4px 0",
+  },
+  heroTitleLine2: {
+    fontSize: 46,
+    fontWeight: 800,
+    margin: 0,
+    color: "#60a5fa",
+  },
+  heroText: {
+    marginTop: 20,
+    marginBottom: 0,
+    fontSize: 15,
+    opacity: 0.95,
+    maxWidth: 780,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  whyOuter: {
+    backgroundColor: "#020617",
+    padding: "56px 16px 64px",
+  },
+  whyInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+  },
+  whyTitle: {
+    fontSize: 26,
+    fontWeight: 700,
+    marginBottom: 6,
+  },
+  whySub: {
+    marginTop: 0,
+    marginBottom: 32,
+    fontSize: 14,
+    color: "#9ca3af",
+  },
+  featureGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 24,
+  },
+  featureCard: {
+    background:
+      "radial-gradient(circle at top, #111827 0%, #020617 45%, #020617 100%)",
+    borderRadius: 24,
+    padding: "32px 28px 30px",
+    boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
+    border: "1px solid rgba(148,163,184,0.12)",
+    textAlign: "center",
+  },
+  featureTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    marginBottom: 10,
+    color: "#f9fafb",
+  },
+  featureText: {
+    fontSize: 14,
+    color: "#9ca3af",
+    lineHeight: 1.5,
+  },
+  newsletterOuter: {
+    padding: "60px 16px 80px",
+    backgroundColor: "#00b7ff",
+    backgroundImage: "url('/newsletter-banner.png')",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center bottom",
+    backgroundSize: "contain",
+  },
+  newsletterInner: {
+    width: "100%",
+    maxWidth: 720,
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  newsletterTitle: {
+    fontSize: 32,
+    fontWeight: 700,
+    marginBottom: 8,
+  },
+  newsletterText: {
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  newsletterForm: {
+    display: "flex",
+    maxWidth: 520,
+    margin: "0 auto",
+    marginTop: 8,
+  },
+  newsletterInput: {
+    flex: 1,
+    border: "none",
+    borderRadius: "4px 0 0 4px",
+    padding: "10px 12px",
+    fontSize: 14,
+    outline: "none",
+  },
+  newsletterButton: {
+    border: "none",
+    borderRadius: "0 4px 4px 0",
+    padding: "0 18px",
+    backgroundColor: "#39ff14",
+    color: "#000000",
+    fontWeight: 700,
+    fontSize: 13,
+    cursor: "pointer",
+  },
+  footerOuter: {
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    padding: "24px 16px 16px",
+  },
+  footerInner: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+  },
+  footerBottom: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 18,
+    paddingTop: 4,
+  },
+  footerBadgesRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 16,
+    flexWrap: "wrap",
+    alignItems: "center",
+    borderBottom: "1px solid rgba(148,163,184,0.35)",
+    paddingBottom: 12,
+    marginBottom: 12,
+  },
+  trustBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+  },
+  trustText: {
+    fontSize: 13,
+    color: "#e5e7eb",
+  },
+  trustLogoRow: {
+    display: "flex",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+  trustLogo: {
+    height: 32,
+    objectFit: "contain",
+    display: "block",
+  },
+  footerLinksRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 8,
+  },
+  footerColumn: {
+    minWidth: 180,
+  },
+  footerColumnTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    marginBottom: 8,
+  },
+  footerLink: {
+    display: "block",
+    fontSize: 12,
+    color: "#e5e7eb",
+    textDecoration: "none",
+    marginBottom: 4,
+  },
+  ratingBox: {
+    borderRadius: 16,
+    border: "1px solid rgba(148,163,184,0.45)",
+    padding: "10px 14px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 4,
+    maxWidth: 280,
+  },
+  ratingStars: {
+    color: "#fbbf24",
+    fontSize: 14,
+  },
+  ratingScore: {
+    fontSize: 18,
+    fontWeight: 700,
+  },
+  ratingText: {
+    fontSize: 12,
+    color: "#d1d5db",
+  },
+  ratingImage: {
+    height: 48,
+    objectFit: "contain",
+    display: "block",
+  },
+  footerCopy: {
+    textAlign: "center",
+    fontSize: 11,
+    opacity: 0.8,
+    marginTop: 4,
+  },
+};
 
 const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
 const OFICINAS_URL =
-  "https://tureggon.com/pages/oficinas-parceiras"; // ajuste aqui o link final
+  "https://tureggon.com/pages/oficinas-parceiras";
 
-// ====== COMPONENTES MENORES ======
+/* --------------------------- botao buscar na loja --------------------------- */
 
 function SearchButton({ term }: { term: string }) {
   if (!term) return null;
@@ -663,7 +909,7 @@ function SearchButton({ term }: { term: string }) {
   );
 }
 
-// ====== PÁGINA PRINCIPAL ======
+/* --------------------------------- página ---------------------------------- */
 
 export default function Home() {
   const [mainTab, setMainTab] = useState<"buscar" | "oficina">("buscar");
@@ -714,7 +960,7 @@ export default function Home() {
 
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  // ==== MONTAGEM DOS MÓDULOS DE MANUTENÇÃO ====
+  /* ---------------------- montagem de módulos de manutenção ---------------------- */
 
   const maintenanceModules: MaintenanceModule[] = [];
 
@@ -827,7 +1073,7 @@ export default function Home() {
       });
     };
 
-    // ÓLEOS PRINCIPAIS
+    // ÓLEO DO MOTOR
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -841,6 +1087,7 @@ export default function Home() {
       addGenericRow("Óleo do motor", "Óleo do motor", parts.join(" · "));
     }
 
+    // CÂMBIO MANUAL
     if (
       v.oleo_cambio_manual_litros ||
       v.oleo_cambio_manual_viscosidade ||
@@ -860,6 +1107,7 @@ export default function Home() {
       );
     }
 
+    // CÂMBIO AUTOMÁTICO
     if (
       v.oleo_cambio_auto_total_litros ||
       v.oleo_cambio_auto_parcial_litros ||
@@ -879,6 +1127,7 @@ export default function Home() {
       );
     }
 
+    // ARREFECIMENTO
     if (v.aditivo_radiador_litros || v.aditivo_radiador_tipo) {
       const parts: string[] = [];
       if (v.aditivo_radiador_litros)
@@ -892,6 +1141,7 @@ export default function Home() {
       );
     }
 
+    // FLUIDO DE FREIO
     if (v.fluido_freio_litros || v.fluido_freio_tipo) {
       const parts: string[] = [];
       if (v.fluido_freio_litros) parts.push(`${v.fluido_freio_litros} L`);
@@ -910,14 +1160,12 @@ export default function Home() {
       v.oleo_dif_dianteiro_especificacao,
       v.oleo_dif_dianteiro_litros
     );
-
     addDiffRow(
       "Óleo diferencial traseiro",
       v.oleo_dif_traseiro_visco,
       v.oleo_dif_traseiro_especificacao,
       v.oleo_dif_traseiro_litros
     );
-
     addDiffRow(
       "Óleo caixa de transferência",
       v.oleo_caixa_transfer_visco,
@@ -925,10 +1173,9 @@ export default function Home() {
       v.oleo_caixa_transfer_litros
     );
 
-    // FILTROS
+    // FILTROS (Wega, Mann, etc)
     if (v.filtros && typeof v.filtros === "object") {
       const f = v.filtros;
-
       const handleFilterArray = (arr: any[], tituloModulo: string) => {
         arr.forEach((item: any) => {
           if (!item) return;
@@ -950,7 +1197,7 @@ export default function Home() {
         );
     }
 
-    // OUTROS CAMPOS DE MANUTENÇÃO
+    // DEMAIS CAMPOS DE MANUTENÇÃO
     Object.entries(v).forEach(([key, value]) => {
       if (handledKeys.has(key)) return;
       if (value === null || value === undefined) return;
@@ -997,7 +1244,7 @@ export default function Home() {
     });
   }
 
-  // ====== HANDLERS ======
+  /* ----------------------------- handlers / ações ---------------------------- */
 
   const scrollToSearch = () => {
     if (searchBlockRef.current) {
@@ -1203,10 +1450,11 @@ export default function Home() {
     </div>
   );
 
-  // ====== RENDER ======
+  /* ----------------------------------- JSX ---------------------------------- */
 
   return (
     <main style={styles.page}>
+      {/* TOPO / MENU / BUSCA */}
       <section style={styles.topArea}>
         <div style={styles.topInner}>
           <header style={styles.header}>
@@ -1258,7 +1506,7 @@ export default function Home() {
             </button>
           </div>
 
-          {/* ÁREA DE BUSCA */}
+          {/* BLOCO DE BUSCA */}
           <div style={styles.searchWrapper} ref={searchBlockRef}>
             {mainTab === "buscar" ? (
               <>
@@ -1283,9 +1531,7 @@ export default function Home() {
                       ...styles.subTabBtn,
                       ...(mode === "manual" ? styles.subTabBtnActive : {}),
                     }}
-                    onClick={() => {
-                      setMode("manual");
-                    }}
+                    onClick={() => setMode("manual")}
                   >
                     Buscar por marca, modelo, ano e motor
                   </button>
@@ -1430,8 +1676,7 @@ export default function Home() {
                   </>
                 )}
 
-                {/* RESULTADOS */}
-
+                {/* RESULTADOS BUSCA POR PLACA */}
                 {mode === "plate" && plateResult && (
                   <div style={styles.resultWrapper}>
                     {/* DADOS GERAIS */}
@@ -1515,7 +1760,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* MANUTENÇÃO */}
+                    {/* MANUTENÇÃO (BASE INTERNA EM MÓDULOS) */}
                     {principalVeiculo && maintenanceModules.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
@@ -1721,6 +1966,152 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* HERO + POR QUE USAR (IGUAL ERA ANTES) */}
+      <section style={styles.heroOuter}>
+        <div style={styles.heroInner}>
+          <div style={styles.heroBadge}>
+            <span style={styles.heroBadgeIcon}>⚡</span>
+            <span style={styles.heroBadgeText}>
+              Consulta Veicular Inteligente
+            </span>
+          </div>
+
+          <h1 style={styles.heroTitleLine1}>Descubra Tudo Sobre</h1>
+          <h1 style={styles.heroTitleLine2}>Seu Veículo</h1>
+
+          <p style={styles.heroText}>
+            Consulta completa de dados veiculares, especificações técnicas e
+            informações de manutenção em segundos.
+          </p>
+        </div>
+      </section>
+
+      <section style={styles.whyOuter}>
+        <div style={styles.whyInner}>
+          <h2 style={styles.whyTitle}>Por que usar o sistema da Tureggon?</h2>
+          <p style={styles.whySub}>
+            Tenha em um só lugar dados de placa, especificações técnicas e
+            informações de manutenção — tudo integrado com a sua loja.
+          </p>
+
+          <div style={styles.featureGrid}>
+            <div style={styles.featureCard}>
+              <h3 style={styles.featureTitle}>Integração com a Loja</h3>
+              <p style={styles.featureText}>
+                Encontre o produto certo e vá direto para a busca da Tureggon
+                com um clique.
+              </p>
+            </div>
+
+            <div style={styles.featureCard}>
+              <h3 style={styles.featureTitle}>Base Completa</h3>
+              <p style={styles.featureText}>
+                Milhares de veículos nacionais e importados em nossa base de
+                dados atualizada.
+              </p>
+            </div>
+
+            <div style={styles.featureCard}>
+              <h3 style={styles.featureTitle}>Consulta Rápida</h3>
+              <p style={styles.featureText}>
+                Resultados em segundos. Digite a placa e tenha todas as
+                informações na tela.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* NEWSLETTER (IGUAL) */}
+      <section style={styles.newsletterOuter}>
+        <div style={styles.newsletterInner}>
+          <h2 style={styles.newsletterTitle}>Newsletter</h2>
+          <p style={styles.newsletterText}>
+            Receba novidades, ofertas e conteúdos exclusivos da Tureggon
+            diretamente no seu e-mail.
+          </p>
+          <form
+            style={styles.newsletterForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <input
+              type="email"
+              placeholder="Digite seu e-mail"
+              style={styles.newsletterInput}
+            />
+            <button type="submit" style={styles.newsletterButton}>
+              Quero receber
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* RODAPÉ (IGUAL ERA ANTES) */}
+      <footer style={styles.footerOuter}>
+        <div style={styles.footerInner}>
+          <div style={styles.footerBottom}>
+            <div style={styles.footerBadgesRow}>
+              <div style={styles.trustBadge}>
+                <span style={styles.ratingStars}>★★★★★</span>
+                <div>
+                  <div style={styles.ratingScore}>4,9/5,0</div>
+                  <div style={styles.ratingText}>
+                    Avaliação média dos clientes
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.trustLogoRow}>
+                <img
+                  src="/rating-google.png"
+                  alt="Avaliações Google"
+                  style={styles.ratingImage}
+                />
+              </div>
+            </div>
+
+            <div style={styles.footerLinksRow}>
+              <div style={styles.footerColumn}>
+                <div style={styles.footerColumnTitle}>Institucional</div>
+                <a href="https://tureggon.com/" style={styles.footerLink}>
+                  Sobre a Tureggon
+                </a>
+                <a href="https://tureggon.com/pages/politica-de-privacidade" style={styles.footerLink}>
+                  Política de privacidade
+                </a>
+              </div>
+
+              <div style={styles.footerColumn}>
+                <div style={styles.footerColumnTitle}>Atendimento</div>
+                <a href="https://tureggon.com/pages/contato" style={styles.footerLink}>
+                  Fale conosco
+                </a>
+                <a href="https://tureggon.com/pages/duvidas-frequentes" style={styles.footerLink}>
+                  Dúvidas frequentes
+                </a>
+              </div>
+
+              <div style={styles.footerColumn}>
+                <div style={styles.footerColumnTitle}>Avaliações</div>
+                <div style={styles.ratingBox}>
+                  <div style={styles.ratingStars}>★★★★★</div>
+                  <div style={styles.ratingText}>
+                    Clientes satisfeitos com nossos produtos e serviços.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.footerCopy}>
+              © {new Date().getFullYear()} Tureggon. Todos os direitos
+              reservados.
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
