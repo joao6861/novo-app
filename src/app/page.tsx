@@ -740,44 +740,91 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  // NOVOS ESTILOS PARA A SEÇÃO DE MANUTENÇÃO COM BOTÃO
+  // NOVOS ESTILOS PARA A SEÇÃO DE MANUTENÇÃO EM FORMATO DE TABELA
+  maintenanceTable: {
+    marginTop: 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
+    border: "1px solid rgba(15,23,42,0.9)",
+    backgroundColor: "#f9fafb",
+  },
+  maintenanceHeaderRow: {
+    display: "grid",
+    gridTemplateColumns: "40px minmax(0,1fr) 160px",
+    alignItems: "center",
+    background:
+      "linear-gradient(90deg,#00b8ff 0%, #0284c7 50%, #00b8ff 100%)",
+    color: "#f9fafb",
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+    fontWeight: 600,
+  },
+  maintenanceHeaderIconCell: {
+    padding: "6px 8px",
+    borderRight: "1px solid rgba(15,23,42,0.35)",
+  },
+  maintenanceHeaderMainCell: {
+    padding: "6px 12px",
+    borderRight: "1px solid rgba(15,23,42,0.35)",
+    textAlign: "center",
+  },
+  maintenanceHeaderBrandCell: {
+    padding: "6px 12px",
+    textAlign: "center",
+  },
   maintenanceRow: {
+    display: "grid",
+    gridTemplateColumns: "40px minmax(0,1fr) 160px",
+    alignItems: "stretch",
+    backgroundColor: "#ffffff",
+    borderTop: "1px solid #e5e7eb",
+  },
+  maintenanceIconCell: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-    padding: "8px 10px",
-    borderRadius: 12,
-    border: "1px solid rgba(148,163,184,0.55)",
-    background:
-      "radial-gradient(circle at top, #0b1120 0%, #020617 60%, #020617 100%)",
-    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
+    justifyContent: "center",
+    borderRight: "1px solid #e5e7eb",
+    backgroundColor: "#facc15",
+    fontSize: 14,
   },
-  maintenanceText: {
+  maintenanceMainCell: {
+    padding: "8px 12px",
+    borderRight: "1px solid #e5e7eb",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center",
     gap: 2,
   },
   maintenanceLabel: {
-    fontSize: 10,
+    fontSize: 11,
     textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    opacity: 0.7,
+    letterSpacing: "0.06em",
+    color: "#6b7280",
   },
   maintenanceValue: {
     fontSize: 13,
     fontWeight: 600,
+    color: "#111827",
+  },
+  maintenanceActionCell: {
+    padding: "8px 12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   maintenanceButton: {
     fontSize: 11,
-    padding: "6px 10px",
+    padding: "6px 12px",
     borderRadius: 999,
-    border: "1px solid #0ea5e9",
+    border: "1px solid #00b8ff",
     backgroundColor: "transparent",
-    color: "#e0f2fe",
+    color: "#0284c7",
     cursor: "pointer",
     textDecoration: "none",
     whiteSpace: "nowrap",
+    fontWeight: 600,
   },
 };
 
@@ -1383,7 +1430,7 @@ export default function Home() {
               />
             </a>
 
-            <button type="button" style={styles.systemButton}>
+          <button type="button" style={styles.systemButton}>
               Sistema Online
             </button>
           </header>
@@ -1547,18 +1594,32 @@ export default function Home() {
                         <div style={styles.resultSectionTitle}>
                           Informações de manutenção (base interna)
                         </div>
-                        <div style={styles.resultGrid}>
+
+                        <div style={styles.maintenanceTable}>
+                          <div style={styles.maintenanceHeaderRow}>
+                            <div style={styles.maintenanceHeaderIconCell}></div>
+                            <div style={styles.maintenanceHeaderMainCell}>
+                              PRODUTO / ESPECIFICAÇÃO
+                            </div>
+                            <div style={styles.maintenanceHeaderBrandCell}>
+                              BUSCAR NA LOJA
+                            </div>
+                          </div>
+
                           {manutencaoFromBase.map((item, idx) => (
                             <div key={idx} style={styles.maintenanceRow}>
-                              <div style={styles.maintenanceText}>
-                                <span style={styles.maintenanceLabel}>
-                                  {item.label}
-                                </span>
-                                <span style={styles.maintenanceValue}>
+                              <div style={styles.maintenanceIconCell}>🔎</div>
+                              <div style={styles.maintenanceMainCell}>
+                                <div style={styles.maintenanceValue}>
                                   {item.value}
-                                </span>
+                                </div>
+                                <div style={styles.maintenanceLabel}>
+                                  {item.label}
+                                </div>
                               </div>
-                              <SearchButton term={item.searchTerm} />
+                              <div style={styles.maintenanceActionCell}>
+                                <SearchButton term={item.searchTerm} />
+                              </div>
                             </div>
                           ))}
                         </div>
