@@ -28,8 +28,8 @@ type PlacaInfo = {
 };
 
 type MaintenanceRow = {
-  label: string; // item ou marca, dependendo do tipo de módulo
-  value: string; // especificação ou código
+  label: string; // ITEM ou MARCA (para filtros)
+  value: string; // ESPECIFICAÇÃO ou CÓDIGO
   searchTerm: string;
   extra?: {
     brand?: string;
@@ -38,7 +38,7 @@ type MaintenanceRow = {
 };
 
 type MaintenanceModule = {
-  title: string; // ex: "Óleos e fluidos" ou "Filtro de óleo"
+  title: string;
   kind: "generic" | "filters"; // generic = ITEM/ESPECIFICAÇÃO, filters = MARCA/CÓDIGO
   rows: MaintenanceRow[];
 };
@@ -481,10 +481,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 12,
     textAlign: "left",
   },
+  // títulos das seções (ex: Dados gerais do veículo, Informações de manutenção etc.)
   resultSectionTitle: {
-    fontWeight: 600,
-    marginBottom: 10,
-    fontSize: 13,
+    fontWeight: 700,
+    marginBottom: 14,
+    fontSize: 16,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
   },
   resultGrid: {
     display: "grid",
@@ -734,20 +737,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
+  // módulos de manutenção (títulos e tabelas)
   filterModule: {
     marginTop: 18,
   },
   filterModuleTitleBar: {
     backgroundColor: "#000000",
-    padding: "4px 10px",
+    padding: "10px 16px",
     borderRadius: "8px 8px 0 0",
     border: "1px solid #111827",
     borderBottom: "none",
     color: "#f9fafb",
-    fontSize: 11,
+    fontSize: 15,
     textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    fontWeight: 600,
+    letterSpacing: "0.18em",
+    fontWeight: 800,
   },
   filterModuleTitleText: {
     textAlign: "center",
@@ -764,13 +768,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: "1.2fr 1.4fr 1fr",
     backgroundColor: "#111827",
     color: "#f9fafb",
-    fontSize: 11,
+    fontSize: 13,
     textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    fontWeight: 600,
+    letterSpacing: "0.16em",
+    fontWeight: 700,
   },
   filterHeaderCell: {
-    padding: "6px 12px",
+    padding: "8px 12px",
     borderRight: "1px solid #1f2937",
     textAlign: "center",
   },
@@ -935,7 +939,7 @@ export default function Home() {
         .replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
-    // Campos conhecidos - ÓLEOS E FLUIDOS (um módulo único)
+    // --------- FLUIDOS: cada um em módulo separadinho ---------
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -946,7 +950,7 @@ export default function Home() {
       if (v.oleo_motor_viscosidade) parts.push(String(v.oleo_motor_viscosidade));
       if (v.oleo_motor_especificacao)
         parts.push(String(v.oleo_motor_especificacao));
-      addGenericRow("Óleos e fluidos", "Óleo do motor", parts.join(" · "));
+      addGenericRow("Óleo do motor", "Óleo do motor", parts.join(" · "));
     }
 
     if (
@@ -962,7 +966,7 @@ export default function Home() {
       if (v.oleo_cambio_manual_especificacao)
         parts.push(String(v.oleo_cambio_manual_especificacao));
       addGenericRow(
-        "Óleos e fluidos",
+        "Óleo do câmbio manual",
         "Óleo do câmbio manual",
         parts.join(" · ")
       );
@@ -981,7 +985,7 @@ export default function Home() {
       if (v.oleo_cambio_auto_especificacao)
         parts.push(String(v.oleo_cambio_auto_especificacao));
       addGenericRow(
-        "Óleos e fluidos",
+        "Óleo do câmbio automático",
         "Óleo do câmbio automático",
         parts.join(" · ")
       );
@@ -994,7 +998,7 @@ export default function Home() {
       if (v.aditivo_radiador_tipo) parts.push(String(v.aditivo_radiador_tipo));
       if (v.aditivo_radiador_cor) parts.push(String(v.aditivo_radiador_cor));
       addGenericRow(
-        "Óleos e fluidos",
+        "Líquido de arrefecimento",
         "Líquido de arrefecimento",
         parts.join(" · ")
       );
@@ -1004,10 +1008,14 @@ export default function Home() {
       const parts: string[] = [];
       if (v.fluido_freio_litros) parts.push(`${v.fluido_freio_litros} L`);
       if (v.fluido_freio_tipo) parts.push(String(v.fluido_freio_tipo));
-      addGenericRow("Óleos e fluidos", "Fluido de freio", parts.join(" · "));
+      addGenericRow(
+        "Fluido de freio",
+        "Fluido de freio",
+        parts.join(" · ")
+      );
     }
 
-    // Filtros estruturados (cada TIPO de filtro vira um módulo separado)
+    // --------- Filtros: cada tipo em módulo separado ---------
     if (v.filtros && typeof v.filtros === "object") {
       const f = v.filtros;
 
@@ -1032,7 +1040,7 @@ export default function Home() {
         );
     }
 
-    // Varredura genérica dos demais campos (exceto "filtro", que já foi tratado acima)
+    // --------- Varredura genérica dos outros campos ---------
     Object.entries(v).forEach(([key, value]) => {
       if (value === null || value === undefined) return;
       if (typeof value === "object") return;
@@ -1041,7 +1049,7 @@ export default function Home() {
 
       const k = key.toLowerCase();
 
-      // pular campos de filtro aqui, pois já estamos pegando do objeto v.filtros
+      // filtros já tratados via v.filtros
       if (k.includes("filtro")) return;
 
       let title: string;
@@ -1436,7 +1444,10 @@ export default function Home() {
                         </div>
 
                         {maintenanceModules.map((mod) => (
-                          <div key={`${mod.kind}-${mod.title}`} style={styles.filterModule}>
+                          <div
+                            key={`${mod.kind}-${mod.title}`}
+                            style={styles.filterModule}
+                          >
                             <div style={styles.filterModuleTitleBar}>
                               <div style={styles.filterModuleTitleText}>
                                 {mod.title.toUpperCase()}
