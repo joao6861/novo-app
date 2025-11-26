@@ -186,6 +186,11 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
   return score;
 }
 
+/**
+ * Corrigido:
+ * - Se nenhum veículo tem score > 0, agora retornamos pelo menos o melhor candidato.
+ *   Antes voltava lista vazia e parecia que "não tinha nada" na base interna.
+ */
 function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   if (!info.marca || !info.modelo) return [];
 
@@ -241,23 +246,25 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
     return true;
   });
 
-  const scored = candidatos.map((v) => ({
-    v,
-    score: calcularScoreMatch(info, v),
-  }));
-
-  const maxScore = scored.reduce(
-    (max, cur) => (cur.score > max ? cur.score : max),
-    -Infinity
-  );
-  if (maxScore <= 0) return [];
-
-  const limite = Math.max(12, maxScore * 0.65);
-  const filtrados = scored
-    .filter((s) => s.score >= limite)
+  const scored = candidatos
+    .map((v) => ({
+      v,
+      score: calcularScoreMatch(info, v),
+    }))
     .sort((a, b) => b.score - a.score);
 
-  const principais = filtrados.slice(0, 3);
+  const maxScore = scored[0]?.score ?? -Infinity;
+
+  // NOVO: se o melhor ainda for <= 0, usa ele assim mesmo,
+  // para pelo menos ter um veículo base.
+  if (maxScore <= 0) {
+    return [scored[0].v];
+  }
+
+  const limite = Math.max(12, maxScore * 0.65);
+  const filtrados = scored.filter((s) => s.score >= limite);
+
+  const principais = (filtrados.length ? filtrados : scored).slice(0, 3);
 
   if (principais.length === 3) {
     const s0 = principais[0].score;
@@ -629,7 +636,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center",
   },
 
-  /* HERO / POR QUE USAR / NEWSLETTER / FOOTER (como eram antes) */
+  /* HERO / POR QUE USAR / NEWSLETTER / FOOTER */
 
   heroOuter: {
     background:
@@ -1761,127 +1768,136 @@ export default function Home() {
                     </div>
 
                     {/* MANUTENÇÃO (BASE INTERNA EM MÓDULOS) */}
-                    {principalVeiculo && maintenanceModules.length > 0 && (
+                    {principalVeiculo && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
                           Informações de manutenção (base interna)
                         </div>
 
-                        {maintenanceModules.map((mod) => (
-                          <div
-                            key={`${mod.kind}-${mod.title}`}
-                            style={styles.filterModule}
-                          >
-                            <div style={styles.filterModuleTitleBar}>
-                              <div style={styles.filterModuleTitleText}>
-                                {mod.title.toUpperCase()}
+                        {maintenanceModules.length === 0 ? (
+                          <p style={{ fontSize: 13, marginTop: 4 }}>
+                            Ainda não temos informações internas de
+                            manutenção para esse veículo.
+                          </p>
+                        ) : (
+                          maintenanceModules.map((mod) => (
+                            <div
+                              key={`${mod.kind}-${mod.title}`}
+                              style={styles.filterModule}
+                            >
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  {mod.title.toUpperCase()}
+                                </div>
                               </div>
-                            </div>
-                            <div style={styles.filterTable}>
-                              {/* Cabeçalho */}
-                              {mod.kind === "filters" && (
-                                <div style={styles.filterHeaderRow}>
-                                  <div style={styles.filterHeaderCell}>
-                                    MARCA
+                              <div style={styles.filterTable}>
+                                {/* Cabeçalho */}
+                                {mod.kind === "filters" && (
+                                  <div style={styles.filterHeaderRow}>
+                                    <div style={styles.filterHeaderCell}>
+                                      MARCA
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      CÓDIGO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
                                   </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    CÓDIGO
-                                  </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                              )}
+                                )}
 
-                              {mod.kind === "generic" && (
-                                <div style={styles.filterHeaderRow}>
-                                  <div style={styles.filterHeaderCell}>
-                                    ITEM
+                                {mod.kind === "generic" && (
+                                  <div style={styles.filterHeaderRow}>
+                                    <div style={styles.filterHeaderCell}>
+                                      ITEM
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      ESPECIFICAÇÃO / CÓDIGO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
                                   </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    ESPECIFICAÇÃO / CÓDIGO
-                                  </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                              )}
+                                )}
 
-                              {mod.kind === "diff" && (
-                                <div
-                                  style={{
-                                    ...styles.filterHeaderRow,
-                                    gridTemplateColumns:
-                                      "1.4fr 1.2fr 0.8fr 1fr",
-                                  }}
-                                >
-                                  <div style={styles.filterHeaderCell}>
-                                    TIPO DO ÓLEO
+                                {mod.kind === "diff" && (
+                                  <div
+                                    style={{
+                                      ...styles.filterHeaderRow,
+                                      gridTemplateColumns:
+                                        "1.4fr 1.2fr 0.8fr 1fr",
+                                    }}
+                                  >
+                                    <div style={styles.filterHeaderCell}>
+                                      TIPO DO ÓLEO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      NORMA
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      QUANTIDADE
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
                                   </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    NORMA
-                                  </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    QUANTIDADE
-                                  </div>
-                                  <div style={styles.filterHeaderCell}>
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                              )}
+                                )}
 
-                              {/* Linhas */}
-                              {mod.rows.map((row, idx) => {
-                                if (mod.kind === "diff") {
+                                {/* Linhas */}
+                                {mod.rows.map((row, idx) => {
+                                  if (mod.kind === "diff") {
+                                    return (
+                                      <div
+                                        key={`${mod.title}-${idx}`}
+                                        style={{
+                                          ...styles.filterRow,
+                                          gridTemplateColumns:
+                                            "1.4fr 1.2fr 0.8fr 1fr",
+                                        }}
+                                      >
+                                        <div style={styles.filterCell}>
+                                          {row.extra?.typeOil || "—"}
+                                        </div>
+                                        <div style={styles.filterCell}>
+                                          {row.extra?.norma || "—"}
+                                        </div>
+                                        <div style={styles.filterCell}>
+                                          {row.extra?.qty || "—"}
+                                        </div>
+                                        <div style={styles.filterCellAction}>
+                                          <SearchButton
+                                            term={row.searchTerm}
+                                          />
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
                                   return (
                                     <div
                                       key={`${mod.title}-${idx}`}
-                                      style={{
-                                        ...styles.filterRow,
-                                        gridTemplateColumns:
-                                          "1.4fr 1.2fr 0.8fr 1fr",
-                                      }}
+                                      style={styles.filterRow}
                                     >
                                       <div style={styles.filterCell}>
-                                        {row.extra?.typeOil || "—"}
+                                        {mod.kind === "filters"
+                                          ? row.extra?.brand || row.label
+                                          : row.label}
                                       </div>
                                       <div style={styles.filterCell}>
-                                        {row.extra?.norma || "—"}
-                                      </div>
-                                      <div style={styles.filterCell}>
-                                        {row.extra?.qty || "—"}
+                                        {mod.kind === "filters"
+                                          ? row.extra?.code || row.value
+                                          : row.value}
                                       </div>
                                       <div style={styles.filterCellAction}>
                                         <SearchButton term={row.searchTerm} />
                                       </div>
                                     </div>
                                   );
-                                }
-
-                                return (
-                                  <div
-                                    key={`${mod.title}-${idx}`}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {mod.kind === "filters"
-                                        ? row.extra?.brand || row.label
-                                        : row.label}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {mod.kind === "filters"
-                                        ? row.extra?.code || row.value
-                                        : row.value}
-                                    </div>
-                                    <div style={styles.filterCellAction}>
-                                      <SearchButton term={row.searchTerm} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
                     )}
 
@@ -1967,7 +1983,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HERO + POR QUE USAR (IGUAL ERA ANTES) */}
+      {/* HERO + POR QUE USAR */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -2023,7 +2039,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEWSLETTER (IGUAL) */}
+      {/* NEWSLETTER */}
       <section style={styles.newsletterOuter}>
         <div style={styles.newsletterInner}>
           <h2 style={styles.newsletterTitle}>Newsletter</h2>
@@ -2049,7 +2065,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ (IGUAL ERA ANTES) */}
+      {/* RODAPÉ */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
           <div style={styles.footerBottom}>
@@ -2079,17 +2095,26 @@ export default function Home() {
                 <a href="https://tureggon.com/" style={styles.footerLink}>
                   Sobre a Tureggon
                 </a>
-                <a href="https://tureggon.com/pages/politica-de-privacidade" style={styles.footerLink}>
+                <a
+                  href="https://tureggon.com/pages/politica-de-privacidade"
+                  style={styles.footerLink}
+                >
                   Política de privacidade
                 </a>
               </div>
 
               <div style={styles.footerColumn}>
                 <div style={styles.footerColumnTitle}>Atendimento</div>
-                <a href="https://tureggon.com/pages/contato" style={styles.footerLink}>
+                <a
+                  href="https://tureggon.com/pages/contato"
+                  style={styles.footerLink}
+                >
                   Fale conosco
                 </a>
-                <a href="https://tureggon.com/pages/duvidas-frequentes" style={styles.footerLink}>
+                <a
+                  href="https://tureggon.com/pages/duvidas-frequentes"
+                  style={styles.footerLink}
+                >
                   Dúvidas frequentes
                 </a>
               </div>
