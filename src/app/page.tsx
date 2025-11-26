@@ -481,7 +481,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 12,
     textAlign: "left",
   },
-  // títulos das seções (ex: Dados gerais do veículo, Informações de manutenção etc.)
   resultSectionTitle: {
     fontWeight: 700,
     marginBottom: 14,
@@ -879,6 +878,26 @@ export default function Home() {
   if (principalVeiculo) {
     const v: any = principalVeiculo;
 
+    // campos que serão usados em módulos específicos (não podem ser repetidos na tabela genérica)
+    const handledKeys = new Set<string>();
+    const aggregatedFluidKeys = [
+      "oleo_motor_litros",
+      "oleo_motor_viscosidade",
+      "oleo_motor_especificacao",
+      "oleo_cambio_manual_litros",
+      "oleo_cambio_manual_viscosidade",
+      "oleo_cambio_manual_especificacao",
+      "oleo_cambio_auto_total_litros",
+      "oleo_cambio_auto_parcial_litros",
+      "oleo_cambio_auto_especificacao",
+      "aditivo_radiador_litros",
+      "aditivo_radiador_tipo",
+      "aditivo_radiador_cor",
+      "fluido_freio_litros",
+      "fluido_freio_tipo",
+    ];
+    aggregatedFluidKeys.forEach((k) => handledKeys.add(k));
+
     const ensureModule = (
       title: string,
       kind: "generic" | "filters"
@@ -1042,6 +1061,9 @@ export default function Home() {
 
     // --------- Varredura genérica dos outros campos ---------
     Object.entries(v).forEach(([key, value]) => {
+      // se esse campo já foi usado para montar módulos específicos, não repete
+      if (handledKeys.has(key)) return;
+
       if (value === null || value === undefined) return;
       if (typeof value === "object") return;
       const valStr = String(value).trim();
@@ -1049,9 +1071,8 @@ export default function Home() {
 
       const k = key.toLowerCase();
 
-      // filtros já tratados via v.filtros
-      if (k.includes("filtro")) return;
-
+      // já tratamos manualmente os campos de fluido importantes acima,
+      // então aqui podemos só mapear o que sobrou.
       let title: string;
 
       if (
