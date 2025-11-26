@@ -8,7 +8,6 @@ import {
   buscarVeiculosPorMarcaModelo,
 } from "@/lib/vehicle-data";
 
-/** Tipo simplificado para os dados principais da placa exibidos na tela */
 type PlacaInfo = {
   placa: string;
   marca: string | null;
@@ -28,19 +27,17 @@ type PlacaInfo = {
   chassi: string | null;
 };
 
-type MaintenanceItem = {
-  label: string;
-  value: string;
+type MaintenanceRow = {
+  col1: string; // item
+  col2: string; // especificação / código
   searchTerm: string;
 };
 
-type FilterRow = {
-  brand: string;
-  code: string;
-  searchTerm: string;
+type MaintenanceModule = {
+  title: string;
+  rows: MaintenanceRow[];
 };
 
-/** Utilitário: transforma string em lista de tokens normalizados */
 function tokenize(str: string | null | undefined): string[] {
   if (!str) return [];
   return str
@@ -53,11 +50,9 @@ function tokenize(str: string | null | undefined): string[] {
     .filter((t) => t.length > 1);
 }
 
-/** Normaliza a marca para bater com a base interna */
 function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   let up = marcaPlaca.toUpperCase().trim();
 
-  // Trata coisas tipo "GM/CHEVROLET", "FIAT/ABARTH" etc.
   if (up.includes("/")) {
     const partes = up.split("/").map((p) => p.trim());
     if (partes.includes("ABARTH")) return "ABARTH";
@@ -80,11 +75,9 @@ function canonicalizarMarcaPlaca(marcaPlaca: string): string {
   return up;
 }
 
-/** Calcula um score de similaridade entre os dados da placa e um veículo da base */
 function calcularScoreMatch(info: PlacaInfo, v: any): number {
   let score = 0;
 
-  // MODELO + VERSÃO (tokens em comum)
   const placaTokens = tokenize(`${info.modelo || ""} ${info.versao || ""}`);
   const veicTokens = tokenize(v.veiculo_raw || "");
   const placaSet = new Set(placaTokens);
@@ -114,7 +107,6 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
     score += comunsImportantes * 3;
   }
 
-  // ANO
   const anoStr = info.ano_modelo || info.ano;
   const ano = anoStr ? parseInt(anoStr, 10) : NaN;
   const anoDe = v.ano_de as number | undefined;
@@ -137,7 +129,6 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
     }
   }
 
-  // COMBUSTÍVEL
   if (info.combustivel && v.combustivel) {
     const normalizeFuel = (s: string) => {
       const upFuel = s.toUpperCase();
@@ -163,7 +154,6 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
     }
   }
 
-  // POTÊNCIA
   if (info.potencia && v.potencia_cv != null) {
     const pi = parseInt(info.potencia.replace(/\D+/g, ""), 10);
     const pvRaw = v.potencia_cv;
@@ -184,7 +174,6 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
   return score;
 }
 
-/** Usa os dados da placa para buscar os melhores veículos na base */
 function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   if (!info.marca || !info.modelo) return [];
 
@@ -277,10 +266,6 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   return principais.map((x) => x.v);
 }
 
-/**
- * MONTA UM ÚNICO CAMPO DE TEXTO COM OS DADOS DO VEÍCULO
- * Usando a resposta COMPLETA da API (response + extra)
- */
 function montarDetalhesVeiculo(r: any): string {
   const extra = r.extra || {};
   const mm = r.marca_modelo || extra.marca_modelo || {};
@@ -338,13 +323,11 @@ function montarDetalhesVeiculo(r: any): string {
     partes.push(`Local: ${municipio || "?"}/${uf || "?"}`);
   }
 
-  // Sempre mostra Renavam, mesmo se vier null
   partes.push(`Renavam: ${renavam}`);
 
   return partes.join(" • ");
 }
 
-/** ESTILOS INLINE (mantém a mesma pegada visual) */
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
@@ -746,94 +729,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  /* TABELA DE FLUÍDOS (produto/especificação + botão) */
-  maintenanceTable: {
-    marginTop: 4,
-    borderRadius: 8,
-    overflow: "hidden",
-    boxShadow: "0 10px 25px rgba(15,23,42,0.7)",
-    border: "1px solid rgba(15,23,42,0.9)",
-    backgroundColor: "#f9fafb",
-  },
-  maintenanceHeaderRow: {
-    display: "grid",
-    gridTemplateColumns: "40px minmax(0,1fr) 160px",
-    alignItems: "center",
-    background:
-      "linear-gradient(90deg,#00b8ff 0%, #0284c7 50%, #00b8ff 100%)",
-    color: "#f9fafb",
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    fontWeight: 600,
-  },
-  maintenanceHeaderIconCell: {
-    padding: "6px 8px",
-    borderRight: "1px solid rgba(15,23,42,0.35)",
-  },
-  maintenanceHeaderMainCell: {
-    padding: "6px 12px",
-    borderRight: "1px solid rgba(15,23,42,0.35)",
-    textAlign: "center",
-  },
-  maintenanceHeaderBrandCell: {
-    padding: "6px 12px",
-    textAlign: "center",
-  },
-  maintenanceRow: {
-    display: "grid",
-    gridTemplateColumns: "40px minmax(0,1fr) 160px",
-    alignItems: "stretch",
-    backgroundColor: "#ffffff",
-    borderTop: "1px solid #e5e7eb",
-  },
-  maintenanceIconCell: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRight: "1px solid #e5e7eb",
-    backgroundColor: "#facc15", // amarelo do ícone
-    fontSize: 14,
-  },
-  maintenanceMainCell: {
-    padding: "8px 12px",
-    borderRight: "1px solid #e5e7eb",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    gap: 2,
-  },
-  maintenanceLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    color: "#6b7280",
-  },
-  maintenanceValue: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: "#111827",
-  },
-  maintenanceActionCell: {
-    padding: "8px 12px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  maintenanceButton: {
-    fontSize: 11,
-    padding: "6px 12px",
-    borderRadius: 999,
-    border: "1px solid #00b8ff",
-    backgroundColor: "transparent",
-    color: "#0284c7",
-    cursor: "pointer",
-    textDecoration: "none",
-    whiteSpace: "nowrap",
-    fontWeight: 600,
-  },
-
-  /* MÓDULOS DE FILTROS (3 colunas: Marca, Código, Botão) */
   filterModule: {
     marginTop: 18,
   },
@@ -899,38 +794,42 @@ const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
 
 function SearchButton({ term }: { term: string }) {
   if (!term) return null;
-
   const url = `${TUREGGON_SEARCH_BASE_URL}${encodeURIComponent(term)}`;
-
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      style={styles.maintenanceButton}
+      style={{
+        fontSize: 11,
+        padding: "6px 12px",
+        borderRadius: 999,
+        border: "1px solid #00b8ff",
+        backgroundColor: "transparent",
+        color: "#0284c7",
+        cursor: "pointer",
+        textDecoration: "none",
+        whiteSpace: "nowrap",
+        fontWeight: 600,
+      }}
     >
       Buscar na Tureggon
     </a>
   );
 }
 
-/** Componente principal da página */
 export default function Home() {
   const [mode, setMode] = useState<"plate" | "manual">("plate");
   const plateInputRef = useRef<HTMLInputElement | null>(null);
   const brandSelectRef = useRef<HTMLSelectElement | null>(null);
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
-  // estados para busca manual
   const [brand, setBrand] = useState("");
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
-
-  // resultados base interna
   const [manualResults, setManualResults] = useState<any[]>([]);
   const [plateVehicleMatches, setPlateVehicleMatches] = useState<any[]>([]);
 
-  // estados consulta de placa
   const [plate, setPlate] = useState("");
   const [plateLoading, setPlateLoading] = useState(false);
   const [plateError, setPlateError] = useState<string | null>(null);
@@ -959,43 +858,64 @@ export default function Home() {
       ? `${resp.multas.dados.length} multa(s) encontrada(s)`
       : "Nenhuma multa encontrada na consulta";
 
-  // CAMPO ÚNICO com todas as informações do veículo
   const detalhesVeiculo =
     rawApiData?.response ? montarDetalhesVeiculo(rawApiData.response) : "";
 
-  // Veículo principal da base interna para puxar manutenção
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  // >>> NOVO: separar fluidos e filtros <<<
-  const fluidMaintenance: MaintenanceItem[] = [];
-  const filterOilRows: FilterRow[] = [];
-  const filterAirRows: FilterRow[] = [];
-  const filterCabinRows: FilterRow[] = [];
-  const filterFuelRows: FilterRow[] = [];
-  const filterTransRows: FilterRow[] = [];
+  // ---- NOVO: construção dos módulos de manutenção (tudo que vier do banco) ----
+  const maintenanceModules: MaintenanceModule[] = [];
 
   if (principalVeiculo) {
     const v: any = principalVeiculo;
 
-    // Óleo do motor
-    const motorParts: string[] = [];
-    if (v.oleo_motor_litros) motorParts.push(`${v.oleo_motor_litros} L`);
-    if (v.oleo_motor_viscosidade)
-      motorParts.push(String(v.oleo_motor_viscosidade));
-    if (v.oleo_motor_especificacao)
-      motorParts.push(String(v.oleo_motor_especificacao));
-    if (motorParts.length) {
-      fluidMaintenance.push({
-        label: "Óleo do motor",
-        value: motorParts.join(" · "),
-        searchTerm:
-          v.oleo_motor_viscosidade ||
-          v.oleo_motor_especificacao ||
-          "óleo motor",
+    const ensureModule = (title: string): MaintenanceModule => {
+      let m = maintenanceModules.find((mm) => mm.title === title);
+      if (!m) {
+        m = { title, rows: [] };
+        maintenanceModules.push(m);
+      }
+      return m;
+    };
+
+    const addRow = (
+      title: string,
+      label: string,
+      value: unknown,
+      searchTerm?: string
+    ) => {
+      if (value === null || value === undefined) return;
+      const valStr = String(value).trim();
+      if (!valStr) return;
+      const mod = ensureModule(title);
+      mod.rows.push({
+        col1: label,
+        col2: valStr,
+        searchTerm: searchTerm || valStr,
       });
+    };
+
+    const niceLabelFromKey = (key: string) => {
+      return key
+        .replace(/^filtros?_?/i, "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
+    // 1) Campos conhecidos (monta descrições mais bonitas)
+    if (
+      v.oleo_motor_litros ||
+      v.oleo_motor_viscosidade ||
+      v.oleo_motor_especificacao
+    ) {
+      const parts: string[] = [];
+      if (v.oleo_motor_litros) parts.push(`${v.oleo_motor_litros} L`);
+      if (v.oleo_motor_viscosidade) parts.push(String(v.oleo_motor_viscosidade));
+      if (v.oleo_motor_especificacao)
+        parts.push(String(v.oleo_motor_especificacao));
+      addRow("Óleos e fluidos", "Óleo do motor", parts.join(" · "));
     }
 
-    // Câmbio manual
     if (
       v.oleo_cambio_manual_litros ||
       v.oleo_cambio_manual_viscosidade ||
@@ -1008,18 +928,9 @@ export default function Home() {
         parts.push(String(v.oleo_cambio_manual_viscosidade));
       if (v.oleo_cambio_manual_especificacao)
         parts.push(String(v.oleo_cambio_manual_especificacao));
-
-      fluidMaintenance.push({
-        label: "Óleo do câmbio manual",
-        value: parts.join(" · "),
-        searchTerm:
-          v.oleo_cambio_manual_viscosidade ||
-          v.oleo_cambio_manual_especificacao ||
-          "óleo câmbio manual",
-      });
+      addRow("Óleos e fluidos", "Óleo do câmbio manual", parts.join(" · "));
     }
 
-    // Câmbio automático
     if (
       v.oleo_cambio_auto_total_litros ||
       v.oleo_cambio_auto_parcial_litros ||
@@ -1032,116 +943,91 @@ export default function Home() {
         parts.push(`Parcial: ${v.oleo_cambio_auto_parcial_litros} L`);
       if (v.oleo_cambio_auto_especificacao)
         parts.push(String(v.oleo_cambio_auto_especificacao));
-
-      fluidMaintenance.push({
-        label: "Óleo do câmbio automático",
-        value: parts.join(" · "),
-        searchTerm:
-          v.oleo_cambio_auto_especificacao ||
-          "ATF câmbio automático",
-      });
+      addRow("Óleos e fluidos", "Óleo do câmbio automático", parts.join(" · "));
     }
 
-    // Aditivo do radiador
     if (v.aditivo_radiador_litros || v.aditivo_radiador_tipo) {
       const parts: string[] = [];
       if (v.aditivo_radiador_litros)
         parts.push(`${v.aditivo_radiador_litros} L`);
-      if (v.aditivo_radiador_tipo)
-        parts.push(String(v.aditivo_radiador_tipo));
-      if (v.aditivo_radiador_cor)
-        parts.push(String(v.aditivo_radiador_cor));
-
-      fluidMaintenance.push({
-        label: "Líquido de arrefecimento",
-        value: parts.join(" · "),
-        searchTerm:
-          v.aditivo_radiador_tipo ||
-          v.aditivo_radiador_cor ||
-          "aditivo radiador",
-      });
+      if (v.aditivo_radiador_tipo) parts.push(String(v.aditivo_radiador_tipo));
+      if (v.aditivo_radiador_cor) parts.push(String(v.aditivo_radiador_cor));
+      addRow("Óleos e fluidos", "Líquido de arrefecimento", parts.join(" · "));
     }
 
-    // Fluido de freio
     if (v.fluido_freio_litros || v.fluido_freio_tipo) {
       const parts: string[] = [];
-      if (v.fluido_freio_litros)
-        parts.push(`${v.fluido_freio_litros} L`);
-      if (v.fluido_freio_tipo)
-        parts.push(String(v.fluido_freio_tipo));
-
-      fluidMaintenance.push({
-        label: "Fluido de freio",
-        value: parts.join(" · "),
-        searchTerm: v.fluido_freio_tipo || "fluido freio",
-      });
+      if (v.fluido_freio_litros) parts.push(`${v.fluido_freio_litros} L`);
+      if (v.fluido_freio_tipo) parts.push(String(v.fluido_freio_tipo));
+      addRow("Óleos e fluidos", "Fluido de freio", parts.join(" · "));
     }
 
-    // FILTROS - cada tipo vira um módulo
-    if (v.filtros?.oleo?.length > 0) {
-      v.filtros.oleo.forEach((f: any) => {
-        if (!f) return;
-        const brand = String(f.marca || "WEGA");
-        const code = String(f.codigo || "—");
-        filterOilRows.push({
-          brand,
-          code,
-          searchTerm: code || `${brand} filtro óleo`,
+    // Filtros em objeto "filtros" (se existir)
+    if (v.filtros && typeof v.filtros === "object") {
+      const f = v.filtros;
+      const handleFilterArray = (arr: any[], labelPrefix: string) => {
+        arr.forEach((item: any) => {
+          if (!item) return;
+          const brand = String(item.marca || "—");
+          const code = String(item.codigo || "—");
+          const desc = `${brand} · ${code}`;
+          addRow("Filtros", `${labelPrefix}`, desc, code);
         });
-      });
+      };
+
+      if (Array.isArray(f.oleo)) handleFilterArray(f.oleo, "Filtro de óleo");
+      if (Array.isArray(f.ar)) handleFilterArray(f.ar, "Filtro de ar");
+      if (Array.isArray(f.cabine))
+        handleFilterArray(f.cabine, "Filtro de cabine");
+      if (Array.isArray(f.combustivel))
+        handleFilterArray(f.combustivel, "Filtro de combustível");
+      if (Array.isArray(f.cambio_auto))
+        handleFilterArray(f.cambio_auto, "Filtro de câmbio automático");
     }
 
-    if (v.filtros?.ar?.length > 0) {
-      v.filtros.ar.forEach((f: any) => {
-        if (!f) return;
-        const brand = String(f.marca || "WEGA");
-        const code = String(f.codigo || "—");
-        filterAirRows.push({
-          brand,
-          code,
-          searchTerm: code || `${brand} filtro ar`,
-        });
-      });
-    }
+    // 2) Varredura genérica de TODOS os campos do veículo
+    Object.entries(v).forEach(([key, value]) => {
+      if (value === null || value === undefined) return;
+      if (typeof value === "object") return; // objetos tratamos separadamente
+      const valStr = String(value).trim();
+      if (!valStr) return;
 
-    if (v.filtros?.cabine?.length > 0) {
-      v.filtros.cabine.forEach((f: any) => {
-        if (!f) return;
-        const brand = String(f.marca || "WEGA");
-        const code = String(f.codigo || "—");
-        filterCabinRows.push({
-          brand,
-          code,
-          searchTerm: code || `${brand} filtro cabine`,
-        });
-      });
-    }
+      const k = key.toLowerCase();
 
-    if (v.filtros?.combustivel?.length > 0) {
-      v.filtros.combustivel.forEach((f: any) => {
-        if (!f) return;
-        const brand = String(f.marca || "WEGA");
-        const code = String(f.codigo || "—");
-        filterFuelRows.push({
-          brand,
-          code,
-          searchTerm: code || `${brand} filtro combustível`,
-        });
-      });
-    }
+      let title: string | null = null;
 
-    if (v.filtros?.cambio_auto?.length > 0) {
-      v.filtros.cambio_auto.forEach((f: any) => {
-        if (!f) return;
-        const brand = String(f.marca || "WEGA");
-        const code = String(f.codigo || "—");
-        filterTransRows.push({
-          brand,
-          code,
-          searchTerm: code || `${brand} filtro câmbio automático`,
-        });
-      });
-    }
+      if (
+        k.includes("oleo") ||
+        k.includes("óleo") ||
+        k.includes("fluido") ||
+        k.includes("aditivo") ||
+        k.includes("radiador") ||
+        k.includes("diferencial") ||
+        k.includes("cambio") ||
+        k.includes("caixa") ||
+        k.includes("direcao")
+      ) {
+        title = "Óleos e fluidos";
+      } else if (k.includes("filtro")) {
+        title = "Filtros";
+      } else if (k.includes("palheta") || k.includes("limpador")) {
+        title = "Palhetas / Limpadores";
+      } else if (
+        k.includes("lamp") ||
+        k.includes("farol") ||
+        k.includes("lanterna") ||
+        k.includes("seta") ||
+        k.includes("pisca")
+      ) {
+        title = "Lâmpadas / Iluminação";
+      } else {
+        // Se não bater com nada, joga em "Outros itens de manutenção"
+        title = "Outros itens de manutenção";
+      }
+
+      const label = niceLabelFromKey(key);
+      addRow(title, label, valStr);
+    });
   }
 
   const scrollToSearch = (target: "plate" | "manual") => {
@@ -1220,177 +1106,6 @@ export default function Home() {
               .filter(Boolean)
               .join(" · ") || "—"}
           </span>
-        </div>
-      </div>
-
-      {/* ÓLEOS E FLUIDOS */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
-          Óleos e fluidos
-        </div>
-        <div style={styles.resultGrid}>
-          <div style={styles.resultItem}>
-            <span style={styles.resultItemLabel}>Óleo do motor</span>
-            <span style={styles.resultItemValue}>
-              {v.oleo_motor_litros ? `${v.oleo_motor_litros} L` : "—"}
-            </span>
-            {v.oleo_motor_viscosidade && (
-              <span style={{ fontSize: 11, marginTop: 4 }}>
-                {v.oleo_motor_viscosidade}
-              </span>
-            )}
-            {v.oleo_motor_especificacao && (
-              <span style={{ fontSize: 11 }}>
-                {v.oleo_motor_especificacao}
-              </span>
-            )}
-          </div>
-
-          {(v.oleo_cambio_manual_litros ||
-            v.oleo_cambio_manual_viscosidade ||
-            v.oleo_cambio_manual_especificacao) && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Câmbio manual</span>
-              <span style={styles.resultItemValue}>
-                {v.oleo_cambio_manual_litros
-                  ? `${v.oleo_cambio_manual_litros} L`
-                  : "—"}
-              </span>
-              {v.oleo_cambio_manual_viscosidade && (
-                <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {v.oleo_cambio_manual_viscosidade}
-                </span>
-              )}
-              {v.oleo_cambio_manual_especificacao && (
-                <span style={{ fontSize: 11 }}>
-                  {v.oleo_cambio_manual_especificacao}
-                </span>
-              )}
-            </div>
-          )}
-
-          {(v.oleo_cambio_auto_total_litros ||
-            v.oleo_cambio_auto_parcial_litros ||
-            v.oleo_cambio_auto_especificacao) && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Câmbio automático</span>
-              <span style={styles.resultItemValue}>
-                {v.oleo_cambio_auto_total_litros
-                  ? `Total: ${v.oleo_cambio_auto_total_litros} L`
-                  : "—"}
-              </span>
-              {v.oleo_cambio_auto_parcial_litros && (
-                <span style={{ fontSize: 11 }}>
-                  Parcial: {v.oleo_cambio_auto_parcial_litros} L
-                </span>
-              )}
-              {v.oleo_cambio_auto_especificacao && (
-                <span style={{ fontSize: 11 }}>
-                  {v.oleo_cambio_auto_especificacao}
-                </span>
-              )}
-            </div>
-          )}
-
-          {v.aditivo_radiador_litros && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>
-                Aditivo do radiador
-              </span>
-              <span style={styles.resultItemValue}>
-                {v.aditivo_radiador_litros} L
-              </span>
-              {v.aditivo_radiador_tipo && (
-                <span style={{ fontSize: 11, marginTop: 4 }}>
-                  {v.aditivo_radiador_tipo}
-                </span>
-              )}
-              {v.aditivo_radiador_cor && (
-                <span style={{ fontSize: 11 }}>
-                  {v.aditivo_radiador_cor}
-                </span>
-              )}
-            </div>
-          )}
-
-          {(v.fluido_freio_litros || v.fluido_freio_tipo) && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Fluido de freio</span>
-              <span style={styles.resultItemValue}>
-                {v.fluido_freio_litros ? `${v.fluido_freio_litros} L` : "—"}
-              </span>
-              {v.fluido_freio_tipo && (
-                <span style={{ fontSize: 11 }}>{v.fluido_freio_tipo}</span>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* FILTROS (técnico – continua como antes) */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{ ...styles.resultSectionTitle, marginBottom: 6 }}>
-          Filtros
-        </div>
-        <div style={styles.resultGrid}>
-          {v.filtros?.oleo?.length > 0 && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Filtro de óleo</span>
-              {v.filtros.oleo.map((f: any, i: number) => (
-                <span key={i} style={{ fontSize: 11 }}>
-                  {f.marca}: {f.codigo}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {v.filtros?.ar?.length > 0 && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Filtro de ar</span>
-              {v.filtros.ar.map((f: any, i: number) => (
-                <span key={i} style={{ fontSize: 11 }}>
-                  {f.marca}: {f.codigo}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {v.filtros?.cabine?.length > 0 && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>Filtro de cabine</span>
-              {v.filtros.cabine.map((f: any, i: number) => (
-                <span key={i} style={{ fontSize: 11 }}>
-                  {f.marca}: {f.codigo}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {v.filtros?.combustivel?.length > 0 && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>
-                Filtro de combustível
-              </span>
-              {v.filtros.combustivel.map((f: any, i: number) => (
-                <span key={i} style={{ fontSize: 11 }}>
-                  {f.marca}: {f.codigo}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {v.filtros?.cambio_auto?.length > 0 && (
-            <div style={styles.resultItem}>
-              <span style={styles.resultItemLabel}>
-                Filtro do câmbio automático
-              </span>
-              {v.filtros.cambio_auto.map((f: any, i: number) => (
-                <span key={i} style={{ fontSize: 11 }}>
-                  {f.marca}: {f.codigo}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -1497,7 +1212,6 @@ export default function Home() {
 
   return (
     <main style={styles.page}>
-      {/* TOPO / MENU */}
       <section style={styles.topArea}>
         <div style={styles.topInner}>
           <header style={styles.header}>
@@ -1519,7 +1233,6 @@ export default function Home() {
             </button>
           </header>
 
-          {/* CARDS: POR PLACA / SEM PLACA / OFICINAS */}
           <div style={styles.cardsRow}>
             <button
               type="button"
@@ -1555,11 +1268,9 @@ export default function Home() {
             </button>
           </div>
 
-          {/* BLOCO DAS BUSCAS */}
           <div style={styles.searchWrapper} ref={searchBlockRef}>
             {mode === "plate" && (
               <>
-                {/* BUSCA POR PLACA */}
                 <div style={styles.searchRow}>
                   <input
                     ref={plateInputRef}
@@ -1594,10 +1305,8 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* RESULTADO DA PLACA + BASE INTERNA */}
                 {plateResult && (
                   <div style={styles.resultWrapper}>
-                    {/* 1. DADOS GERAIS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
                         Dados gerais do veículo
@@ -1672,331 +1381,54 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 1.1 INFORMAÇÕES DE MANUTENÇÃO */}
-                    {principalVeiculo &&
-                      (fluidMaintenance.length > 0 ||
-                        filterOilRows.length > 0 ||
-                        filterAirRows.length > 0 ||
-                        filterCabinRows.length > 0 ||
-                        filterFuelRows.length > 0 ||
-                        filterTransRows.length > 0) && (
-                        <div style={styles.resultSection}>
-                          <div style={styles.resultSectionTitle}>
-                            Informações de manutenção (base interna)
-                          </div>
+                    {/* NOVO BLOCO: TABELAS EM MÓDULOS */}
+                    {principalVeiculo && maintenanceModules.length > 0 && (
+                      <div style={styles.resultSection}>
+                        <div style={styles.resultSectionTitle}>
+                          Informações de manutenção (base interna)
+                        </div>
 
-                          {/* FLUÍDOS EM TABELA ÚNICA */}
-                          {fluidMaintenance.length > 0 && (
-                            <div style={styles.maintenanceTable}>
-                              <div style={styles.maintenanceHeaderRow}>
-                                <div
-                                  style={
-                                    styles.maintenanceHeaderIconCell
-                                  }
-                                />
-                                <div
-                                  style={
-                                    styles.maintenanceHeaderMainCell
-                                  }
-                                >
-                                  PRODUTO / ESPECIFICAÇÃO
+                        {maintenanceModules.map((mod) => (
+                          <div key={mod.title} style={styles.filterModule}>
+                            <div style={styles.filterModuleTitleBar}>
+                              <div style={styles.filterModuleTitleText}>
+                                {mod.title}
+                              </div>
+                            </div>
+                            <div style={styles.filterTable}>
+                              <div style={styles.filterHeaderRow}>
+                                <div style={styles.filterHeaderCell}>
+                                  ITEM
                                 </div>
-                                <div
-                                  style={
-                                    styles.maintenanceHeaderBrandCell
-                                  }
-                                >
+                                <div style={styles.filterHeaderCell}>
+                                  ESPECIFICAÇÃO / CÓDIGO
+                                </div>
+                                <div style={styles.filterHeaderCell}>
                                   BUSCAR NA LOJA
                                 </div>
                               </div>
-
-                              {fluidMaintenance.map((item, idx) => (
+                              {mod.rows.map((row, idx) => (
                                 <div
-                                  key={idx}
-                                  style={styles.maintenanceRow}
+                                  key={`${mod.title}-${idx}`}
+                                  style={styles.filterRow}
                                 >
-                                  <div
-                                    style={styles.maintenanceIconCell}
-                                  >
-                                    🔎
+                                  <div style={styles.filterCell}>
+                                    {row.col1}
                                   </div>
-                                  <div
-                                    style={styles.maintenanceMainCell}
-                                  >
-                                    <div
-                                      style={styles.maintenanceValue}
-                                    >
-                                      {item.value}
-                                    </div>
-                                    <div
-                                      style={styles.maintenanceLabel}
-                                    >
-                                      {item.label}
-                                    </div>
+                                  <div style={styles.filterCell}>
+                                    {row.col2}
                                   </div>
-                                  <div
-                                    style={
-                                      styles.maintenanceActionCell
-                                    }
-                                  >
-                                    <SearchButton
-                                      term={item.searchTerm}
-                                    />
+                                  <div style={styles.filterCellAction}>
+                                    <SearchButton term={row.searchTerm} />
                                   </div>
                                 </div>
                               ))}
                             </div>
-                          )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                          {/* MÓDULOS DE FILTROS */}
-                          {filterOilRows.length > 0 && (
-                            <div style={styles.filterModule}>
-                              <div style={styles.filterModuleTitleBar}>
-                                <div style={styles.filterModuleTitleText}>
-                                  FILTRO DE ÓLEO
-                                </div>
-                              </div>
-                              <div style={styles.filterTable}>
-                                <div style={styles.filterHeaderRow}>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    MARCA
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    CÓDIGO
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                                {filterOilRows.map((row, idx) => (
-                                  <div
-                                    key={idx}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {row.brand}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {row.code}
-                                    </div>
-                                    <div
-                                      style={styles.filterCellAction}
-                                    >
-                                      <SearchButton
-                                        term={row.searchTerm}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {filterAirRows.length > 0 && (
-                            <div style={styles.filterModule}>
-                              <div style={styles.filterModuleTitleBar}>
-                                <div style={styles.filterModuleTitleText}>
-                                  FILTRO DE AR
-                                </div>
-                              </div>
-                              <div style={styles.filterTable}>
-                                <div style={styles.filterHeaderRow}>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    MARCA
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    CÓDIGO
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                                {filterAirRows.map((row, idx) => (
-                                  <div
-                                    key={idx}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {row.brand}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {row.code}
-                                    </div>
-                                    <div
-                                      style={styles.filterCellAction}
-                                    >
-                                      <SearchButton
-                                        term={row.searchTerm}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {filterCabinRows.length > 0 && (
-                            <div style={styles.filterModule}>
-                              <div style={styles.filterModuleTitleBar}>
-                                <div style={styles.filterModuleTitleText}>
-                                  FILTRO DE CABINE
-                                </div>
-                              </div>
-                              <div style={styles.filterTable}>
-                                <div style={styles.filterHeaderRow}>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    MARCA
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    CÓDIGO
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                                {filterCabinRows.map((row, idx) => (
-                                  <div
-                                    key={idx}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {row.brand}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {row.code}
-                                    </div>
-                                    <div
-                                      style={styles.filterCellAction}
-                                    >
-                                      <SearchButton
-                                        term={row.searchTerm}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {filterFuelRows.length > 0 && (
-                            <div style={styles.filterModule}>
-                              <div style={styles.filterModuleTitleBar}>
-                                <div style={styles.filterModuleTitleText}>
-                                  FILTRO DE COMBUSTÍVEL
-                                </div>
-                              </div>
-                              <div style={styles.filterTable}>
-                                <div style={styles.filterHeaderRow}>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    MARCA
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    CÓDIGO
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                                {filterFuelRows.map((row, idx) => (
-                                  <div
-                                    key={idx}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {row.brand}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {row.code}
-                                    </div>
-                                    <div
-                                      style={styles.filterCellAction}
-                                    >
-                                      <SearchButton
-                                        term={row.searchTerm}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {filterTransRows.length > 0 && (
-                            <div style={styles.filterModule}>
-                              <div style={styles.filterModuleTitleBar}>
-                                <div style={styles.filterModuleTitleText}>
-                                  FILTRO CÂMBIO AUTOMÁTICO
-                                </div>
-                              </div>
-                              <div style={styles.filterTable}>
-                                <div style={styles.filterHeaderRow}>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    MARCA
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    CÓDIGO
-                                  </div>
-                                  <div
-                                    style={styles.filterHeaderCell}
-                                  >
-                                    BUSCAR NA LOJA
-                                  </div>
-                                </div>
-                                {filterTransRows.map((row, idx) => (
-                                  <div
-                                    key={idx}
-                                    style={styles.filterRow}
-                                  >
-                                    <div style={styles.filterCell}>
-                                      {row.brand}
-                                    </div>
-                                    <div style={styles.filterCell}>
-                                      {row.code}
-                                    </div>
-                                    <div
-                                      style={styles.filterCellAction}
-                                    >
-                                      <SearchButton
-                                        term={row.searchTerm}
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                    {/* 2. ESPECIFICAÇÕES TÉCNICAS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
                         Especificações técnicas
@@ -2071,7 +1503,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 3. LOCALIZAÇÃO E DOCUMENTOS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
                         Localização e documentos
@@ -2125,7 +1556,6 @@ export default function Home() {
                             {extra.tipo_doc_prop?.tipo_pessoa || "—"}
                           </span>
                         </div>
-                        {/* RENAVAM SEMPRE APARECENDO */}
                         <div style={styles.resultItem}>
                           <span style={styles.resultItemLabel}>Renavam</span>
                           <span style={styles.resultItemValue}>
@@ -2135,7 +1565,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 4. SITUAÇÃO, RESTRIÇÕES, FIPE E MULTAS */}
                     <div style={styles.resultSection}>
                       <div style={styles.resultSectionTitle}>
                         Situação e restrições
@@ -2182,7 +1611,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 5. RESUMO COMPLETO EM UM ÚNICO CAMPO */}
                     {detalhesVeiculo && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
@@ -2197,7 +1625,6 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* 6. DETALHES TÉCNICOS COMPLETOS DA BASE INTERNA */}
                     {plateVehicleMatches.length > 0 && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
@@ -2213,11 +1640,9 @@ export default function Home() {
               </>
             )}
 
-            {/* MODO MANUAL */}
             {mode === "manual" && (
               <>
                 <div style={styles.manualGrid}>
-                  {/* MARCA */}
                   <div style={styles.manualField}>
                     <label style={styles.manualLabel}>Marca</label>
                     <select
@@ -2235,7 +1660,6 @@ export default function Home() {
                     </select>
                   </div>
 
-                  {/* MODELO */}
                   <div style={styles.manualField}>
                     <label style={styles.manualLabel}>
                       Modelo (texto base de referência)
@@ -2276,7 +1700,6 @@ export default function Home() {
                   .
                 </div>
 
-                {/* RESULTADO BASE INTERNA - MANUAL */}
                 {manualResults.length > 0 && (
                   <div style={styles.resultWrapper}>
                     <div style={styles.resultSection}>
@@ -2297,7 +1720,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HERO */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -2317,7 +1739,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE TUREGGON */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que escolher a Tureggon?</h2>
@@ -2353,7 +1774,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEWSLETTER */}
       <section style={styles.newsletterOuter}>
         <div style={styles.newsletterInner}>
           <h2 style={styles.newsletterTitle}>Newsletter</h2>
@@ -2380,7 +1800,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
           <div style={styles.footerBottom}>
