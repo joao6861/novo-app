@@ -28,18 +28,21 @@ type PlacaInfo = {
 };
 
 type MaintenanceRow = {
-  label: string; // ITEM ou MARCA (para filtros)
-  value: string; // ESPECIFICAÇÃO ou CÓDIGO
+  label: string;
+  value: string;
   searchTerm: string;
   extra?: {
     brand?: string;
     code?: string;
+    typeOil?: string;
+    norma?: string;
+    qty?: string;
   };
 };
 
 type MaintenanceModule = {
   title: string;
-  kind: "generic" | "filters"; // generic = ITEM/ESPECIFICAÇÃO, filters = MARCA/CÓDIGO
+  kind: "generic" | "filters" | "diff";
   rows: MaintenanceRow[];
 };
 
@@ -736,7 +739,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  // módulos de manutenção (títulos e tabelas)
   filterModule: {
     marginTop: 18,
   },
@@ -878,7 +880,7 @@ export default function Home() {
   if (principalVeiculo) {
     const v: any = principalVeiculo;
 
-    // campos que serão usados em módulos específicos (não podem ser repetidos na tabela genérica)
+    // campos que serão usados em módulos específicos (não podem repetir na tabela genérica)
     const handledKeys = new Set<string>();
     const aggregatedFluidKeys = [
       "oleo_motor_litros",
@@ -895,12 +897,22 @@ export default function Home() {
       "aditivo_radiador_cor",
       "fluido_freio_litros",
       "fluido_freio_tipo",
+      // diferenciais / caixa transferência
+      "oleo_dif_dianteiro_litros",
+      "oleo_dif_dianteiro_visco",
+      "oleo_dif_dianteiro_especificacao",
+      "oleo_dif_traseiro_litros",
+      "oleo_dif_traseiro_visco",
+      "oleo_dif_traseiro_especificacao",
+      "oleo_caixa_transfer_litros",
+      "oleo_caixa_transfer_visco",
+      "oleo_caixa_transfer_especificacao",
     ];
     aggregatedFluidKeys.forEach((k) => handledKeys.add(k));
 
     const ensureModule = (
       title: string,
-      kind: "generic" | "filters"
+      kind: "generic" | "filters" | "diff"
     ): MaintenanceModule => {
       let m = maintenanceModules.find(
         (mm) => mm.title === title && mm.kind === kind
@@ -951,6 +963,31 @@ export default function Home() {
       });
     };
 
+    const addDiffRow = (
+      title: string,
+      tipo: unknown,
+      norma: unknown,
+      litros: unknown
+    ) => {
+      const tipoStr = (tipo ?? "").toString().trim();
+      const normaStr = (norma ?? "").toString().trim();
+      const litrosStr = (litros ?? "").toString().trim();
+      if (!tipoStr && !normaStr && !litrosStr) return;
+
+      const searchTerm = [tipoStr, normaStr].filter(Boolean).join(" ");
+      const mod = ensureModule(title, "diff");
+      mod.rows.push({
+        label: "",
+        value: "",
+        searchTerm: searchTerm || litrosStr || title,
+        extra: {
+          typeOil: tipoStr || "—",
+          norma: normaStr || "—",
+          qty: litrosStr ? `${litrosStr} L` : "—",
+        },
+      });
+    };
+
     const niceLabelFromKey = (key: string) => {
       return key
         .replace(/^filtros?_?/i, "")
@@ -958,7 +995,7 @@ export default function Home() {
         .replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
-    // --------- FLUIDOS: cada um em módulo separadinho ---------
+    // --------- FLUIDOS principais ---------
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -1034,6 +1071,28 @@ export default function Home() {
       );
     }
 
+    // --------- DIFERENCIAIS / CAIXA TRANSFERÊNCIA (layout especial) ---------
+    addDiffRow(
+      "Óleo diferencial dianteiro",
+      v.oleo_dif_dianteiro_visco,
+      v.oleo_dif_dianteiro_especificacao,
+      v.oleo_dif_dianteiro_litros
+    );
+
+    addDiffRow(
+      "Óleo diferencial traseiro",
+      v.oleo_dif_traseiro_visco,
+      v.oleo_dif_traseiro_especificacao,
+      v.oleo_dif_traseiro_litros
+    );
+
+    addDiffRow(
+      "Óleo caixa de transferência",
+      v.oleo_caixa_transfer_visco,
+      v.oleo_caixa_transfer_especificacao,
+      v.oleo_caixa_transfer_litros
+    );
+
     // --------- Filtros: cada tipo em módulo separado ---------
     if (v.filtros && typeof v.filtros === "object") {
       const f = v.filtros;
@@ -1061,9 +1120,7 @@ export default function Home() {
 
     // --------- Varredura genérica dos outros campos ---------
     Object.entries(v).forEach(([key, value]) => {
-      // se esse campo já foi usado para montar módulos específicos, não repete
       if (handledKeys.has(key)) return;
-
       if (value === null || value === undefined) return;
       if (typeof value === "object") return;
       const valStr = String(value).trim();
@@ -1071,8 +1128,6 @@ export default function Home() {
 
       const k = key.toLowerCase();
 
-      // já tratamos manualmente os campos de fluido importantes acima,
-      // então aqui podemos só mapear o que sobrou.
       let title: string;
 
       if (
@@ -1475,53 +1530,107 @@ export default function Home() {
                               </div>
                             </div>
                             <div style={styles.filterTable}>
-                              <div style={styles.filterHeaderRow}>
-                                {mod.kind === "filters" ? (
-                                  <>
-                                    <div style={styles.filterHeaderCell}>
-                                      MARCA
-                                    </div>
-                                    <div style={styles.filterHeaderCell}>
-                                      CÓDIGO
-                                    </div>
-                                    <div style={styles.filterHeaderCell}>
-                                      BUSCAR NA LOJA
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div style={styles.filterHeaderCell}>
-                                      ITEM
-                                    </div>
-                                    <div style={styles.filterHeaderCell}>
-                                      ESPECIFICAÇÃO / CÓDIGO
-                                    </div>
-                                    <div style={styles.filterHeaderCell}>
-                                      BUSCAR NA LOJA
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                              {mod.rows.map((row, idx) => (
-                                <div
-                                  key={`${mod.title}-${idx}`}
-                                  style={styles.filterRow}
-                                >
-                                  <div style={styles.filterCell}>
-                                    {mod.kind === "filters"
-                                      ? row.extra?.brand || row.label
-                                      : row.label}
+                              {/* Cabeçalho */}
+                              {mod.kind === "filters" && (
+                                <div style={styles.filterHeaderRow}>
+                                  <div style={styles.filterHeaderCell}>
+                                    MARCA
                                   </div>
-                                  <div style={styles.filterCell}>
-                                    {mod.kind === "filters"
-                                      ? row.extra?.code || row.value
-                                      : row.value}
+                                  <div style={styles.filterHeaderCell}>
+                                    CÓDIGO
                                   </div>
-                                  <div style={styles.filterCellAction}>
-                                    <SearchButton term={row.searchTerm} />
+                                  <div style={styles.filterHeaderCell}>
+                                    BUSCAR NA LOJA
                                   </div>
                                 </div>
-                              ))}
+                              )}
+
+                              {mod.kind === "generic" && (
+                                <div style={styles.filterHeaderRow}>
+                                  <div style={styles.filterHeaderCell}>
+                                    ITEM
+                                  </div>
+                                  <div style={styles.filterHeaderCell}>
+                                    ESPECIFICAÇÃO / CÓDIGO
+                                  </div>
+                                  <div style={styles.filterHeaderCell}>
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                              )}
+
+                              {mod.kind === "diff" && (
+                                <div
+                                  style={{
+                                    ...styles.filterHeaderRow,
+                                    gridTemplateColumns:
+                                      "1.4fr 1.2fr 0.8fr 1fr",
+                                  }}
+                                >
+                                  <div style={styles.filterHeaderCell}>
+                                    TIPO DO ÓLEO
+                                  </div>
+                                  <div style={styles.filterHeaderCell}>
+                                    NORMA
+                                  </div>
+                                  <div style={styles.filterHeaderCell}>
+                                    QUANTIDADE
+                                  </div>
+                                  <div style={styles.filterHeaderCell}>
+                                    BUSCAR NA LOJA
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Linhas */}
+                              {mod.rows.map((row, idx) => {
+                                if (mod.kind === "diff") {
+                                  return (
+                                    <div
+                                      key={`${mod.title}-${idx}`}
+                                      style={{
+                                        ...styles.filterRow,
+                                        gridTemplateColumns:
+                                          "1.4fr 1.2fr 0.8fr 1fr",
+                                      }}
+                                    >
+                                      <div style={styles.filterCell}>
+                                        {row.extra?.typeOil || "—"}
+                                      </div>
+                                      <div style={styles.filterCell}>
+                                        {row.extra?.norma || "—"}
+                                      </div>
+                                      <div style={styles.filterCell}>
+                                        {row.extra?.qty || "—"}
+                                      </div>
+                                      <div style={styles.filterCellAction}>
+                                        <SearchButton term={row.searchTerm} />
+                                      </div>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <div
+                                    key={`${mod.title}-${idx}`}
+                                    style={styles.filterRow}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {mod.kind === "filters"
+                                        ? row.extra?.brand || row.label
+                                        : row.label}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {mod.kind === "filters"
+                                        ? row.extra?.code || row.value
+                                        : row.value}
+                                    </div>
+                                    <div style={styles.filterCellAction}>
+                                      <SearchButton term={row.searchTerm} />
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}
