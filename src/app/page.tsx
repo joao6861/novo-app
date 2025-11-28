@@ -189,7 +189,6 @@ function calcularScoreMatch(info: PlacaInfo, v: any): number {
 /**
  * Corrigido:
  * - Se nenhum veículo tem score > 0, agora retornamos pelo menos o melhor candidato.
- *   Antes voltava lista vazia e parecia que "não tinha nada" na base interna.
  */
 function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
   if (!info.marca || !info.modelo) return [];
@@ -255,8 +254,7 @@ function buscarVeiculosPorPlacaNaBase(info: PlacaInfo): any[] {
 
   const maxScore = scored[0]?.score ?? -Infinity;
 
-  // NOVO: se o melhor ainda for <= 0, usa ele assim mesmo,
-  // para pelo menos ter um veículo base.
+  // se mesmo o melhor tiver score ruim, ainda assim usamos ele
   if (maxScore <= 0) {
     return [scored[0].v];
   }
@@ -377,7 +375,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 18,
+    marginBottom: 8,
   },
   logoBlock: {
     display: "flex",
@@ -398,57 +396,49 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
   },
 
-  /** NOVO: linha que junta botões + área de busca */
-  topControlsRow: {
-    display: "grid",
-    gridTemplateColumns: "minmax(230px, 280px) minmax(0, 1fr)",
-    gap: 12,
-    alignItems: "flex-start",
-    marginTop: 18,
-    marginBottom: 10,
-  },
-
-  /** Coluna de botões (um em cima do outro, menores) */
-  cardsRow: {
+  /* NOVO: barra principal de abas (Buscar veículo / Agendar) */
+  mainTabsContainer: {
+    marginTop: 16,
     display: "flex",
-    flexDirection: "column",
-    gap: 8,
+    justifyContent: "center",
   },
-  card: {
-    background: "#ffffff",
-    color: "#0f172a",
-    borderRadius: 10,
-    padding: "8px 12px",
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
+  mainTabsBar: {
+    display: "inline-flex",
+    gap: 4,
+    backgroundColor: "rgba(15,23,42,0.95)",
+    padding: 4,
+    borderRadius: 999,
+    boxShadow: "0 10px 30px rgba(15,23,42,0.55)",
+  },
+  mainTabBtn: {
+    borderRadius: 999,
+    border: "none",
+    padding: "8px 18px",
     fontSize: 12,
     cursor: "pointer",
-    boxShadow: "0 6px 12px rgba(15,23,42,0.18)",
-    border: "1px solid transparent",
-    transition: "all 0.18s ease",
-  },
-  cardActive: {
-    background: "linear-gradient(135deg,#0f172a,#1e293b)",
-    color: "#e5f0ff",
-    border: "1px solid rgba(96,165,250,0.9)",
-  },
-  cardIcon: {
-    width: 16,
-    textAlign: "center",
-    opacity: 0.75,
-  },
-  cardLabel: {
+    backgroundColor: "transparent",
+    color: "#9ca3af",
     fontWeight: 500,
+    whiteSpace: "nowrap",
+  },
+  mainTabBtnActive: {
+    background: "linear-gradient(135deg,#38bdf8,#0ea5e9)",
+    color: "#0b1120",
+    fontWeight: 700,
+  },
+
+  subTabsWrapper: {
+    marginTop: 18,
+    display: "flex",
+    justifyContent: "center",
   },
   subTabsRow: {
     display: "inline-flex",
     gap: 8,
-    padding: "6px",
-    backgroundColor: "rgba(15,23,42,0.45)",
+    padding: 6,
+    backgroundColor: "rgba(15,23,42,0.7)",
     borderRadius: 999,
     marginBottom: 10,
-    marginTop: 10,
   },
   subTabBtn: {
     borderRadius: 999,
@@ -464,15 +454,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#0f172a",
     fontWeight: 600,
   },
-  /** Envolve TODA a área de busca (agora na direita da linha) */
+
+  /** Envolve TODA a área de busca */
   searchWrapper: {
-    marginTop: 0,
-    marginBottom: 8,
+    marginTop: 10,
   },
   searchRow: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: 8,
+    marginTop: 4,
   },
   searchInput: {
     width: "100%",
@@ -501,7 +492,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: 10,
-    marginTop: 6,
+    marginTop: 12,
   },
   manualField: {
     display: "flex",
@@ -586,6 +577,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid rgba(148,163,184,0.7)",
     background: "rgba(15,23,42,0.96)",
   },
+
   filterModule: {
     marginTop: 18,
   },
@@ -864,6 +856,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     height: 48,
     objectFit: "contain",
     display: "block",
+  },
+
+  footerLinksRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 20,
+    marginTop: 4,
+  },
+  footerColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+  },
+  footerColumnTitle: {
+    fontSize: 13,
+    fontWeight: 600,
+    marginBottom: 4,
+  },
+  footerLink: {
+    fontSize: 12,
+    color: "#d1d5db",
+    textDecoration: "none",
   },
   footerCopy: {
     textAlign: "center",
@@ -1472,43 +1486,45 @@ export default function Home() {
             </button>
           </header>
 
-          {/* LINHA COM BOTÕES + ÁREA DE BUSCA */}
-          <div style={styles.topControlsRow}>
-            {/* COLUNA ESQUERDA: BOTÕES */}
-            <div style={styles.cardsRow}>
+          {/* Abas principais */}
+          <div style={styles.mainTabsContainer}>
+            <div style={styles.mainTabsBar}>
               <button
                 type="button"
                 style={{
-                  ...styles.card,
-                  ...(mainTab === "buscar" ? styles.cardActive : {}),
+                  ...styles.mainTabBtn,
+                  ...(mainTab === "buscar" ? styles.mainTabBtnActive : {}),
                 }}
                 onClick={() => {
                   setMainTab("buscar");
-                  setMode("plate");
                   scrollToSearch();
                 }}
               >
-                <span style={styles.cardIcon}>🚗</span>
-                <span style={styles.cardLabel}>Buscar veículo</span>
+                Buscar veículo
               </button>
 
               <button
                 type="button"
-                style={styles.card}
-                onClick={handleAgendarOficina}
+                style={{
+                  ...styles.mainTabBtn,
+                  ...(mainTab === "oficina" ? styles.mainTabBtnActive : {}),
+                }}
+                onClick={() => {
+                  setMainTab("oficina");
+                  scrollToSearch();
+                }}
               >
-                <span style={styles.cardIcon}>🛠️</span>
-                <span style={styles.cardLabel}>
-                  Agendar serviço em uma oficina parceira
-                </span>
+                Agendar serviço em uma oficina parceira
               </button>
             </div>
+          </div>
 
-            {/* COLUNA DIREITA: BLOCO DE BUSCA */}
-            <div style={styles.searchWrapper} ref={searchBlockRef}>
-              {mainTab === "buscar" ? (
-                <>
-                  {/* SUB-ABAS */}
+          {/* Bloco de busca / agendamento */}
+          <div style={styles.searchWrapper} ref={searchBlockRef}>
+            {mainTab === "buscar" ? (
+              <>
+                {/* Sub-abas (placa / manual) */}
+                <div style={styles.subTabsWrapper}>
                   <div style={styles.subTabsRow}>
                     <button
                       type="button"
@@ -1534,443 +1550,441 @@ export default function Home() {
                       Buscar por marca, modelo, ano e motor
                     </button>
                   </div>
+                </div>
 
-                  {/* BUSCA POR PLACA */}
-                  {mode === "plate" && (
-                    <>
-                      <div style={styles.searchRow}>
+                {/* BUSCA POR PLACA */}
+                {mode === "plate" && (
+                  <>
+                    <div style={styles.searchRow}>
+                      <input
+                        type="text"
+                        placeholder="Digite a placa (ex: ABC1D23)"
+                        style={styles.searchInput}
+                        value={plate}
+                        onChange={(e) =>
+                          setPlate(e.target.value.toUpperCase())
+                        }
+                      />
+                      <button
+                        type="button"
+                        style={styles.searchBtn}
+                        onClick={handleSearchClick}
+                        disabled={plateLoading}
+                      >
+                        {plateLoading ? "Buscando..." : "Buscar"}
+                      </button>
+                    </div>
+                    <div style={styles.searchHint}>
+                      Opção atual:{" "}
+                      <strong>buscar veículo usando apenas a placa</strong>.
+                    </div>
+                    {plateError && (
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontSize: 12,
+                          color: "#fecaca",
+                        }}
+                      >
+                        {plateError}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* BUSCA MANUAL */}
+                {mode === "manual" && (
+                  <>
+                    <div style={styles.manualGrid}>
+                      <div style={styles.manualField}>
+                        <label style={styles.manualLabel}>Marca</label>
+                        <select
+                          style={styles.manualSelect}
+                          value={brand}
+                          onChange={(e) => handleBrandChange(e.target.value)}
+                        >
+                          <option value="">Selecione</option>
+                          {brandOptions.map((b) => (
+                            <option key={b} value={b}>
+                              {b}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div style={styles.manualField}>
+                        <label style={styles.manualLabel}>
+                          Modelo (texto base de referência)
+                        </label>
+                        <select
+                          style={styles.manualSelect}
+                          value={selectedModel}
+                          onChange={(e) => setSelectedModel(e.target.value)}
+                          disabled={!brand || availableModels.length === 0}
+                        >
+                          <option value="">
+                            {brand
+                              ? "Selecione o modelo"
+                              : "Escolha primeiro a marca"}
+                          </option>
+                          {availableModels.map((m) => (
+                            <option key={m} value={m}>
+                              {m}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={styles.manualGrid}>
+                      <div style={styles.manualField}>
+                        <label style={styles.manualLabel}>Ano de</label>
+                        <input
+                          type="number"
+                          placeholder="Ex: 2012"
+                          style={styles.searchInput}
+                          value={yearFrom}
+                          onChange={(e) => setYearFrom(e.target.value)}
+                        />
+                      </div>
+                      <div style={styles.manualField}>
+                        <label style={styles.manualLabel}>Ano até</label>
+                        <input
+                          type="number"
+                          placeholder="Ex: 2018"
+                          style={styles.searchInput}
+                          value={yearTo}
+                          onChange={(e) => setYearTo(e.target.value)}
+                        />
+                      </div>
+                      <div style={styles.manualField}>
+                        <label style={styles.manualLabel}>
+                          Motor (ex: 1.0, 1.8)
+                        </label>
                         <input
                           type="text"
-                          placeholder="Digite a placa (ex: ABC1D23)"
+                          placeholder="Ex: 1.8"
                           style={styles.searchInput}
-                          value={plate}
-                          onChange={(e) =>
-                            setPlate(e.target.value.toUpperCase())
-                          }
+                          value={engine}
+                          onChange={(e) => setEngine(e.target.value)}
                         />
-                        <button
-                          type="button"
-                          style={styles.searchBtn}
-                          onClick={handleSearchClick}
-                          disabled={plateLoading}
-                        >
-                          {plateLoading ? "Buscando..." : "Buscar"}
-                        </button>
                       </div>
-                      <div style={styles.searchHint}>
-                        Opção atual:{" "}
-                        <strong>buscar veículo usando apenas a placa</strong>.
+                    </div>
+
+                    <div style={styles.manualButtonRow}>
+                      <button
+                        type="button"
+                        style={styles.searchBtn}
+                        onClick={handleSearchClick}
+                      >
+                        Buscar
+                      </button>
+                    </div>
+
+                    <div style={styles.searchHint}>
+                      Opção atual:{" "}
+                      <strong>
+                        buscar veículo por marca, modelo, faixa de ano e motor
+                      </strong>
+                      .
+                    </div>
+                  </>
+                )}
+
+                {/* RESULTADOS BUSCA POR PLACA */}
+                {mode === "plate" && plateResult && (
+                  <div style={styles.resultWrapper}>
+                    {/* DADOS GERAIS */}
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Dados gerais do veículo
                       </div>
-                      {plateError && (
-                        <div
-                          style={{
-                            marginTop: 6,
-                            fontSize: 12,
-                            color: "#fecaca",
-                          }}
-                        >
-                          {plateError}
+                      <div style={styles.resultGrid}>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Placa</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.placa}
+                          </span>
                         </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* BUSCA MANUAL */}
-                  {mode === "manual" && (
-                    <>
-                      <div style={styles.manualGrid}>
-                        <div style={styles.manualField}>
-                          <label style={styles.manualLabel}>Marca</label>
-                          <select
-                            style={styles.manualSelect}
-                            value={brand}
-                            onChange={(e) => handleBrandChange(e.target.value)}
-                          >
-                            <option value="">Selecione</option>
-                            {brandOptions.map((b) => (
-                              <option key={b} value={b}>
-                                {b}
-                              </option>
-                            ))}
-                          </select>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Marca</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.marca || "—"}
+                          </span>
                         </div>
-
-                        <div style={styles.manualField}>
-                          <label style={styles.manualLabel}>
-                            Modelo (texto base de referência)
-                          </label>
-                          <select
-                            style={styles.manualSelect}
-                            value={selectedModel}
-                            onChange={(e) => setSelectedModel(e.target.value)}
-                            disabled={!brand || availableModels.length === 0}
-                          >
-                            <option value="">
-                              {brand
-                                ? "Selecione o modelo"
-                                : "Escolha primeiro a marca"}
-                            </option>
-                            {availableModels.map((m) => (
-                              <option key={m} value={m}>
-                                {m}
-                              </option>
-                            ))}
-                          </select>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Modelo</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.modelo || "—"}
+                          </span>
                         </div>
-                      </div>
-
-                      <div style={styles.manualGrid}>
-                        <div style={styles.manualField}>
-                          <label style={styles.manualLabel}>Ano de</label>
-                          <input
-                            type="number"
-                            placeholder="Ex: 2012"
-                            style={styles.searchInput}
-                            value={yearFrom}
-                            onChange={(e) => setYearFrom(e.target.value)}
-                          />
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Versão</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.versao || "—"}
+                          </span>
                         </div>
-                        <div style={styles.manualField}>
-                          <label style={styles.manualLabel}>Ano até</label>
-                          <input
-                            type="number"
-                            placeholder="Ex: 2018"
-                            style={styles.searchInput}
-                            value={yearTo}
-                            onChange={(e) => setYearTo(e.target.value)}
-                          />
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Ano Fab.</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.ano || "—"}
+                          </span>
                         </div>
-                        <div style={styles.manualField}>
-                          <label style={styles.manualLabel}>
-                            Motor (ex: 1.0, 1.8)
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Ex: 1.8"
-                            style={styles.searchInput}
-                            value={engine}
-                            onChange={(e) => setEngine(e.target.value)}
-                          />
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Ano Modelo
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.ano_modelo || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Cor</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.cor || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Tipo de veículo
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.tipo_veiculo || "—"}
+                          </span>
+                        </div>
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>Chassi</span>
+                          <span style={styles.resultItemValue}>
+                            {plateResult.chassi || "—"}
+                          </span>
                         </div>
                       </div>
 
-                      <div style={styles.manualButtonRow}>
-                        <button
-                          type="button"
-                          style={styles.searchBtn}
-                          onClick={handleSearchClick}
-                        >
-                          Buscar
-                        </button>
+                      <div style={styles.tagRow}>
+                        {plateResult.segmento && (
+                          <span style={styles.tag}>
+                            Segmento: {plateResult.segmento}
+                          </span>
+                        )}
+                        {plateResult.municipio && (
+                          <span style={styles.tag}>
+                            Local: {plateResult.municipio}
+                            {plateResult.uf ? `/${plateResult.uf}` : ""}
+                          </span>
+                        )}
                       </div>
+                    </div>
 
-                      <div style={styles.searchHint}>
-                        Opção atual:{" "}
-                        <strong>
-                          buscar veículo por marca, modelo, faixa de ano e motor
-                        </strong>
-                        .
-                      </div>
-                    </>
-                  )}
-
-                  {/* RESULTADOS BUSCA POR PLACA */}
-                  {mode === "plate" && plateResult && (
-                    <div style={styles.resultWrapper}>
-                      {/* DADOS GERAIS */}
+                    {/* MANUTENÇÃO (BASE INTERNA EM MÓDULOS) */}
+                    {principalVeiculo && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
-                          Dados gerais do veículo
-                        </div>
-                        <div style={styles.resultGrid}>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Placa</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.placa}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Marca</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.marca || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Modelo</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.modelo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Versão</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.versao || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Ano Fab.</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.ano || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Ano Modelo
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.ano_modelo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Cor</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.cor || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Tipo de veículo
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.tipo_veiculo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Chassi</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.chassi || "—"}
-                            </span>
-                          </div>
+                          Informações de manutenção (base interna)
                         </div>
 
-                        <div style={styles.tagRow}>
-                          {plateResult.segmento && (
-                            <span style={styles.tag}>
-                              Segmento: {plateResult.segmento}
-                            </span>
-                          )}
-                          {plateResult.municipio && (
-                            <span style={styles.tag}>
-                              Local: {plateResult.municipio}
-                              {plateResult.uf ? `/${plateResult.uf}` : ""}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* MANUTENÇÃO (BASE INTERNA EM MÓDULOS) */}
-                      {principalVeiculo && (
-                        <div style={styles.resultSection}>
-                          <div style={styles.resultSectionTitle}>
-                            Informações de manutenção (base interna)
-                          </div>
-
-                          {maintenanceModules.length === 0 ? (
-                            <p style={{ fontSize: 13, marginTop: 4 }}>
-                              Ainda não temos informações internas de
-                              manutenção para esse veículo.
-                            </p>
-                          ) : (
-                            maintenanceModules.map((mod) => (
-                              <div
-                                key={`${mod.kind}-${mod.title}`}
-                                style={styles.filterModule}
-                              >
-                                <div style={styles.filterModuleTitleBar}>
-                                  <div style={styles.filterModuleTitleText}>
-                                    {mod.title.toUpperCase()}
-                                  </div>
+                        {maintenanceModules.length === 0 ? (
+                          <p style={{ fontSize: 13, marginTop: 4 }}>
+                            Ainda não temos informações internas de manutenção
+                            para esse veículo.
+                          </p>
+                        ) : (
+                          maintenanceModules.map((mod) => (
+                            <div
+                              key={`${mod.kind}-${mod.title}`}
+                              style={styles.filterModule}
+                            >
+                              <div style={styles.filterModuleTitleBar}>
+                                <div style={styles.filterModuleTitleText}>
+                                  {mod.title.toUpperCase()}
                                 </div>
-                                <div style={styles.filterTable}>
-                                  {/* Cabeçalho */}
-                                  {mod.kind === "filters" && (
-                                    <div style={styles.filterHeaderRow}>
-                                      <div style={styles.filterHeaderCell}>
-                                        MARCA
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        CÓDIGO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
+                              </div>
+                              <div style={styles.filterTable}>
+                                {/* Cabeçalho */}
+                                {mod.kind === "filters" && (
+                                  <div style={styles.filterHeaderRow}>
+                                    <div style={styles.filterHeaderCell}>
+                                      MARCA
                                     </div>
-                                  )}
-
-                                  {mod.kind === "generic" && (
-                                    <div style={styles.filterHeaderRow}>
-                                      <div style={styles.filterHeaderCell}>
-                                        ITEM
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        ESPECIFICAÇÃO / CÓDIGO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      CÓDIGO
                                     </div>
-                                  )}
-
-                                  {mod.kind === "diff" && (
-                                    <div
-                                      style={{
-                                        ...styles.filterHeaderRow,
-                                        gridTemplateColumns:
-                                          "1.4fr 1.2fr 0.8fr 1fr",
-                                      }}
-                                    >
-                                      <div style={styles.filterHeaderCell}>
-                                        TIPO DO ÓLEO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        NORMA
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        QUANTIDADE
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
-                                  {/* Linhas */}
-                                  {mod.rows.map((row, idx) => {
-                                    if (mod.kind === "diff") {
-                                      return (
-                                        <div
-                                          key={`${mod.title}-${idx}`}
-                                          style={{
-                                            ...styles.filterRow,
-                                            gridTemplateColumns:
-                                              "1.4fr 1.2fr 0.8fr 1fr",
-                                          }}
-                                        >
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.typeOil || "—"}
-                                          </div>
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.norma || "—"}
-                                          </div>
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.qty || "—"}
-                                          </div>
-                                          <div style={styles.filterCellAction}>
-                                            <SearchButton
-                                              term={row.searchTerm}
-                                            />
-                                          </div>
-                                        </div>
-                                      );
-                                    }
+                                {mod.kind === "generic" && (
+                                  <div style={styles.filterHeaderRow}>
+                                    <div style={styles.filterHeaderCell}>
+                                      ITEM
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      ESPECIFICAÇÃO / CÓDIGO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
+                                  </div>
+                                )}
 
+                                {mod.kind === "diff" && (
+                                  <div
+                                    style={{
+                                      ...styles.filterHeaderRow,
+                                      gridTemplateColumns:
+                                        "1.4fr 1.2fr 0.8fr 1fr",
+                                    }}
+                                  >
+                                    <div style={styles.filterHeaderCell}>
+                                      TIPO DO ÓLEO
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      NORMA
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      QUANTIDADE
+                                    </div>
+                                    <div style={styles.filterHeaderCell}>
+                                      BUSCAR NA LOJA
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Linhas */}
+                                {mod.rows.map((row, idx) => {
+                                  if (mod.kind === "diff") {
                                     return (
                                       <div
                                         key={`${mod.title}-${idx}`}
-                                        style={styles.filterRow}
+                                        style={{
+                                          ...styles.filterRow,
+                                          gridTemplateColumns:
+                                            "1.4fr 1.2fr 0.8fr 1fr",
+                                        }}
                                       >
                                         <div style={styles.filterCell}>
-                                          {mod.kind === "filters"
-                                            ? row.extra?.brand || row.label
-                                            : row.label}
+                                          {row.extra?.typeOil || "—"}
                                         </div>
                                         <div style={styles.filterCell}>
-                                          {mod.kind === "filters"
-                                            ? row.extra?.code || row.value
-                                            : row.value}
+                                          {row.extra?.norma || "—"}
+                                        </div>
+                                        <div style={styles.filterCell}>
+                                          {row.extra?.qty || "—"}
                                         </div>
                                         <div style={styles.filterCellAction}>
                                           <SearchButton term={row.searchTerm} />
                                         </div>
                                       </div>
                                     );
-                                  })}
-                                </div>
+                                  }
+
+                                  return (
+                                    <div
+                                      key={`${mod.title}-${idx}`}
+                                      style={styles.filterRow}
+                                    >
+                                      <div style={styles.filterCell}>
+                                        {mod.kind === "filters"
+                                          ? row.extra?.brand || row.label
+                                          : row.label}
+                                      </div>
+                                      <div style={styles.filterCell}>
+                                        {mod.kind === "filters"
+                                          ? row.extra?.code || row.value
+                                          : row.value}
+                                      </div>
+                                      <div style={styles.filterCellAction}>
+                                        <SearchButton term={row.searchTerm} />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            ))
-                          )}
-                        </div>
-                      )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
 
-                      {/* RESUMO DA CONSULTA */}
-                      {detalhesVeiculo && (
-                        <div style={styles.resultSection}>
-                          <div style={styles.resultSectionTitle}>
-                            Resumo da consulta
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Detalhes FIPE / cadastro
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {detalhesVeiculo}
-                            </span>
-                          </div>
-                          <div style={styles.tagRow}>
-                            <span style={styles.tag}>{restricoes}</span>
-                            <span style={styles.tag}>{fipeStatus}</span>
-                            <span style={styles.tag}>{multasStatus}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* RESULTADOS BUSCA MANUAL */}
-                  {mode === "manual" && manualResults.length > 0 && (
-                    <div style={styles.resultWrapper}>
+                    {/* RESUMO DA CONSULTA */}
+                    {detalhesVeiculo && (
                       <div style={styles.resultSection}>
                         <div style={styles.resultSectionTitle}>
-                          Informações técnicas da base interna (
-                          {manualResults.length} versão(ões) encontrada(s))
+                          Resumo da consulta
                         </div>
-                        {manualResults
-                          .slice(0, 5)
-                          .map((v, idx) => renderVeiculoTecnico(v, idx))}
+                        <div style={styles.resultItem}>
+                          <span style={styles.resultItemLabel}>
+                            Detalhes FIPE / cadastro
+                          </span>
+                          <span style={styles.resultItemValue}>
+                            {detalhesVeiculo}
+                          </span>
+                        </div>
+                        <div style={styles.tagRow}>
+                          <span style={styles.tag}>{restricoes}</span>
+                          <span style={styles.tag}>{fipeStatus}</span>
+                          <span style={styles.tag}>{multasStatus}</span>
+                        </div>
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {/* RESULTADOS BUSCA MANUAL */}
+                {mode === "manual" && manualResults.length > 0 && (
+                  <div style={styles.resultWrapper}>
+                    <div style={styles.resultSection}>
+                      <div style={styles.resultSectionTitle}>
+                        Informações técnicas da base interna (
+                        {manualResults.length} versão(ões) encontrada(s))
+                      </div>
+                      {manualResults
+                        .slice(0, 5)
+                        .map((v, idx) => renderVeiculoTecnico(v, idx))}
                     </div>
-                  )}
-                </>
-              ) : (
-                // ABA DE OFICINAS PARCEIRAS
-                <div
+                  </div>
+                )}
+              </>
+            ) : (
+              // ABA DE OFICINAS PARCEIRAS
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: "16px 18px",
+                  borderRadius: 12,
+                  background:
+                    "radial-gradient(circle at top, #0b1120 0%, #020617 60%, #020617 100%)",
+                  border: "1px solid rgba(148,163,184,0.55)",
+                  fontSize: 13,
+                }}
+              >
+                <p style={{ marginBottom: 12 }}>
+                  Para agendar um serviço em uma{" "}
+                  <strong>oficina parceira Tureggon</strong>, clique no botão
+                  abaixo. Você pode alterar o link direto no código, na
+                  constante <code>OFICINAS_URL</code>.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAgendarOficina}
                   style={{
-                    marginTop: 16,
-                    padding: "16px 18px",
-                    borderRadius: 12,
+                    marginTop: 4,
+                    borderRadius: 999,
+                    border: "1px solid #22c55e",
+                    padding: "8px 22px",
                     background:
-                      "radial-gradient(circle at top, #0b1120 0%, #020617 60%, #020617 100%)",
-                    border: "1px solid rgba(148,163,184,0.55)",
+                      "linear-gradient(135deg, #22c55e, #16a34a)",
+                    color: "#022c22",
+                    fontWeight: 700,
                     fontSize: 13,
+                    cursor: "pointer",
                   }}
                 >
-                  <p style={{ marginBottom: 12 }}>
-                    Para agendar um serviço em uma{" "}
-                    <strong>oficina parceira Tureggon</strong>, clique no botão
-                    abaixo. Você pode alterar o link direto no código, na
-                    constante <code>OFICINAS_URL</code>.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleAgendarOficina}
-                    style={{
-                      marginTop: 4,
-                      borderRadius: 999,
-                      border: "1px solid #22c55e",
-                      padding: "8px 22px",
-                      background:
-                        "linear-gradient(135deg, #22c55e, #16a34a)",
-                      color: "#022c22",
-                      fontWeight: 700,
-                      fontSize: 13,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Abrir página de agendamento
-                  </button>
-                </div>
-              )}
-            </div>
+                  Abrir página de agendamento
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
