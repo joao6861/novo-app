@@ -340,7 +340,7 @@ function niceLabelFromKey(key: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/* --------------------------------- styles ---------------------------------- */
+/* --------------------------------- STYLES ---------------------------------- */
 
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
@@ -352,6 +352,8 @@ const styles: { [key: string]: React.CSSProperties } = {
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     boxSizing: "border-box",
   },
+
+  /* CABEÇALHO AZUL */
   topArea: {
     padding: "24px 16px 32px",
     backgroundColor: "#21c7ea",
@@ -450,10 +452,22 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 4,
   },
 
-  /** bloco escuro para os resultados (dados gerais + manutenção + resumo) */
+  /* FUNDO ESCURO DA ÁREA DE RESULTADOS (FULL WIDTH) */
+  resultsSection: {
+    background:
+      "radial-gradient(circle at top, #020617 0%, #020617 60%, #000000 100%)",
+    padding: "32px 16px 40px",
+  },
+  resultsSectionInner: {
+    width: "100%",
+    maxWidth: 1200,
+    margin: "0 auto",
+  },
+
+  /** bloco interno dos resultados (dentro do fundo escuro) */
   resultsOuter: {
-    marginTop: 32,
-    borderRadius: 32,
+    marginTop: 0,
+    borderRadius: 24,
     background:
       "radial-gradient(circle at top, #020617 0%, #020617 60%, #000000 100%)",
     boxShadow: "0 24px 60px rgba(0,0,0,0.75)",
@@ -521,6 +535,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "rgba(15,23,42,0.96)",
   },
 
+  /* MÓDULOS / TABELAS DE MANUTENÇÃO */
   filterModule: {
     marginTop: 18,
   },
@@ -582,6 +597,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center",
   },
 
+  /* HERO / SEÇÃO AZUL-ESCURA LOGO ABAIXO DOS RESULTADOS */
   heroOuter: {
     background:
       "radial-gradient(circle at top, #1b2440 0%, #020617 40%, #020617 100%)",
@@ -634,6 +650,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginLeft: "auto",
     marginRight: "auto",
   },
+
+  /* SEÇÃO "POR QUE USAR" */
   whyOuter: {
     backgroundColor: "#020617",
     padding: "56px 16px 64px",
@@ -679,6 +697,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "#9ca3af",
     lineHeight: 1.5,
   },
+
+  /* NEWSLETTER */
   newsletterOuter: {
     padding: "60px 16px 80px",
     backgroundColor: "#21c7ea",
@@ -726,6 +746,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 13,
     cursor: "pointer",
   },
+
+  /* RODAPÉ */
   footerOuter: {
     backgroundColor: "#000000",
     color: "#ffffff",
@@ -832,7 +854,7 @@ const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
 const OFICINAS_URL =
   "https://tureggon.com/pages/oficinas-parceiras";
 
-/* --------------------------- botao buscar na loja --------------------------- */
+/* --------------------------- BOTÃO BUSCAR NA LOJA -------------------------- */
 
 function SearchButton({ term }: { term: string }) {
   if (!term) return null;
@@ -860,11 +882,10 @@ function SearchButton({ term }: { term: string }) {
   );
 }
 
-/* --------------------------------- página ---------------------------------- */
+/* --------------------------------- PÁGINA ---------------------------------- */
 
 export default function Home() {
   const [mainTab, setMainTab] = useState<"buscar" | "oficina">("buscar");
-
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
 
   const [plate, setPlate] = useState("");
@@ -901,6 +922,8 @@ export default function Home() {
     rawApiData?.response ? montarDetalhesVeiculo(rawApiData.response) : "";
 
   const principalVeiculo = plateVehicleMatches[0] || null;
+
+  /* ---------------- MONTAR MÓDULOS DE MANUTENÇÃO (TABELAS) ----------------- */
 
   const maintenanceModules: MaintenanceModule[] = [];
 
@@ -1272,7 +1295,7 @@ export default function Home() {
 
   return (
     <main style={styles.page}>
-      {/* CABEÇALHO CLARO */}
+      {/* CABEÇALHO AZUL */}
       <section style={styles.topArea}>
         <div style={styles.topInner}>
           <header style={styles.header}>
@@ -1363,247 +1386,6 @@ export default function Home() {
                     {plateError}
                   </div>
                 )}
-
-                {/* RESULTADOS EM BLOCO ESCURO */}
-                {plateResult && (
-                  <div style={styles.resultsOuter}>
-                    <div style={styles.resultWrapper}>
-                      <div style={styles.resultSection}>
-                        <div style={styles.resultSectionTitle}>
-                          Dados gerais do veículo
-                        </div>
-                        <div style={styles.resultGrid}>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Placa</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.placa}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Marca</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.marca || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Modelo</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.modelo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Versão</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.versao || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Ano Fab.</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.ano || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Ano Modelo
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.ano_modelo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Cor</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.cor || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Tipo de veículo
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.tipo_veiculo || "—"}
-                            </span>
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>Chassi</span>
-                            <span style={styles.resultItemValue}>
-                              {plateResult.chassi || "—"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div style={styles.tagRow}>
-                          {plateResult.segmento && (
-                            <span style={styles.tag}>
-                              Segmento: {plateResult.segmento}
-                            </span>
-                          )}
-                          {plateResult.municipio && (
-                            <span style={styles.tag}>
-                              Local: {plateResult.municipio}
-                              {plateResult.uf ? `/${plateResult.uf}` : ""}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {principalVeiculo && (
-                        <div style={styles.resultSection}>
-                          <div style={styles.resultSectionTitle}>
-                            Informações de manutenção (base interna)
-                          </div>
-
-                          {maintenanceModules.length === 0 ? (
-                            <p style={{ fontSize: 13, marginTop: 4 }}>
-                              Ainda não temos informações internas de
-                              manutenção para esse veículo.
-                            </p>
-                          ) : (
-                            maintenanceModules.map((mod) => (
-                              <div
-                                key={`${mod.kind}-${mod.title}`}
-                                style={styles.filterModule}
-                              >
-                                <div style={styles.filterModuleTitleBar}>
-                                  <div style={styles.filterModuleTitleText}>
-                                    {mod.title.toUpperCase()}
-                                  </div>
-                                </div>
-                                <div style={styles.filterTable}>
-                                  {mod.kind === "filters" && (
-                                    <div style={styles.filterHeaderRow}>
-                                      <div style={styles.filterHeaderCell}>
-                                        MARCA
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        CÓDIGO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {mod.kind === "generic" && (
-                                    <div style={styles.filterHeaderRow}>
-                                      <div style={styles.filterHeaderCell}>
-                                        ITEM
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        ESPECIFICAÇÃO / CÓDIGO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {mod.kind === "diff" && (
-                                    <div
-                                      style={{
-                                        ...styles.filterHeaderRow,
-                                        gridTemplateColumns:
-                                          "1.4fr 1.2fr 0.8fr 1fr",
-                                      }}
-                                    >
-                                      <div style={styles.filterHeaderCell}>
-                                        TIPO DO ÓLEO
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        NORMA
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        QUANTIDADE
-                                      </div>
-                                      <div style={styles.filterHeaderCell}>
-                                        BUSCAR NA LOJA
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {mod.rows.map((row, idx) => {
-                                    if (mod.kind === "diff") {
-                                      return (
-                                        <div
-                                          key={`${mod.title}-${idx}`}
-                                          style={{
-                                            ...styles.filterRow,
-                                            gridTemplateColumns:
-                                              "1.4fr 1.2fr 0.8fr 1fr",
-                                          }}
-                                        >
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.typeOil || "—"}
-                                          </div>
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.norma || "—"}
-                                          </div>
-                                          <div style={styles.filterCell}>
-                                            {row.extra?.qty || "—"}
-                                          </div>
-                                          <div style={styles.filterCellAction}>
-                                            <SearchButton
-                                              term={row.searchTerm}
-                                            />
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-
-                                    return (
-                                      <div
-                                        key={`${mod.title}-${idx}`}
-                                        style={styles.filterRow}
-                                      >
-                                        <div style={styles.filterCell}>
-                                          {mod.kind === "filters"
-                                            ? row.extra?.brand || row.label
-                                            : row.label}
-                                        </div>
-                                        <div style={styles.filterCell}>
-                                          {mod.kind === "filters"
-                                            ? row.extra?.code || row.value
-                                            : row.value}
-                                        </div>
-                                        <div style={styles.filterCellAction}>
-                                          <SearchButton
-                                            term={row.searchTerm}
-                                          />
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-
-                      {detalhesVeiculo && (
-                        <div style={styles.resultSection}>
-                          <div style={styles.resultSectionTitle}>
-                            Resumo da consulta
-                          </div>
-                          <div style={styles.resultItem}>
-                            <span style={styles.resultItemLabel}>
-                              Detalhes FIPE / cadastro
-                            </span>
-                            <span style={styles.resultItemValue}>
-                              {detalhesVeiculo}
-                            </span>
-                          </div>
-                          <div style={styles.tagRow}>
-                            <span style={styles.tag}>{restricoes}</span>
-                            <span style={styles.tag}>{fipeStatus}</span>
-                            <span style={styles.tag}>{multasStatus}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </>
             ) : (
               <div
@@ -1647,7 +1429,253 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RESTANTE DO SITE ESCURO */}
+      {/* RESULTADOS EM FUNDO ESCURO COMPLETO */}
+      {plateResult && (
+        <section style={styles.resultsSection}>
+          <div style={styles.resultsSectionInner}>
+            <div style={styles.resultsOuter}>
+              <div style={styles.resultWrapper}>
+                {/* DADOS GERAIS DO VEÍCULO */}
+                <div style={styles.resultSection}>
+                  <div style={styles.resultSectionTitle}>
+                    Dados gerais do veículo
+                  </div>
+                  <div style={styles.resultGrid}>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Placa</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.placa}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Marca</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.marca || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Modelo</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.modelo || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Versão</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.versao || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Ano Fab.</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.ano || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>
+                        Ano Modelo
+                      </span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.ano_modelo || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Cor</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.cor || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>
+                        Tipo de veículo
+                      </span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.tipo_veiculo || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Chassi</span>
+                      <span style={styles.resultItemValue}>
+                        {plateResult.chassi || "—"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={styles.tagRow}>
+                    {plateResult.segmento && (
+                      <span style={styles.tag}>
+                        Segmento: {plateResult.segmento}
+                      </span>
+                    )}
+                    {plateResult.municipio && (
+                      <span style={styles.tag}>
+                        Local: {plateResult.municipio}
+                        {plateResult.uf ? `/${plateResult.uf}` : ""}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* INFORMAÇÕES DE MANUTENÇÃO */}
+                {principalVeiculo && (
+                  <div style={styles.resultSection}>
+                    <div style={styles.resultSectionTitle}>
+                      Informações de manutenção (base interna)
+                    </div>
+
+                    {maintenanceModules.length === 0 ? (
+                      <p style={{ fontSize: 13, marginTop: 4 }}>
+                        Ainda não temos informações internas de manutenção
+                        para esse veículo.
+                      </p>
+                    ) : (
+                      maintenanceModules.map((mod) => (
+                        <div
+                          key={`${mod.kind}-${mod.title}`}
+                          style={styles.filterModule}
+                        >
+                          <div style={styles.filterModuleTitleBar}>
+                            <div style={styles.filterModuleTitleText}>
+                              {mod.title.toUpperCase()}
+                            </div>
+                          </div>
+                          <div style={styles.filterTable}>
+                            {mod.kind === "filters" && (
+                              <div style={styles.filterHeaderRow}>
+                                <div style={styles.filterHeaderCell}>
+                                  MARCA
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  CÓDIGO
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  BUSCAR NA LOJA
+                                </div>
+                              </div>
+                            )}
+
+                            {mod.kind === "generic" && (
+                              <div style={styles.filterHeaderRow}>
+                                <div style={styles.filterHeaderCell}>
+                                  ITEM
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  ESPECIFICAÇÃO / CÓDIGO
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  BUSCAR NA LOJA
+                                </div>
+                              </div>
+                            )}
+
+                            {mod.kind === "diff" && (
+                              <div
+                                style={{
+                                  ...styles.filterHeaderRow,
+                                  gridTemplateColumns:
+                                    "1.4fr 1.2fr 0.8fr 1fr",
+                                }}
+                              >
+                                <div style={styles.filterHeaderCell}>
+                                  TIPO DO ÓLEO
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  NORMA
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  QUANTIDADE
+                                </div>
+                                <div style={styles.filterHeaderCell}>
+                                  BUSCAR NA LOJA
+                                </div>
+                              </div>
+                            )}
+
+                            {mod.rows.map((row, idx) => {
+                              if (mod.kind === "diff") {
+                                return (
+                                  <div
+                                    key={`${mod.title}-${idx}`}
+                                    style={{
+                                      ...styles.filterRow,
+                                      gridTemplateColumns:
+                                        "1.4fr 1.2fr 0.8fr 1fr",
+                                    }}
+                                  >
+                                    <div style={styles.filterCell}>
+                                      {row.extra?.typeOil || "—"}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.extra?.norma || "—"}
+                                    </div>
+                                    <div style={styles.filterCell}>
+                                      {row.extra?.qty || "—"}
+                                    </div>
+                                    <div style={styles.filterCellAction}>
+                                      <SearchButton
+                                        term={row.searchTerm}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div
+                                  key={`${mod.title}-${idx}`}
+                                  style={styles.filterRow}
+                                >
+                                  <div style={styles.filterCell}>
+                                    {mod.kind === "filters"
+                                      ? row.extra?.brand || row.label
+                                      : row.label}
+                                  </div>
+                                  <div style={styles.filterCell}>
+                                    {mod.kind === "filters"
+                                      ? row.extra?.code || row.value
+                                      : row.value}
+                                  </div>
+                                  <div style={styles.filterCellAction}>
+                                    <SearchButton term={row.searchTerm} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {/* RESUMO DA CONSULTA */}
+                {detalhesVeiculo && (
+                  <div style={styles.resultSection}>
+                    <div style={styles.resultSectionTitle}>
+                      Resumo da consulta
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>
+                        Detalhes FIPE / cadastro
+                      </span>
+                      <span style={styles.resultItemValue}>
+                        {detalhesVeiculo}
+                      </span>
+                    </div>
+                    <div style={styles.tagRow}>
+                      <span style={styles.tag}>{restricoes}</span>
+                      <span style={styles.tag}>{fipeStatus}</span>
+                      <span style={styles.tag}>{multasStatus}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* HERO / PROPAGANDA DO SISTEMA */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -1667,6 +1695,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* POR QUE USAR A TUREGGON */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que usar o sistema da Tureggon?</h2>
@@ -1703,6 +1732,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* NEWSLETTER */}
       <section style={styles.newsletterOuter}>
         <div style={styles.newsletterInner}>
           <h2 style={styles.newsletterTitle}>Newsletter</h2>
@@ -1728,6 +1758,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* RODAPÉ */}
       <footer style={styles.footerOuter}>
         <div style={styles.footerInner}>
           <div style={styles.footerBottom}>
