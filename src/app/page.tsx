@@ -340,6 +340,17 @@ function niceLabelFromKey(key: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/* formata cilindrada (ex.: 1598) para “1.6” */
+function formatMotorFromCil(cil: unknown): string | null {
+  if (cil === null || cil === undefined) return null;
+  const num = parseInt(String(cil).replace(/\D+/g, ""), 10);
+  if (!num || isNaN(num)) return null;
+  if (num < 400 || num > 10000) return null;
+  const liters = num / 1000;
+  const rounded = Math.round(liters * 10) / 10; // uma casa decimal
+  return rounded.toString();
+}
+
 /* --------------------------------- STYLES ---------------------------------- */
 
 const styles: { [key: string]: React.CSSProperties } = {
@@ -953,6 +964,42 @@ export default function Home() {
 
   const principalVeiculo = plateVehicleMatches[0] || null;
 
+  /* valores extras para DADOS GERAIS: potência, motor, combustível, válvulas */
+  const potenciaDisplay: string | null =
+    (plateResult && plateResult.potencia) ||
+    (principalVeiculo &&
+      (principalVeiculo.potencia_cv ||
+        principalVeiculo.potencia ||
+        principalVeiculo.potencia_motor)) ||
+    null;
+
+  let motorDisplay: string | null = null;
+  if (plateResult && plateResult.cilindradas) {
+    const formatted = formatMotorFromCil(plateResult.cilindradas);
+    if (formatted) motorDisplay = formatted;
+  }
+  if (!motorDisplay && principalVeiculo) {
+    motorDisplay =
+      principalVeiculo.motor ||
+      principalVeiculo.motorizacao ||
+      principalVeiculo.motorizacao_literal ||
+      null;
+  }
+
+  const combustivelDisplay: string | null =
+    (plateResult && plateResult.combustivel) ||
+    (principalVeiculo && principalVeiculo.combustivel) ||
+    null;
+
+  const valvulasDisplay: string | null =
+    (principalVeiculo &&
+      (principalVeiculo.valvulas ||
+        principalVeiculo.qtd_valvulas ||
+        principalVeiculo.qtd_valvula ||
+        principalVeiculo.numero_valvulas ||
+        principalVeiculo.motor_valvulas)) ||
+    null;
+
   /* ---------------- MONTAR MÓDULOS DE MANUTENÇÃO (TABELAS) ----------------- */
 
   const maintenanceModules: MaintenanceModule[] = [];
@@ -1527,6 +1574,38 @@ export default function Home() {
                       <span style={styles.resultItemLabel}>Chassi</span>
                       <span style={styles.resultItemValue}>
                         {plateResult.chassi || "—"}
+                      </span>
+                    </div>
+
+                    {/* NOVOS CAMPOS */}
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Potência</span>
+                      <span style={styles.resultItemValue}>
+                        {potenciaDisplay
+                          ? `${potenciaDisplay}`.includes("cv")
+                            ? potenciaDisplay
+                            : `${potenciaDisplay} cv`
+                          : "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Motor</span>
+                      <span style={styles.resultItemValue}>
+                        {motorDisplay || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>
+                        Combustível
+                      </span>
+                      <span style={styles.resultItemValue}>
+                        {combustivelDisplay || "—"}
+                      </span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.resultItemLabel}>Válvulas</span>
+                      <span style={styles.resultItemValue}>
+                        {valvulasDisplay || "—"}
                       </span>
                     </div>
                   </div>
