@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import {
-  getMarcas,
-  getModelosByMarca,
-  buscarVeiculosPorMarcaModelo,
-} from "@/lib/vehicle-data";
+import { buscarVeiculosPorMarcaModelo } from "@/lib/vehicle-data";
 
 type PlacaInfo = {
   placa: string;
@@ -358,7 +354,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   topArea: {
     padding: "24px 16px 32px",
-    backgroundColor: "#21c7ea", // cabeçalho na cor da logo
+    backgroundColor: "#21c7ea",
     boxShadow: "0 18px 40px rgba(15,23,42,0.55)",
   },
   topInner: {
@@ -421,36 +417,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 700,
   },
 
-  subTabsWrapper: {
-    marginTop: 18,
-    display: "flex",
-    justifyContent: "center",
-  },
-  subTabsRow: {
-    display: "inline-flex",
-    gap: 8,
-    padding: 6,
-    backgroundColor: "rgba(15,23,42,0.7)",
-    borderRadius: 999,
-    marginBottom: 10,
-  },
-  subTabBtn: {
-    borderRadius: 999,
-    border: "none",
-    padding: "6px 14px",
-    fontSize: 11,
-    cursor: "pointer",
-    backgroundColor: "transparent",
-    color: "#cbd5f5",
-  },
-  subTabBtnActive: {
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
-    fontWeight: 600,
-  },
-
   searchWrapper: {
-    marginTop: 10,
+    marginTop: 18,
   },
   searchRow: {
     display: "grid",
@@ -481,36 +449,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.85,
     marginTop: 4,
   },
-  manualGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 10,
-    marginTop: 12,
-  },
-  manualField: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 4,
-  },
-  manualLabel: {
-    fontSize: 11,
-    opacity: 0.9,
-  },
-  manualSelect: {
-    borderRadius: 8,
-    border: "1px solid #d1d5db",
-    background: "#ffffff",
-    color: "#111827",
-    padding: "8px 10px",
-    fontSize: 12,
-  },
-  manualButtonRow: {
-    marginTop: 10,
-    display: "flex",
-    justifyContent: "flex-end",
-  },
 
-  /** bloco escuro para os resultados (dados gerais + manutenção + busca manual) */
+  /** bloco escuro para os resultados (dados gerais + manutenção + resumo) */
   resultsOuter: {
     marginTop: 32,
     borderRadius: 32,
@@ -585,7 +525,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: 18,
   },
   filterModuleTitleBar: {
-    backgroundColor: "#21c7ea", // mesma cor do cabeçalho
+    backgroundColor: "#21c7ea",
     padding: "10px 16px",
     borderRadius: "8px 8px 0 0",
     border: "1px solid #21c7ea",
@@ -924,17 +864,8 @@ function SearchButton({ term }: { term: string }) {
 
 export default function Home() {
   const [mainTab, setMainTab] = useState<"buscar" | "oficina">("buscar");
-  const [mode, setMode] = useState<"plate" | "manual">("plate");
 
   const searchBlockRef = useRef<HTMLDivElement | null>(null);
-
-  const [brand, setBrand] = useState("");
-  const [availableModels, setAvailableModels] = useState<string[]>([]);
-  const [selectedModel, setSelectedModel] = useState("");
-  const [yearFrom, setYearFrom] = useState("");
-  const [yearTo, setYearTo] = useState("");
-  const [engine, setEngine] = useState("");
-  const [manualResults, setManualResults] = useState<any[]>([]);
 
   const [plate, setPlate] = useState("");
   const [plateLoading, setPlateLoading] = useState(false);
@@ -1255,200 +1186,89 @@ export default function Home() {
     }
   };
 
-  const handleBrandChange = (value: string) => {
-    setBrand(value);
-    const models = value ? getModelosByMarca(value) : [];
-    setAvailableModels(models);
-    setSelectedModel("");
-    setManualResults([]);
-  };
-
   const handleAgendarOficina = () => {
     window.open(OFICINAS_URL, "_blank");
   };
 
   const handleSearchClick = async () => {
-    if (mode === "plate") {
-      const value = plate.trim().toUpperCase();
-      if (!value) {
-        setPlateError("Digite a placa para realizar a consulta.");
-        setPlateResult(null);
-        setRawApiData(null);
-        setPlateVehicleMatches([]);
-        return;
-      }
-
-      setPlateError(null);
-      setPlateLoading(true);
+    const value = plate.trim().toUpperCase();
+    if (!value) {
+      setPlateError("Digite a placa para realizar a consulta.");
       setPlateResult(null);
       setRawApiData(null);
       setPlateVehicleMatches([]);
+      return;
+    }
 
-      try {
-        const res = await fetch("/api/consulta-placa", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ placa: value }),
-        });
+    setPlateError(null);
+    setPlateLoading(true);
+    setPlateResult(null);
+    setRawApiData(null);
+    setPlateVehicleMatches([]);
 
-        const data = await res.json();
+    try {
+      const res = await fetch("/api/consulta-placa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placa: value }),
+      });
 
-        if (!res.ok || data.error) {
-          const msg =
-            (typeof data.message === "string" && data.message) ||
-            "Erro ao consultar a placa.";
-          setPlateError(msg);
-          return;
-        }
+      const data = await res.json();
 
-        setRawApiData(data);
-
-        const r = data.response || {};
-        const ex = r.extra || {};
-        const mm = r.marca_modelo || ex.marca_modelo || {};
-
-        const resumo: PlacaInfo = {
-          placa: r.placa_modelo_novo || r.placa || value,
-          marca: r.marca || r.MARCA || mm.marca || null,
-          modelo: r.modelo || r.MODELO || mm.modelo || null,
-          versao: r.VERSAO || mm.versao || null,
-          ano: r.ano || ex.ano_fabricacao || null,
-          ano_modelo:
-            r.ano_modelo || r.anoModelo || ex.ano_modelo || null,
-          cor:
-            (r.cor_veiculo && r.cor_veiculo.cor) ||
-            (ex.cor_veiculo && ex.cor_veiculo.cor) ||
-            r.cor ||
-            null,
-          combustivel: r.combustivel || ex.combustivel || null,
-          potencia: r.potencia || ex.potencia || null,
-          cilindradas: r.cilindradas || ex.cilindradas || null,
-          passageiros:
-            r.quantidade_passageiro || ex.quantidade_passageiro || null,
-          tipo_veiculo:
-            (r.tipo_veiculo && r.tipo_veiculo.tipo_veiculo) || null,
-          segmento: mm.segmento || null,
-          uf: r.uf || ex.uf || ex.uf_placa || null,
-          municipio:
-            r.municipio ||
-            (ex.municipio && ex.municipio.municipio) ||
-            null,
-          chassi: ex.chassi || r.chassi || null,
-        };
-
-        setPlateResult(resumo);
-
-        const matches = buscarVeiculosPorPlacaNaBase(resumo);
-        setPlateVehicleMatches(matches);
-      } catch (e) {
-        console.error(e);
-        setPlateError("Falha ao consultar a placa.");
-      } finally {
-        setPlateLoading(false);
-      }
-    } else {
-      if (!brand || !selectedModel) {
-        alert("Selecione marca e modelo para realizar a consulta.");
+      if (!res.ok || data.error) {
+        const msg =
+          (typeof data.message === "string" && data.message) ||
+          "Erro ao consultar a placa.";
+        setPlateError(msg);
         return;
       }
 
-      let resultados =
-        buscarVeiculosPorMarcaModelo(brand, selectedModel) || [];
+      setRawApiData(data);
 
-      const fromNum = yearFrom ? parseInt(yearFrom, 10) : NaN;
-      const toNum = yearTo ? parseInt(yearTo, 10) : NaN;
+      const r = data.response || {};
+      const ex = r.extra || {};
+      const mm = r.marca_modelo || ex.marca_modelo || {};
 
-      if (!isNaN(fromNum)) {
-        resultados = resultados.filter((v: any) => {
-          const anoDe =
-            typeof v.ano_de === "number" ? v.ano_de : parseInt(v.ano_de, 10);
-          const anoAte =
-            typeof v.ano_ate === "number"
-              ? v.ano_ate
-              : parseInt(v.ano_ate, 10) || anoDe;
-          if (isNaN(anoDe) && isNaN(anoAte)) return true;
-          return (anoAte || anoDe) >= fromNum;
-        });
-      }
+      const resumo: PlacaInfo = {
+        placa: r.placa_modelo_novo || r.placa || value,
+        marca: r.marca || r.MARCA || mm.marca || null,
+        modelo: r.modelo || r.MODELO || mm.modelo || null,
+        versao: r.VERSAO || mm.versao || null,
+        ano: r.ano || ex.ano_fabricacao || null,
+        ano_modelo:
+          r.ano_modelo || r.anoModelo || ex.ano_modelo || null,
+        cor:
+          (r.cor_veiculo && r.cor_veiculo.cor) ||
+          (ex.cor_veiculo && ex.cor_veiculo.cor) ||
+          r.cor ||
+          null,
+        combustivel: r.combustivel || ex.combustivel || null,
+        potencia: r.potencia || ex.potencia || null,
+        cilindradas: r.cilindradas || ex.cilindradas || null,
+        passageiros:
+          r.quantidade_passageiro || ex.quantidade_passageiro || null,
+        tipo_veiculo:
+          (r.tipo_veiculo && r.tipo_veiculo.tipo_veiculo) || null,
+        segmento: mm.segmento || null,
+        uf: r.uf || ex.uf || ex.uf_placa || null,
+        municipio:
+          r.municipio ||
+          (ex.municipio && ex.municipio.municipio) ||
+          null,
+        chassi: ex.chassi || r.chassi || null,
+      };
 
-      if (!isNaN(toNum)) {
-        resultados = resultados.filter((v: any) => {
-          const anoDe =
-            typeof v.ano_de === "number" ? v.ano_de : parseInt(v.ano_de, 10);
-          const anoAte =
-            typeof v.ano_ate === "number"
-              ? v.ano_ate
-              : parseInt(v.ano_ate, 10) || anoDe;
-          if (isNaN(anoDe) && isNaN(anoAte)) return true;
-          return (anoDe || anoAte) <= toNum;
-        });
-      }
+      setPlateResult(resumo);
 
-      if (engine.trim()) {
-        const eng = engine.replace(/\s+/g, "").toUpperCase();
-        resultados = resultados.filter((v: any) => {
-          const motorLitros = v.motor_litros
-            ? String(v.motor_litros).toUpperCase()
-            : "";
-          const veic = v.veiculo_raw ? String(v.veiculo_raw).toUpperCase() : "";
-          return motorLitros.includes(eng) || veic.includes(eng);
-        });
-      }
-
-      if (!resultados || resultados.length === 0) {
-        alert("Nenhum veículo encontrado com esses filtros.");
-        setManualResults([]);
-        return;
-      }
-
-      setManualResults(resultados);
+      const matches = buscarVeiculosPorPlacaNaBase(resumo);
+      setPlateVehicleMatches(matches);
+    } catch (e) {
+      console.error(e);
+      setPlateError("Falha ao consultar a placa.");
+    } finally {
+      setPlateLoading(false);
     }
   };
-
-  const brandOptions = getMarcas();
-
-  const renderVeiculoTecnico = (v: any, idx: number) => (
-    <div
-      key={idx}
-      style={{
-        marginBottom: 16,
-        borderTop: "1px solid rgba(148,163,184,0.4)",
-        paddingTop: 10,
-      }}
-    >
-      <div style={styles.resultGrid}>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Veículo</span>
-          <span style={styles.resultItemValue}>
-            {v.marca} {v.veiculo_raw}
-          </span>
-        </div>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Anos</span>
-          <span style={styles.resultItemValue}>
-            {v.ano_de
-              ? v.ano_ate
-                ? `${v.ano_de} até ${v.ano_ate}`
-                : `A partir de ${v.ano_de}`
-              : "—"}
-          </span>
-        </div>
-        <div style={styles.resultItem}>
-          <span style={styles.resultItemLabel}>Motor</span>
-          <span style={styles.resultItemValue}>
-            {[
-              v.motor_litros,
-              v.motor_valvulas,
-              v.potencia_cv ? `${v.potencia_cv} CV` : null,
-              v.combustivel,
-            ]
-              .filter(Boolean)
-              .join(" · ") || "—"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <main style={styles.page}>
@@ -1509,173 +1329,43 @@ export default function Home() {
           <div style={styles.searchWrapper} ref={searchBlockRef}>
             {mainTab === "buscar" ? (
               <>
-                <div style={styles.subTabsWrapper}>
-                  <div style={styles.subTabsRow}>
-                    <button
-                      type="button"
-                      style={{
-                        ...styles.subTabBtn,
-                        ...(mode === "plate" ? styles.subTabBtnActive : {}),
-                      }}
-                      onClick={() => {
-                        setMode("plate");
-                        setPlateError(null);
-                      }}
-                    >
-                      Buscar pela placa
-                    </button>
-                    <button
-                      type="button"
-                      style={{
-                        ...styles.subTabBtn,
-                        ...(mode === "manual" ? styles.subTabBtnActive : {}),
-                      }}
-                      onClick={() => setMode("manual")}
-                    >
-                      Buscar por marca, modelo, ano e motor
-                    </button>
-                  </div>
+                <div style={styles.searchRow}>
+                  <input
+                    type="text"
+                    placeholder="Digite a placa (ex: ABC1D23)"
+                    style={styles.searchInput}
+                    value={plate}
+                    onChange={(e) =>
+                      setPlate(e.target.value.toUpperCase())
+                    }
+                  />
+                  <button
+                    type="button"
+                    style={styles.searchBtn}
+                    onClick={handleSearchClick}
+                    disabled={plateLoading}
+                  >
+                    {plateLoading ? "Buscando..." : "Buscar"}
+                  </button>
                 </div>
-
-                {mode === "plate" && (
-                  <>
-                    <div style={styles.searchRow}>
-                      <input
-                        type="text"
-                        placeholder="Digite a placa (ex: ABC1D23)"
-                        style={styles.searchInput}
-                        value={plate}
-                        onChange={(e) =>
-                          setPlate(e.target.value.toUpperCase())
-                        }
-                      />
-                      <button
-                        type="button"
-                        style={styles.searchBtn}
-                        onClick={handleSearchClick}
-                        disabled={plateLoading}
-                      >
-                        {plateLoading ? "Buscando..." : "Buscar"}
-                      </button>
-                    </div>
-                    <div style={styles.searchHint}>
-                      Opção atual:{" "}
-                      <strong>buscar veículo usando apenas a placa</strong>.
-                    </div>
-                    {plateError && (
-                      <div
-                        style={{
-                          marginTop: 6,
-                          fontSize: 12,
-                          color: "#fecaca",
-                        }}
-                      >
-                        {plateError}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {mode === "manual" && (
-                  <>
-                    <div style={styles.manualGrid}>
-                      <div style={styles.manualField}>
-                        <label style={styles.manualLabel}>Marca</label>
-                        <select
-                          style={styles.manualSelect}
-                          value={brand}
-                          onChange={(e) => handleBrandChange(e.target.value)}
-                        >
-                          <option value="">Selecione</option>
-                          {brandOptions.map((b) => (
-                            <option key={b} value={b}>
-                              {b}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div style={styles.manualField}>
-                        <label style={styles.manualLabel}>
-                          Modelo (texto base de referência)
-                        </label>
-                        <select
-                          style={styles.manualSelect}
-                          value={selectedModel}
-                          onChange={(e) => setSelectedModel(e.target.value)}
-                          disabled={!brand || availableModels.length === 0}
-                        >
-                          <option value="">
-                            {brand
-                              ? "Selecione o modelo"
-                              : "Escolha primeiro a marca"}
-                          </option>
-                          {availableModels.map((m) => (
-                            <option key={m} value={m}>
-                              {m}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div style={styles.manualGrid}>
-                      <div style={styles.manualField}>
-                        <label style={styles.manualLabel}>Ano de</label>
-                        <input
-                          type="number"
-                          placeholder="Ex: 2012"
-                          style={styles.searchInput}
-                          value={yearFrom}
-                          onChange={(e) => setYearFrom(e.target.value)}
-                        />
-                      </div>
-                      <div style={styles.manualField}>
-                        <label style={styles.manualLabel}>Ano até</label>
-                        <input
-                          type="number"
-                          placeholder="Ex: 2018"
-                          style={styles.searchInput}
-                          value={yearTo}
-                          onChange={(e) => setYearTo(e.target.value)}
-                        />
-                      </div>
-                      <div style={styles.manualField}>
-                        <label style={styles.manualLabel}>
-                          Motor (ex: 1.0, 1.8)
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Ex: 1.8"
-                          style={styles.searchInput}
-                          value={engine}
-                          onChange={(e) => setEngine(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={styles.manualButtonRow}>
-                      <button
-                        type="button"
-                        style={styles.searchBtn}
-                        onClick={handleSearchClick}
-                      >
-                        Buscar
-                      </button>
-                    </div>
-
-                    <div style={styles.searchHint}>
-                      Opção atual:{" "}
-                      <strong>
-                        buscar veículo por marca, modelo, faixa de ano e motor
-                      </strong>
-                      .
-                    </div>
-                  </>
+                <div style={styles.searchHint}>
+                  Opção atual:{" "}
+                  <strong>buscar veículo usando apenas a placa</strong>.
+                </div>
+                {plateError && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 12,
+                      color: "#fecaca",
+                    }}
+                  >
+                    {plateError}
+                  </div>
                 )}
 
                 {/* RESULTADOS EM BLOCO ESCURO */}
-                {mode === "plate" && plateResult && (
+                {plateResult && (
                   <div style={styles.resultsOuter}>
                     <div style={styles.resultWrapper}>
                       <div style={styles.resultSection}>
@@ -1911,22 +1601,6 @@ export default function Home() {
                           </div>
                         </div>
                       )}
-                    </div>
-                  </div>
-                )}
-
-                {mode === "manual" && manualResults.length > 0 && (
-                  <div style={styles.resultsOuter}>
-                    <div style={styles.resultWrapper}>
-                      <div style={styles.resultSection}>
-                        <div style={styles.resultSectionTitle}>
-                          Informações técnicas da base interna (
-                          {manualResults.length} versão(ões) encontrada(s))
-                        </div>
-                        {manualResults
-                          .slice(0, 5)
-                          .map((v, idx) => renderVeiculoTecnico(v, idx))}
-                      </div>
                     </div>
                   </div>
                 )}
