@@ -357,7 +357,8 @@ function niceLabelFromKey(key: string): string {
 const styles: { [key: string]: React.CSSProperties } = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(180deg, #00c2ff 0%, #0077ff 100%)",
+    // fundo exatamente na cor da logo
+    background: "#21c7ea",
     color: "#ffffff",
     fontFamily:
       'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -405,7 +406,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   mainTabsBar: {
     display: "inline-flex",
     gap: 4,
-    backgroundColor: "#21c7ea", // cor da logo
+    backgroundColor: "#21c7ea",
     padding: 4,
     borderRadius: 999,
     boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
@@ -740,7 +741,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   newsletterOuter: {
     padding: "60px 16px 80px",
-    backgroundColor: "#00b7ff",
+    backgroundColor: "#21c7ea",
     backgroundImage: "url('/newsletter-banner.png')",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center bottom",
