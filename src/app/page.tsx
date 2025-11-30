@@ -55,7 +55,7 @@ function tokenize(str: string | null | undefined): string[] {
     .filter((t) => t.length > 1);
 }
 
-function canonicalizarMarcaPlaca(marcaPlaca: string): string {
+function canonicalizarMarcaPlaca(marcaPlaca: string) {
   let up = marcaPlaca.toUpperCase().trim();
 
   if (up.includes("/")) {
@@ -340,14 +340,13 @@ function niceLabelFromKey(key: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/* formata cilindrada (ex.: 1598) para “1.6” */
 function formatMotorFromCil(cil: unknown): string | null {
   if (cil === null || cil === undefined) return null;
   const num = parseInt(String(cil).replace(/\D+/g, ""), 10);
   if (!num || isNaN(num)) return null;
   if (num < 400 || num > 10000) return null;
   const liters = num / 1000;
-  const rounded = Math.round(liters * 10) / 10; // uma casa decimal
+  const rounded = Math.round(liters * 10) / 10;
   return rounded.toString();
 }
 
@@ -475,7 +474,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: "0 auto",
   },
 
-  /** bloco interno dos resultados (dentro do fundo escuro) */
   resultsOuter: {
     marginTop: 0,
     borderRadius: 24,
@@ -609,7 +607,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: "center",
   },
 
-  /* faixa de texto extra embaixo de cada módulo (tipo TROCA DE ÓLEO...) */
   moduleNote: {
     marginTop: 6,
     padding: "6px 12px",
@@ -876,7 +873,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-/* textos extras por módulo (estilo TROCA DE ÓLEO, RECOMENDADO TORQUÍMETRO, etc.) */
 const moduleNotes: Record<string, string> = {
   "Óleo do motor": "TROCA DE ÓLEO, SEGUIR ORIENTAÇÃO DO FABRICANTE",
   "Óleo do câmbio manual": "RECOMENDADO O USO DE TORQUÍMETRO",
@@ -894,8 +890,6 @@ const moduleNotes: Record<string, string> = {
 const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
 const OFICINAS_URL =
   "https://tureggon.com/pages/oficinas-parceiras";
-
-/* --------------------------- BOTÃO BUSCAR NA LOJA -------------------------- */
 
 function SearchButton({ term }: { term: string }) {
   if (!term) return null;
@@ -964,7 +958,7 @@ export default function Home() {
 
   const principalVeiculo = plateVehicleMatches[0] || null;
 
-  /* valores extras para DADOS GERAIS: potência, motor, combustível, válvulas */
+  /* extras para DADOS GERAIS */
   const potenciaDisplay: string | null =
     (plateResult && plateResult.potencia) ||
     (principalVeiculo &&
@@ -1000,7 +994,7 @@ export default function Home() {
         principalVeiculo.motor_valvulas)) ||
     null;
 
-  /* ---------------- MONTAR MÓDULOS DE MANUTENÇÃO (TABELAS) ----------------- */
+  /* ---------------- MONTAR MÓDULOS DE MANUTENÇÃO ----------------- */
 
   const maintenanceModules: MaintenanceModule[] = [];
 
@@ -1113,7 +1107,6 @@ export default function Home() {
       });
     };
 
-    // Óleos & fluidos principais
     if (
       v.oleo_motor_litros ||
       v.oleo_motor_viscosidade ||
@@ -1329,10 +1322,29 @@ export default function Home() {
       const ex = r.extra || {};
       const mm = r.marca_modelo || ex.marca_modelo || {};
 
+      // ********* NOVO TRATAMENTO DE MARCA/MODELO MISTURADOS *********
+      let marcaField: string | null =
+        r.marca || r.MARCA || mm.marca || null;
+      let modeloField: string | null =
+        r.modelo || r.MODELO || mm.modelo || null;
+
+      if (
+        (!marcaField || /desconhecido/i.test(marcaField)) &&
+        modeloField &&
+        modeloField.includes("/")
+      ) {
+        const [rawMarca, ...restParts] = modeloField.split("/");
+        const candidateMarca = rawMarca.trim();
+        const candidateModelo = restParts.join(" ").trim();
+        if (candidateMarca) marcaField = candidateMarca;
+        if (candidateModelo) modeloField = candidateModelo;
+      }
+      // ***************************************************************
+
       const resumo: PlacaInfo = {
         placa: r.placa_modelo_novo || r.placa || value,
-        marca: r.marca || r.MARCA || mm.marca || null,
-        modelo: r.modelo || r.MODELO || mm.modelo || null,
+        marca: marcaField,
+        modelo: modeloField,
         versao: r.VERSAO || mm.versao || null,
         ano: r.ano || ex.ano_fabricacao || null,
         ano_modelo:
@@ -1506,7 +1518,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RESULTADOS EM FUNDO ESCURO COMPLETO */}
+      {/* RESULTADOS */}
       {plateResult && (
         <section style={styles.resultsSection}>
           <div style={styles.resultsSectionInner}>
@@ -1790,7 +1802,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* HERO / PROPAGANDA DO SISTEMA */}
+      {/* HERO / PROPAGANDA */}
       <section style={styles.heroOuter}>
         <div style={styles.heroInner}>
           <div style={styles.heroBadge}>
@@ -1810,7 +1822,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POR QUE USAR A TUREGGON */}
+      {/* POR QUE USAR */}
       <section style={styles.whyOuter}>
         <div style={styles.whyInner}>
           <h2 style={styles.whyTitle}>Por que usar o sistema da Tureggon?</h2>
