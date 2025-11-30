@@ -537,7 +537,8 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   /* MÓDULOS / TABELAS DE MANUTENÇÃO */
   filterModule: {
-    marginTop: 18,
+    marginTop: 32,      // espaçamento maior
+    marginBottom: 32,   // espaçamento maior
   },
   filterModuleTitleBar: {
     backgroundColor: "#21c7ea",
