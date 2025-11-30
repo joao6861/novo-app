@@ -1322,12 +1322,13 @@ export default function Home() {
       const ex = r.extra || {};
       const mm = r.marca_modelo || ex.marca_modelo || {};
 
-      // ********* NOVO TRATAMENTO DE MARCA/MODELO MISTURADOS *********
+      // ********* TRATAMENTO DE MARCA/MODELO MISTURADOS *********
       let marcaField: string | null =
         r.marca || r.MARCA || mm.marca || null;
       let modeloField: string | null =
         r.modelo || r.MODELO || mm.modelo || null;
 
+      // Caso 1: marca desconhecida e tudo veio no modelo (RENAULT/SANDERO ZEN10MT)
       if (
         (!marcaField || /desconhecido/i.test(marcaField)) &&
         modeloField &&
@@ -1339,7 +1340,28 @@ export default function Home() {
         if (candidateMarca) marcaField = candidateMarca;
         if (candidateModelo) modeloField = candidateModelo;
       }
-      // ***************************************************************
+
+      // Caso 2: marca correta e modelo começa com "MARCA/..." (RENAULT/MASTER FUR L3H2)
+      if (marcaField && modeloField && modeloField.includes("/")) {
+        const normalize = (s: string) =>
+          s
+            .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+        const marcaNorm = normalize(marcaField);
+        const modeloNorm = normalize(modeloField);
+
+        if (modeloNorm.startsWith(marcaNorm + "/")) {
+          const [, ...restParts] = modeloField.split("/");
+          const cleanedModel = restParts.join("/").trim();
+          if (cleanedModel) {
+            modeloField = cleanedModel;
+          }
+        }
+      }
+      // ***********************************************************
 
       const resumo: PlacaInfo = {
         placa: r.placa_modelo_novo || r.placa || value,
