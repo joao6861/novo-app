@@ -405,10 +405,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   mainTabsBar: {
     display: "inline-flex",
     gap: 4,
-    backgroundColor: "rgba(15,23,42,0.95)",
+    backgroundColor: "#21c7ea", // cor da logo
     padding: 4,
     borderRadius: 999,
-    boxShadow: "0 10px 30px rgba(15,23,42,0.55)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
   },
   mainTabBtn: {
     borderRadius: 999,
@@ -417,13 +417,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 12,
     cursor: "pointer",
     backgroundColor: "transparent",
-    color: "#9ca3af",
+    color: "#0b1120",
     fontWeight: 500,
     whiteSpace: "nowrap",
   },
   mainTabBtnActive: {
-    background: "linear-gradient(135deg,#38bdf8,#0ea5e9)",
-    color: "#0b1120",
+    background: "#ffffff",
+    color: "#03657a",
     fontWeight: 700,
   },
 
