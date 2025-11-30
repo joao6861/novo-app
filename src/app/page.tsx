@@ -537,8 +537,8 @@ const styles: { [key: string]: React.CSSProperties } = {
 
   /* MÓDULOS / TABELAS DE MANUTENÇÃO */
   filterModule: {
-    marginTop: 32,      // espaçamento maior
-    marginBottom: 32,   // espaçamento maior
+    marginTop: 32,
+    marginBottom: 32,
   },
   filterModuleTitleBar: {
     backgroundColor: "#21c7ea",
@@ -596,6 +596,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  /* faixa de texto extra embaixo de cada módulo (tipo TROCA DE ÓLEO...) */
+  moduleNote: {
+    marginTop: 6,
+    padding: "6px 12px",
+    fontSize: 11,
+    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    backgroundColor: "#000000",
+    color: "#ffffff",
+    borderRadius: 6,
+    boxShadow: "0 6px 18px rgba(0,0,0,0.7)",
   },
 
   /* HERO / SEÇÃO AZUL-ESCURA LOGO ABAIXO DOS RESULTADOS */
@@ -849,6 +863,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     opacity: 0.8,
     marginTop: 4,
   },
+};
+
+/* textos extras por módulo (estilo TROCA DE ÓLEO, RECOMENDADO TORQUÍMETRO, etc.) */
+const moduleNotes: Record<string, string> = {
+  "Óleo do motor": "TROCA DE ÓLEO, SEGUIR ORIENTAÇÃO DO FABRICANTE",
+  "Óleo do câmbio manual": "RECOMENDADO O USO DE TORQUÍMETRO",
+  "Óleo do câmbio automático": "TROCA DO FLUIDO, SEGUIR ORIENTAÇÃO DO FABRICANTE",
+  "Filtro de óleo": "SUBSTITUIR A CADA TROCA DE ÓLEO",
+  "Filtro de ar": "SUBSTITUIR A CADA 15MIL KM",
+  "Filtro de cabine": "SUBSTITUIR A CADA 12 MESES",
+  "Filtro de combustível": "SUBSTITUIR A CADA 15MIL KM",
+  "Fluido de freio": "SUBSTITUIR A CADA 12 MESES",
+  "Óleo diferencial dianteiro": "RECOMENDADO O USO DE TORQUÍMETRO",
+  "Óleo diferencial traseiro": "RECOMENDADO O USO DE TORQUÍMETRO",
+  "Óleo caixa de transferência": "RECOMENDADO O USO DE TORQUÍMETRO",
 };
 
 const TUREGGON_SEARCH_BASE_URL = "https://tureggon.com/search/?q=";
@@ -1643,6 +1672,12 @@ export default function Home() {
                               );
                             })}
                           </div>
+
+                          {moduleNotes[mod.title] && (
+                            <div style={styles.moduleNote}>
+                              {moduleNotes[mod.title]}
+                            </div>
+                          )}
                         </div>
                       ))
                     )}
