@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const REMOTE_ENDPOINT = "https://consultaplaca.store/";
+const REMOTE_ENDPOINT = "https://consultaplaca.store/proxy.php";
 
 /**
  * Consulta a placa no consultaplaca.store (proxy.php)
