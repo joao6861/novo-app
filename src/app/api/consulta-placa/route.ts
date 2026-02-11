@@ -6,20 +6,20 @@ export async function POST(req: Request) {
 
     if (!placa) {
       return NextResponse.json(
-        { error: true, message: "Placa obrigatória" },
+        { error: "Placa é obrigatória" },
         { status: 400 }
       );
     }
 
-    const response = await fetch("https://app.apibrasil.io/api/consulta/placa", {
+    const response = await fetch("https://api.apibrasil.io/api/consulta/placa", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": "Bearer 441924ef-3d2f-42ea-99c0-ed9766281347"
       },
       body: JSON.stringify({
         placa: placa,
-        user: "joaopedro6861hotmailcom", // Seu usuário
-        token: "441924ef-3d2f-42ea-99c0-ed9766281347" // Seu token (decive token)
+        id: "da626099-50be-47fe-a8bd-67e3f6289b48"
       }),
     });
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     console.error("Erro na consulta:", error);
 
     return NextResponse.json(
-      { error: true, message: "Erro interno ao consultar placa" },
+      { error: "Erro interno ao consultar placa" },
       { status: 500 }
     );
   }
