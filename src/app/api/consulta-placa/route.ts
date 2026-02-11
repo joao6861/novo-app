@@ -23,15 +23,16 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      status_api: response.status,
+      resposta_bruta: text
+    });
 
-  } catch (error) {
-    console.error("Erro na consulta:", error);
-
+  } catch (error: any) {
     return NextResponse.json(
-      { error: "Erro interno ao consultar placa" },
+      { error_real: error.message },
       { status: 500 }
     );
   }
