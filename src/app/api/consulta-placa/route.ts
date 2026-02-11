@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
     const { placa } = await req.json();
+
+    if (!placa) {
+      return NextResponse.json(
+        { success: false, error: "Placa não informada" },
+        { status: 400 }
+      );
+    }
 
     const response = await fetch(
       "https://consultaplaca.store/proxy.php",
@@ -20,13 +28,17 @@ export async function POST(req: Request) {
       }
     );
 
-    const html = await response.text();
+    const text = await response.text();
 
-    return new Response(html, {
-      headers: { "Content-Type": "text/html" }
+    return NextResponse.json({
+      success: true,
+      raw: text
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Erro interno" },
+      { status: 500 }
+    );
   }
 }
