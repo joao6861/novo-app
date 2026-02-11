@@ -4,14 +4,7 @@ export async function POST(req: Request) {
   try {
     const { placa } = await req.json();
 
-    if (!placa) {
-      return NextResponse.json(
-        { error: "Placa é obrigatória" },
-        { status: 400 }
-      );
-    }
-
-    const response = await fetch("https://api.apibrasil.io/api/consulta/placa", {
+    const response = await fetch("https://apibrasil.com.br/api/consulta/placa", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,16 +16,16 @@ export async function POST(req: Request) {
       }),
     });
 
-    const text = await response.text();
+    const data = await response.text();
 
     return NextResponse.json({
       status_api: response.status,
-      resposta_bruta: text
+      resposta: data
     });
 
   } catch (error: any) {
     return NextResponse.json(
-      { error_real: error.message },
+      { erro_conexao: error.message },
       { status: 500 }
     );
   }
