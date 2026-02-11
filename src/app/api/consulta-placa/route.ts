@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +8,7 @@ export async function POST(req: Request) {
 
     if (!placa) {
       return NextResponse.json(
-        { success: false, error: "Placa não informada" },
+        { error: true, message: "Placa não informada." },
         { status: 400 }
       );
     }
@@ -21,23 +20,28 @@ export async function POST(req: Request) {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },
         body: new URLSearchParams({ placa }),
-        cache: "no-store"
+        cache: "no-store",
       }
     );
 
-    const text = await response.text();
+    const data = await response.json();
 
+    // 🔥 GARANTIR FORMATO CORRETO PARA O FRONT
     return NextResponse.json({
-      success: true,
-      raw: text
+      response: data,
     });
 
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Erro na API:", error);
+
     return NextResponse.json(
-      { success: false, error: "Erro interno" },
+      {
+        error: true,
+        message: "Erro ao consultar a placa.",
+      },
       { status: 500 }
     );
   }
