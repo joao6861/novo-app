@@ -18,8 +18,9 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         placa: placa,
-        user: "joaopedro6861hotmailcom", 
-        token: "da626099-50be-47fe-a8bd-67e3f6289b48"
+        user: "joaopedro6861hotmailcom",
+        token: "da626099-50be-47fe-a8bd-67e3f6289b48",
+        device_token: "441924ef-3d2f-42ea-99c0-ed9766281347"
       }),
     });
 
