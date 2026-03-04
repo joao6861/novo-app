@@ -22,10 +22,10 @@ const BANNERS = [
         link: "/shop?category=performance",
     },
     {
-        title: "Ferrari Challenge Elite",
-        subtitle: "Alta performance, tecnologia e estética para máquinas de pista.",
+        title: "Projetos de Elite",
+        subtitle: "Transformamos o seu veículo com as melhores peças e cuidados técnicos do mercado.",
         cta: "Ver Catálogo",
-        image: "/banners/ferrari-challenge/engine.png",
+        image: "/banners/custom-project.png",
         link: "/shop?category=performance",
     },
     {
