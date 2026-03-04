@@ -22,11 +22,11 @@ const BANNERS = [
         link: "/shop?category=performance",
     },
     {
-        title: "Blend Cleaner Wax",
-        subtitle: "Limpeza e proteção em um único produto para cores escuras.",
-        cta: "Comprar Agora",
-        image: "/banners/blend-cleaner-wax.png",
-        link: "/shop?category=estetica",
+        title: "Ferrari Challenge Elite",
+        subtitle: "Alta performance, tecnologia e estética para máquinas de pista.",
+        cta: "Ver Catálogo",
+        image: "/banners/ferrari-challenge/track.png",
+        link: "/shop?category=performance",
     },
     {
         title: "Ronco Esportivo Inox",
