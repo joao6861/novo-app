@@ -15,84 +15,76 @@ export function Newsletter() {
     };
 
     return (
-        <section className="relative overflow-hidden py-32 px-4 bg-black">
-            {/* Background Image with Overlay */}
-            <div className="absolute inset-0 z-0">
-                {/* Desktop Background */}
-                <Image
-                    src="/newsletter-bg.png"
-                    alt="Newsletter Background Desktop"
-                    fill
-                    className="hidden md:block object-cover object-center opacity-40"
-                    priority
-                />
-                {/* Mobile Background */}
-                <Image
-                    src="/newsletter-bg-mobile.png"
-                    alt="Newsletter Background Mobile"
-                    fill
-                    className="block md:hidden object-cover object-center opacity-50"
-                    priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-white/80"></div>
-            </div>
+        <section className="relative overflow-hidden py-32 px-4 bg-slate-900">
+            {/* Background Gradient */}
+            <div className="absolute inset-0 z-0 bg-gradient-to-br from-black via-slate-900 to-black opacity-90"></div>
 
-            {/* Mascot Composition - Turtles everywhere */}
+            {/* Mascot Composition - High-Performance Stickers */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                {/* Bottom Left Turtle */}
-                <div className="absolute -bottom-10 -left-10 w-48 h-48 md:w-80 md:h-80 opacity-90 transition-transform hover:scale-110 duration-700">
-                    <Image
-                        src="/turtle-mascot.png"
-                        alt="Turtle Mascot"
-                        fill
-                        className="object-contain"
-                    />
+                {/* Bottom Left Turtle - Large Sticker */}
+                <div className="absolute -bottom-10 -left-10 w-64 h-64 md:w-[450px] md:h-[450px] opacity-100 transition-transform hover:scale-105 duration-700 rotate-[15deg]">
+                    <div className="relative w-full h-full p-4 bg-white/5 rounded-[3rem] backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden">
+                        <Image
+                            src="/turtle-mascot.png"
+                            alt="John Player Turtle"
+                            fill
+                            className="object-cover scale-110"
+                        />
+                    </div>
                 </div>
-                {/* Top Right Turtle (Smaller) */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 md:w-64 md:h-64 opacity-80 rotate-12 transition-transform hover:-translate-y-4 duration-1000">
-                    <Image
-                        src="/turtle-mascot.png"
-                        alt="Turtle Mascot"
-                        fill
-                        className="object-contain brightness-110"
-                    />
+
+                {/* Top Right Turtle - Floating Label Style */}
+                <div className="absolute top-10 -right-20 w-48 h-48 md:w-80 md:h-80 opacity-90 -rotate-12 transition-transform hover:-translate-y-6 duration-1000">
+                    <div className="relative w-full h-full p-3 bg-primary rounded-[2.5rem] shadow-[0_0_50px_rgba(48,255,0,0.3)] overflow-hidden border-4 border-black">
+                        <Image
+                            src="/turtle-mascot.png"
+                            alt="John Player Turtle"
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
                 </div>
-                {/* Middle Left (Very Small/Faded) */}
-                <div className="absolute top-1/4 left-10 w-24 h-24 opacity-20 -rotate-12 hidden md:block">
-                    <Image
-                        src="/turtle-mascot.png"
-                        alt="Turtle Mascot"
-                        fill
-                        className="object-contain grayscale"
-                    />
+
+                {/* Top Left (Small Profile) */}
+                <div className="absolute top-20 left-1/4 w-24 h-24 md:w-32 md:h-32 opacity-40 rotate-[45deg] hidden md:block transition-all hover:opacity-100 duration-500">
+                    <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/20">
+                        <Image
+                            src="/turtle-mascot.png"
+                            alt="John Player Turtle"
+                            fill
+                            className="object-cover grayscale hover:grayscale-0"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="container relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-100 bg-white/70 p-8 md:p-16 backdrop-blur-xl text-center shadow-sm">
-                <div className="mb-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Send className="h-6 w-6" />
+            <div className="container relative z-10 mx-auto max-w-4xl rounded-[3rem] border border-white/10 bg-black/60 p-8 md:p-16 backdrop-blur-2xl text-center shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+                <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-[0_0_20px_rgba(48,255,0,0.2)] text-black">
+                    <Send className="h-8 w-8" />
                 </div>
 
-                <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-5xl text-slate-900">
+                <h2 className="mb-4 text-4xl font-black uppercase tracking-tighter md:text-6xl text-white">
                     Ofertas <span className="text-primary italic">Exclusivas</span>
                 </h2>
-                <p className="mx-auto mb-10 max-w-xl text-lg text-slate-500">
-                    Cadastre-se e seja o primeiro a receber novidades sobre peças de performance e cuidados automotivos com o suporte da Tureggon.
+                <p className="mx-auto mb-10 max-w-xl text-lg text-slate-300 font-medium">
+                    Junte-se ao time de elite da Tureggon e receba em primeira mão novidades sobre performance e estética automotiva técnica.
                 </p>
 
-                <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
-                    <Input
-                        placeholder="Seu melhor e-mail"
-                        className="h-12 border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-primary"
-                        required
-                        type="email"
-                    />
-                    <Button type="submit" className="h-12 px-8 font-bold uppercase tracking-widest bg-primary hover:bg-primary/80 text-black shadow-lg shadow-primary/20">
-                        Assinar
-                    </Button>
-                </form>
+                <div className="relative z-20">
+                    <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-4 sm:flex-row">
+                        <Input
+                            placeholder="Seu melhor e-mail"
+                            className="h-14 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:border-primary focus:ring-1 focus:ring-primary"
+                            required
+                            type="email"
+                        />
+                        <Button type="submit" className="h-14 px-10 rounded-xl font-black uppercase tracking-[0.2em] bg-primary hover:bg-primary/80 text-black shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+                            Assinar
+                        </Button>
+                    </form>
+                </div>
 
-                <p className="mt-6 text-[10px] uppercase tracking-widest text-slate-400">
+                <p className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
                     Ao se cadastrar você aceita nossos termos de uso e privacidade.
                 </p>
             </div>
