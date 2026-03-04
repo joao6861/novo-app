@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, User, Search, Menu } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
 import {
@@ -99,6 +99,15 @@ export function Navbar() {
             <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
               <Search className="h-5 w-5" />
             </Button>
+            <a
+              href="https://www.instagram.com/tureggon_"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+              </Button>
+            </a>
             <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
               <User className="h-5 w-5" />
             </Button>
