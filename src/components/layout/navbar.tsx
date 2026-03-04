@@ -18,6 +18,7 @@ import {
 
 export function Navbar() {
   const { totalItems } = useCart();
+  const [searchPlate, setSearchPlate] = React.useState("");
 
   return (
     <div className="flex flex-col w-full">
@@ -96,7 +97,19 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+            {/* Subtle Plate Search */}
+            <div className="hidden lg:flex items-center bg-white/5 border border-white/10 rounded-full px-3 py-1.5 focus-within:border-primary/50 transition-all mr-2">
+              <Search className="h-3.5 w-3.5 text-white/40 mr-2" />
+              <input
+                type="text"
+                placeholder="Placa do Carro"
+                value={searchPlate}
+                onChange={(e) => setSearchPlate(e.target.value.toUpperCase())}
+                className="bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest text-white placeholder:text-white/20 w-24 focus:w-32 transition-all"
+              />
+            </div>
+
+            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors lg:hidden">
               <Search className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
