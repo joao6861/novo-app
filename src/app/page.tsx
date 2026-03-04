@@ -106,7 +106,7 @@ export default function Home() {
   const addToCart = cart ? cart.addToCart : () => { };
 
   return (
-    <main className="min-h-screen pb-12">
+    <main className="min-h-screen">
       <Navbar />
 
       {/* Banner Carousel */}

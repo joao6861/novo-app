@@ -20,9 +20,9 @@ export function PlateSearchStrip() {
     };
 
     return (
-        <div className="w-full bg-white py-4">
+        <div className="w-full bg-slate-950 py-4">
             <div className="container mx-auto px-4">
-                <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/50 px-6 py-6 shadow-sm md:px-8">
+                <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-slate-900 px-6 py-6 shadow-2xl md:px-8">
                     {/* Decorative background glow - softer for light mode */}
                     <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/5 blur-3xl opacity-30" />
 
@@ -33,23 +33,23 @@ export function PlateSearchStrip() {
                                 <Info size={10} />
                                 Tureggon Elite
                             </div>
-                            <h3 className="text-xl font-black uppercase italic tracking-tight text-slate-900 md:text-2xl">
+                            <h3 className="text-xl font-black uppercase italic tracking-tight text-white md:text-2xl">
                                 Busca Técnica por <span className="text-primary">Placa</span>
                             </h3>
-                            <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-500 md:text-sm">
+                            <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-400 md:text-sm">
                                 Identificação instantânea de peças compatíveis para performance e manutenção.
                             </p>
                         </div>
 
                         {/* Search Input Area */}
                         <div className="w-full lg:max-w-md">
-                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-white border border-slate-200 p-1.5 rounded-xl focus-within:border-primary/50 transition-all shadow-sm">
+                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-slate-800 border border-white/10 p-1.5 rounded-xl focus-within:border-primary/50 transition-all shadow-inner">
                                 <div className="relative flex-1">
                                     <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <input
                                         type="text"
                                         placeholder="PLACA (EX: ABC1234)"
-                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-slate-900 placeholder:text-slate-300 outline-none focus:ring-0"
+                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-white placeholder:text-slate-600 outline-none focus:ring-0"
                                         value={plate}
                                         onChange={(e) => setPlate(e.target.value.toUpperCase())}
                                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
