@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export function Newsletter() {
     const handleSubmit = (e: React.FormEvent) => {
@@ -14,20 +15,28 @@ export function Newsletter() {
     };
 
     return (
-        <section className="relative overflow-hidden py-24 px-4">
-            {/* Background Decor */}
-            <div className="absolute -left-20 top-0 h-64 w-64 rounded-full bg-primary/10 blur-[100px]"></div>
-            <div className="absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-accent/10 blur-[100px]"></div>
+        <section className="relative overflow-hidden py-32 px-4 bg-black">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0">
+                <Image
+                    src="/newsletter-bg.png"
+                    alt="Newsletter Background"
+                    fill
+                    className="object-cover object-center opacity-40 grayscale"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/80"></div>
+            </div>
 
-            <div className="container mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-8 md:p-16 backdrop-blur-3xl text-center">
+            <div className="container relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-black/40 p-8 md:p-16 backdrop-blur-xl text-center">
                 <div className="mb-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary">
                     <Send className="h-6 w-6" />
                 </div>
 
-                <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-5xl">
+                <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-5xl text-white">
                     Ofertas <span className="text-primary italic">Exclusivas</span>
                 </h2>
-                <p className="mx-auto mb-10 max-w-xl text-lg text-white/60">
+                <p className="mx-auto mb-10 max-w-xl text-lg text-white/70">
                     Cadastre-se e seja o primeiro a receber novidades sobre peças de performance e cuidados automotivos.
                 </p>
 
@@ -43,7 +52,7 @@ export function Newsletter() {
                     </Button>
                 </form>
 
-                <p className="mt-6 text-[10px] uppercase tracking-widest text-white/30">
+                <p className="mt-6 text-[10px] uppercase tracking-widest text-white/40">
                     Ao se cadastrar você aceita nossos termos de uso e privacidade.
                 </p>
             </div>
