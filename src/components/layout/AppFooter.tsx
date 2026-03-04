@@ -85,24 +85,33 @@ export function AppFooter() {
           </div>
 
           {/* Right Column: Google Ratings & Info */}
-          <div className="flex flex-col items-center md:items-end gap-6 text-center md:text-right">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/google-rating.png"
-                alt="Google Rating"
-                width={32}
-                height={32}
-                className="h-8 w-auto"
-              />
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-yellow-400 text-lg">★</span>
-                ))}
-              </div>
+          <div className="flex flex-col items-center md:items-end gap-4 text-center md:text-right">
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                Sua opinião é fundamental
+              </h4>
+              <p className="text-[11px] text-slate-400 font-medium max-w-[200px] leading-relaxed">
+                Avalie nossa loja e ajude a Tureggon a ser cada vez melhor.
+              </p>
             </div>
 
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+            <Link
+              href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK/review"
+              target="_blank"
+              className="group flex flex-col items-center md:items-end gap-2"
+            >
+              <div className="flex gap-1 group-hover:scale-110 transition-transform">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-yellow-400 text-xl drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]">★</span>
+                ))}
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-widest text-white bg-white/5 px-4 py-2 rounded-full border border-white/10 group-hover:bg-primary group-hover:text-black group-hover:border-primary transition-all">
+                Avaliar no Google
+              </span>
+            </Link>
+
+            <div className="pt-4 space-y-1">
+              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">
                 Tureggon Elite Store © 2024
               </p>
               <div className="flex justify-center md:justify-end gap-4 text-[9px] font-black uppercase tracking-widest text-slate-600">
