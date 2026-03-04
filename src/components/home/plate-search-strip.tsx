@@ -54,13 +54,13 @@ export function PlateSearchStrip() {
 
                         {/* Search Input Area */}
                         <div className="w-full lg:max-w-md">
-                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-slate-800 border border-white/10 p-1.5 rounded-xl focus-within:border-primary/50 transition-all shadow-inner">
+                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-white border border-slate-200 p-1.5 rounded-xl focus-within:border-primary/50 transition-all shadow-sm">
                                 <div className="relative flex-1">
-                                    <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                    <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                                     <input
                                         type="text"
                                         placeholder="PLACA (EX: ABC1234)"
-                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-white placeholder:text-slate-600 outline-none focus:ring-0"
+                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-black placeholder:text-slate-400 outline-none focus:ring-0"
                                         value={plate}
                                         onChange={(e) => setPlate(e.target.value.toUpperCase())}
                                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
