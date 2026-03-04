@@ -19,6 +19,7 @@ import {
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import Link from "next/link";
+import { AppFooter } from "@/components/layout/AppFooter";
 
 // Mock Categories
 const CATEGORIES = [
@@ -196,6 +197,7 @@ export default function Shop() {
                     </div>
                 </div>
             </main>
+            <AppFooter />
         </div>
     );
 }

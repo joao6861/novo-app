@@ -21,6 +21,7 @@ import { BannerCarousel } from "@/components/home/banner-carousel";
 import { Newsletter } from "@/components/home/newsletter";
 import { WhatsappButton } from "@/components/ui/whatsapp-button";
 import { PlateSearchStrip } from "@/components/home/plate-search-strip";
+import { AppFooter } from "@/components/layout/AppFooter";
 
 // Sample Products Categorized
 const PERFORMANCE_PRODUCTS = [
@@ -186,33 +187,7 @@ export default function Home() {
       {/* WhatsApp Button */}
       <WhatsappButton />
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 bg-black py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="text-center md:text-left">
-              <Image
-                src="/logo-tureggon.png"
-                alt="Tureggon Logo"
-                width={120}
-                height={35}
-                className="h-8 w-auto object-contain opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all sm:mx-0 mx-auto"
-              />
-              <p className="mt-2 text-xs uppercase tracking-widest text-slate-500">
-                Premium Performance & Care
-              </p>
-            </div>
-            <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              <Link href="/politica" className="hover:text-primary transition-colors">Políticas</Link>
-              <Link href="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
-              <Link href="/termos" className="hover:text-primary transition-colors">Termos</Link>
-            </div>
-            <p className="text-sm text-slate-600">
-              © 2024 Tureggon. Made with Elite Tech.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <AppFooter />
     </main>
   );
 }

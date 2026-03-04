@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
+import { AppFooter } from "@/components/layout/AppFooter";
 
 // Mock Products (Sharing same data as Shop for consistency)
 const ALL_PRODUCTS = [
@@ -183,6 +184,7 @@ export default function ProductDetails() {
                     </div>
                 </div>
             </main>
+            <AppFooter />
         </div>
     );
 }
