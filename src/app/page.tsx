@@ -202,9 +202,13 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
             <div className="text-center md:text-left">
-              <span className="text-2xl font-black tracking-tighter text-white italic">
-                TUREGGON
-              </span>
+              <Image
+                src="/logo-tureggon.png"
+                alt="Tureggon Logo"
+                width={120}
+                height={35}
+                className="h-8 w-auto object-contain opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all sm:mx-0 mx-auto"
+              />
               <p className="mt-2 text-xs uppercase tracking-widest text-slate-500">
                 Premium Performance & Care
               </p>

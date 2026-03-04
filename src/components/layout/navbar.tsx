@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, User, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
@@ -31,12 +32,14 @@ export function Navbar() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-2xl font-black tracking-tighter text-white italic group-hover:text-primary transition-colors">
-                TUREGGON
-              </span>
-              <span className="hidden text-[10px] font-bold uppercase tracking-[0.3em] text-primary sm:block">
-                Elite
-              </span>
+              <Image
+                src="/logo-tureggon.png"
+                alt="Tureggon Logo"
+                width={180}
+                height={50}
+                className="h-10 w-auto object-contain brightness-110"
+                priority
+              />
             </Link>
 
             <NavigationMenu className="hidden md:flex">
