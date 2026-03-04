@@ -37,6 +37,37 @@ export function Newsletter() {
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-white/80"></div>
             </div>
 
+            {/* Mascot Composition - Turtles everywhere */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                {/* Bottom Left Turtle */}
+                <div className="absolute -bottom-10 -left-10 w-48 h-48 md:w-80 md:h-80 opacity-90 transition-transform hover:scale-110 duration-700">
+                    <Image
+                        src="/turtle-mascot.png"
+                        alt="Turtle Mascot"
+                        fill
+                        className="object-contain"
+                    />
+                </div>
+                {/* Top Right Turtle (Smaller) */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 md:w-64 md:h-64 opacity-80 rotate-12 transition-transform hover:-translate-y-4 duration-1000">
+                    <Image
+                        src="/turtle-mascot.png"
+                        alt="Turtle Mascot"
+                        fill
+                        className="object-contain brightness-110"
+                    />
+                </div>
+                {/* Middle Left (Very Small/Faded) */}
+                <div className="absolute top-1/4 left-10 w-24 h-24 opacity-20 -rotate-12 hidden md:block">
+                    <Image
+                        src="/turtle-mascot.png"
+                        alt="Turtle Mascot"
+                        fill
+                        className="object-contain grayscale"
+                    />
+                </div>
+            </div>
+
             <div className="container relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-100 bg-white/70 p-8 md:p-16 backdrop-blur-xl text-center shadow-sm">
                 <div className="mb-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Send className="h-6 w-6" />
@@ -46,7 +77,7 @@ export function Newsletter() {
                     Ofertas <span className="text-primary italic">Exclusivas</span>
                 </h2>
                 <p className="mx-auto mb-10 max-w-xl text-lg text-slate-500">
-                    Cadastre-se e seja o primeiro a receber novidades sobre peças de performance e cuidados automotivos.
+                    Cadastre-se e seja o primeiro a receber novidades sobre peças de performance e cuidados automotivos com o suporte da Tureggon.
                 </p>
 
                 <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
