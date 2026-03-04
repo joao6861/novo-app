@@ -23,7 +23,7 @@ export function Newsletter() {
                     src="/newsletter-bg.png"
                     alt="Newsletter Background Desktop"
                     fill
-                    className="hidden md:block object-cover object-center opacity-40 grayscale"
+                    className="hidden md:block object-cover object-center opacity-70"
                     priority
                 />
                 {/* Mobile Background */}
@@ -31,7 +31,7 @@ export function Newsletter() {
                     src="/newsletter-bg-mobile.png"
                     alt="Newsletter Background Mobile"
                     fill
-                    className="block md:hidden object-cover object-center opacity-50 grayscale"
+                    className="block md:hidden object-cover object-center opacity-80"
                     priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/80"></div>
