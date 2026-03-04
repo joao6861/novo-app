@@ -23,24 +23,24 @@ export function Newsletter() {
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                 {/* Bottom Left Turtle - Large Sticker */}
                 <div className="absolute -bottom-10 -left-10 w-64 h-64 md:w-[450px] md:h-[450px] opacity-100 transition-transform hover:scale-105 duration-700 rotate-[15deg]">
-                    <div className="relative w-full h-full p-4 bg-white/5 rounded-[3rem] backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden">
+                    <div className="relative w-full h-full p-2 bg-white/5 rounded-[3rem] backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden">
                         <Image
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-cover scale-110"
+                            className="object-contain p-4"
                         />
                     </div>
                 </div>
 
                 {/* Top Right Turtle - Floating Label Style */}
                 <div className="absolute top-10 -right-20 w-48 h-48 md:w-80 md:h-80 opacity-90 -rotate-12 transition-transform hover:-translate-y-6 duration-1000">
-                    <div className="relative w-full h-full p-3 bg-primary rounded-[2.5rem] shadow-[0_0_50px_rgba(48,255,0,0.3)] overflow-hidden border-4 border-black">
+                    <div className="relative w-full h-full p-2 bg-primary rounded-[2.5rem] shadow-[0_0_50px_rgba(48,255,0,0.3)] overflow-hidden border-4 border-black">
                         <Image
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-cover"
+                            className="object-contain p-2"
                         />
                     </div>
                 </div>
@@ -52,7 +52,7 @@ export function Newsletter() {
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-cover grayscale hover:grayscale-0"
+                            className="object-contain p-1 grayscale hover:grayscale-0"
                         />
                     </div>
                 </div>
