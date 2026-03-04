@@ -243,8 +243,9 @@ function SectionHeader({ title, subtitle, link }: { title: string; subtitle: str
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
   return (
-    <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px]">
-      <CardContent className="p-0">
+    <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px] flex flex-col h-full">
+      <CardContent className="p-0 flex flex-col h-full">
+        {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-slate-50">
           <Image
             src={product.image}
@@ -252,38 +253,54 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
             fill
             className="object-cover transition-opacity duration-500 group-hover:scale-110"
           />
-          {product.off && (
-            <Badge className="absolute left-4 top-4 bg-accent text-black font-black uppercase tracking-tighter text-[10px]">
-              {product.off}% OFF
-            </Badge>
-          )}
           {!product.off && (
             <Badge className="absolute left-4 top-4 bg-primary text-black font-black uppercase tracking-tighter text-[10px]">
               NOVO
             </Badge>
           )}
         </div>
-        <div className="p-5">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-            {product.category}
-          </span>
-          <h3 className="mt-1 font-bold text-slate-900 text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary">
+
+        {/* Content Section */}
+        <div className="p-4 flex flex-col flex-1">
+          {/* 1. Name */}
+          <h3 className="font-bold text-slate-900 text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary leading-tight">
             {product.name}
           </h3>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex flex-col">
-              {product.oldPrice && (
-                <span className="text-[10px] text-slate-400 line-through">
-                  R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
-              )}
-              <span className="text-lg font-black text-slate-900">
-                R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+
+          {/* 2. Discount info (if exists) */}
+          <div className="mt-2 h-5">
+            {product.off && (
+              <span className="text-[11px] font-bold text-[#30FF00]">
+                -{product.off}% OFF
               </span>
-            </div>
+            )}
+          </div>
+
+          {/* 3. Price Area */}
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-lg font-black text-slate-900">
+              R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </span>
+            {product.oldPrice && (
+              <span className="text-[11px] text-slate-400 line-through">
+                R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
+            )}
+          </div>
+
+          {/* 4. Rating Stars */}
+          <div className="mt-2 flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={12} className="fill-slate-200 text-slate-200" />
+            ))}
+            <span className="ml-1 text-[10px] font-bold text-slate-400">(0)</span>
+          </div>
+
+          {/* 5. Buy Button (Bottom) */}
+          <div className="mt-auto pt-4">
             <Button
               onClick={onAdd}
-              className="flex-1 h-10 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[10px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/20"
+              className="w-full h-11 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
             >
               COMPRAR
             </Button>

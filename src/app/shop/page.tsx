@@ -200,8 +200,9 @@ export default function Shop() {
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
     return (
-        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px]">
-            <CardContent className="p-0">
+        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px] flex flex-col h-full">
+            <CardContent className="p-0 flex flex-col h-full">
+                {/* Image Section */}
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
                     <Link href={`/product/${product.id}`}>
                         <Image
@@ -212,23 +213,61 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                         />
                     </Link>
                 </div>
-                <div className="p-6">
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                        <span className="text-primary">{product.category}</span>
-                        <span className="text-slate-400">{product.brand}</span>
-                    </div>
+
+                {/* Content Section */}
+                <div className="p-5 flex flex-col flex-1">
+                    {/* 1. Name */}
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="mt-2 font-bold text-slate-900 text-sm h-10 line-clamp-2 transition-colors group-hover:text-primary cursor-pointer">
+                        <h3 className="font-bold text-slate-900 text-sm h-10 line-clamp-2 transition-colors group-hover:text-primary cursor-pointer leading-tight">
                             {product.name}
                         </h3>
                     </Link>
-                    <div className="mt-4 flex items-center justify-between">
+
+                    {/* 2. Brand & Category */}
+                    <div className="mt-1 flex items-center justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
+                        <span>{product.category}</span>
+                        <span>{product.brand}</span>
+                    </div>
+
+                    {/* 3. Discount info (if exists) */}
+                    <div className="mt-3 h-5">
+                        {product.off && (
+                            <span className="text-[11px] font-bold text-[#30FF00]">
+                                -{product.off}% OFF
+                            </span>
+                        )}
+                        {!product.off && (
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                                Novo Item
+                            </span>
+                        )}
+                    </div>
+
+                    {/* 4. Price Area */}
+                    <div className="mt-1 flex items-baseline gap-2">
                         <span className="text-xl font-black text-slate-950">
                             R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
+                        {product.oldPrice && (
+                            <span className="text-[11px] text-slate-400 line-through">
+                                R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* 5. Rating Stars */}
+                    <div className="mt-3 flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} className="fill-slate-200 text-slate-200" />
+                        ))}
+                        <span className="ml-1 text-[11px] font-bold text-slate-400">(0)</span>
+                    </div>
+
+                    {/* 6. Buy Button (Bottom) */}
+                    <div className="mt-auto pt-5">
                         <Button
                             onClick={onAdd}
-                            className="flex-1 h-10 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[10px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/20"
+                            className="w-full h-11 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
                         >
                             COMPRAR
                         </Button>
