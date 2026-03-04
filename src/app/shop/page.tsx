@@ -228,10 +228,9 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                         </span>
                         <Button
                             onClick={onAdd}
-                            size="icon"
-                            className="h-10 w-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-black transition-all border border-slate-100"
+                            className="flex-1 h-10 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[10px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/20"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-600 group-hover:text-black" />
+                            COMPRAR
                         </Button>
                     </div>
                 </div>
