@@ -71,35 +71,7 @@ export function HeroSection() {
                         Entregamos em todo o território nacional com garantia e suporte especializado.
                     </p>
 
-                    <div className="mx-auto mb-12 max-w-xl">
-                        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center glass-premium p-2 rounded-2xl">
-                            <div className="relative flex-1">
-                                <Car className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
-                                <Input
-                                    placeholder="DIGITE SUA PLACA (EX: ABC1D23)"
-                                    className="h-14 border-none bg-transparent pl-12 text-lg font-bold uppercase tracking-widest placeholder:text-slate-600 focus-visible:ring-0"
-                                    value={plate}
-                                    onChange={(e) => setPlate(e.target.value.toUpperCase())}
-                                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                                />
-                            </div>
-                            <Button
-                                onClick={handleSearch}
-                                disabled={loading}
-                                className="h-14 px-8 rounded-xl bg-primary hover:bg-primary/90 text-black font-black text-base shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
-                            >
-                                {loading ? "BUSCANDO..." : "BUSCAR PEÇAS"}
-                            </Button>
-                        </div>
-                        {error && (
-                            <p className="mt-4 text-sm font-medium text-red-400 tracking-tight">
-                                {error}
-                            </p>
-                        )}
-                        <p className="mt-4 text-xs font-medium text-slate-500 uppercase tracking-widest">
-                            Consultamos mais de <span className="text-slate-300">5 milhões</span> de veículos
-                        </p>
-                    </div>
+
 
                     <div className="flex flex-wrap justify-center gap-8">
                         <FeatureIcon text="Entrega Expressa" />

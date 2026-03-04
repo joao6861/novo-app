@@ -20,6 +20,7 @@ import Link from "next/link";
 import { BannerCarousel } from "@/components/home/banner-carousel";
 import { Newsletter } from "@/components/home/newsletter";
 import { WhatsappButton } from "@/components/ui/whatsapp-button";
+import { PlateSearchStrip } from "@/components/home/plate-search-strip";
 
 // Sample Products Categorized
 const PERFORMANCE_PRODUCTS = [
@@ -111,8 +112,11 @@ export default function Home() {
       {/* Banner Carousel */}
       <BannerCarousel />
 
-      {/* Hero Content Section - Plate Search integrated below banner */}
-      <section className="relative z-10 -mt-20 px-4">
+      {/* Plate Search Strip - High Visibility Area */}
+      <PlateSearchStrip />
+
+      {/* Hero Content Section */}
+      <section className="relative z-10 py-12 px-4">
         <div className="container mx-auto">
           <HeroSection />
         </div>
