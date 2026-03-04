@@ -28,18 +28,20 @@ export function Navbar() {
         </p>
       </div>
 
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl relative overflow-hidden">
+        {/* Extreme Left Mascot - Touching the edge */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-20 h-20 transition-transform hover:scale-110 duration-500 z-10 ml-0 md:-ml-2">
+          <Image
+            src="/turtle-mascot.png"
+            alt="Tureggon Mascot"
+            fill
+            className="object-contain"
+          />
+        </div>
+
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <div className="relative w-14 h-14 transition-transform hover:scale-110 duration-500">
-              <Image
-                src="/turtle-mascot.png"
-                alt="Tureggon Mascot"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <Link href="/" className="flex items-center group">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center group ml-16 md:ml-12">
               <Image
                 src="/logo-tureggon.png"
                 alt="Tureggon Logo"
