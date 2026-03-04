@@ -41,13 +41,13 @@ export function Navbar() {
 
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center group ml-16 md:ml-12">
+            <Link href="/" className="flex items-center group ml-16 md:ml-14">
               <Image
                 src="/logo-tureggon.png"
                 alt="Tureggon Logo"
-                width={180}
-                height={50}
-                className="h-10 w-auto object-contain brightness-110"
+                width={220}
+                height={60}
+                className="h-12 md:h-14 w-auto object-contain brightness-110 transition-transform group-hover:scale-105 duration-300"
                 priority
               />
             </Link>
