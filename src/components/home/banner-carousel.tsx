@@ -15,17 +15,17 @@ import Link from "next/link";
 
 const BANNERS = [
     {
-        title: "Performance Sem Limites",
-        subtitle: "A maior variedade de peças para o seu projeto turbo ou aspirado.",
-        cta: "Ver Performance",
-        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2000&auto=format&fit=crop",
-        link: "/shop?category=performance",
-    },
-    {
         title: "Projetos de Elite",
         subtitle: "Transformamos o seu veículo com as melhores peças e cuidados técnicos do mercado.",
         cta: "Ver Catálogo",
         image: "/banners/custom-project.png",
+        link: "/shop?category=performance",
+    },
+    {
+        title: "Performance Sem Limites",
+        subtitle: "A maior variedade de peças para o seu projeto turbo ou aspirado.",
+        cta: "Ver Performance",
+        image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=2000&auto=format&fit=crop",
         link: "/shop?category=performance",
     },
     {
