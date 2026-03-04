@@ -200,7 +200,7 @@ export default function Shop() {
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
     return (
-        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-md">
+        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px]">
             <CardContent className="p-0">
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
                     <Link href={`/product/${product.id}`}>
