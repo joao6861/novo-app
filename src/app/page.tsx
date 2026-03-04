@@ -1,3 +1,22 @@
+"use client";
+
+import React from "react";
+import { Navbar } from "@/components/layout/navbar";
+import { HeroSection } from "@/components/home/hero-section";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  ShieldCheck,
+  Truck,
+  Headphones,
+  ArrowRight,
+  Star,
+  ShoppingCart
+} from "lucide-react";
+import Image from "next/image";
+import { useCart } from "@/lib/cart-context";
+import Link from "next/link";
 import { BannerCarousel } from "@/components/home/banner-carousel";
 import { Newsletter } from "@/components/home/newsletter";
 import { WhatsappButton } from "@/components/ui/whatsapp-button";
