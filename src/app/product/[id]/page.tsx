@@ -64,14 +64,14 @@ export default function ProductDetails() {
     };
 
     return (
-        <div className="min-h-screen bg-premium-dark pb-24">
+        <div className="min-h-screen bg-white pb-24">
             <Navbar />
 
             <main className="container mx-auto px-4 py-12">
                 <Button
                     variant="ghost"
                     onClick={() => router.back()}
-                    className="mb-8 gap-2 text-slate-400 hover:text-white"
+                    className="mb-8 gap-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 >
                     <ArrowLeft className="h-4 w-4" /> Voltar ao catálogo
                 </Button>
@@ -79,7 +79,7 @@ export default function ProductDetails() {
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
                     {/* Image Gallery Area */}
                     <div className="space-y-4">
-                        <div className="glass-premium relative aspect-square overflow-hidden rounded-3xl border-white/5">
+                        <div className="relative aspect-square overflow-hidden rounded-3xl border border-slate-100 bg-slate-50 shadow-sm">
                             <Image
                                 src={product.image}
                                 alt={product.name}
@@ -89,7 +89,7 @@ export default function ProductDetails() {
                         </div>
                         <div className="grid grid-cols-4 gap-4">
                             {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="glass relative aspect-square overflow-hidden rounded-xl border-white/10 opacity-50 transition-opacity hover:opacity-100 cursor-pointer">
+                                <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-slate-100 bg-white opacity-60 transition-opacity hover:opacity-100 cursor-pointer shadow-sm">
                                     <Image
                                         src={product.image}
                                         alt={product.name}
@@ -113,49 +113,49 @@ export default function ProductDetails() {
                             </div>
                         </div>
 
-                        <h1 className="text-4xl font-black tracking-tight text-white lg:text-5xl">
+                        <h1 className="text-4xl font-black tracking-tight text-slate-950 lg:text-5xl">
                             {product.name}
                         </h1>
                         <p className="mt-4 text-xl font-bold text-slate-500 uppercase tracking-widest">
-                            Ref: <span className="text-slate-300">TRG-{product.id}992X</span> • Marca: {product.brand}
+                            Ref: <span className="text-slate-400">TRG-{product.id}992X</span> • Marca: {product.brand}
                         </p>
 
-                        <div className="my-8 h-px bg-white/5" />
+                        <div className="my-8 h-px bg-slate-100" />
 
                         <div className="mb-10">
-                            <span className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">Preço à vista</span>
+                            <span className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Preço à vista</span>
                             <div className="flex items-baseline gap-4 mt-2">
-                                <span className="text-5xl font-black text-white">
+                                <span className="text-5xl font-black text-slate-950">
                                     R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </span>
-                                <span className="text-lg text-slate-500 line-through">
+                                <span className="text-lg text-slate-400 line-through">
                                     R$ {(product.price * 1.2).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </span>
                             </div>
-                            <p className="mt-2 text-primary font-bold">
+                            <p className="mt-2 text-primary font-black uppercase italic">
                                 Ou em até 10x de R$ {(product.price / 10).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} sem juros
                             </p>
                         </div>
 
-                        <p className="mb-10 text-lg leading-relaxed text-slate-400">
+                        <p className="mb-10 text-lg leading-relaxed text-slate-500">
                             {product.description}
                         </p>
 
                         <div className="mb-12 space-y-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-32 items-center justify-between rounded-xl border border-white/10 bg-white/5 px-2">
-                                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-8 text-xl text-slate-400 hover:text-white">-</button>
-                                    <span className="font-black text-white">{quantity}</span>
-                                    <button onClick={() => setQuantity(q => q + 1)} className="w-8 text-xl text-slate-400 hover:text-white">+</button>
+                                <div className="flex h-12 w-32 items-center justify-between rounded-xl border border-slate-200 bg-white px-2">
+                                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-8 text-xl text-slate-400 hover:text-slate-900">-</button>
+                                    <span className="font-black text-slate-900">{quantity}</span>
+                                    <button onClick={() => setQuantity(q => q + 1)} className="w-8 text-xl text-slate-400 hover:text-slate-900">+</button>
                                 </div>
                                 <Button
                                     onClick={handleAddToCart}
-                                    className="h-12 flex-1 rounded-xl bg-primary text-black font-black uppercase tracking-widest transition-transform hover:scale-[1.02]"
+                                    className="h-12 flex-1 rounded-xl bg-primary text-black font-black uppercase tracking-widest transition-transform hover:scale-[1.02] shadow-lg shadow-primary/20"
                                 >
                                     <ShoppingCart className="mr-2 h-5 w-5" /> Adicionar ao Carrinho
                                 </Button>
                             </div>
-                            <Button variant="outline" className="h-12 w-full rounded-xl border-accent/20 bg-accent/5 text-accent font-black uppercase tracking-widest hover:bg-accent/10">
+                            <Button variant="outline" className="h-12 w-full rounded-xl border-slate-200 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-50">
                                 Comprar Agora
                             </Button>
                         </div>
@@ -168,14 +168,14 @@ export default function ProductDetails() {
                         </div>
 
                         <div className="mt-12">
-                            <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                            <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">
                                 Especificações Técnicas
                             </h3>
                             <div className="grid grid-cols-1 gap-2">
                                 {product.specs?.map((spec) => (
-                                    <div key={spec.label} className="flex items-center justify-between rounded-lg bg-white/5 p-3 text-sm">
-                                        <span className="text-slate-400 font-bold uppercase">{spec.label}</span>
-                                        <span className="text-white font-black">{spec.value}</span>
+                                    <div key={spec.label} className="flex items-center justify-between rounded-lg bg-slate-50 p-3 text-sm border border-slate-100">
+                                        <span className="text-slate-500 font-bold uppercase">{spec.label}</span>
+                                        <span className="text-slate-900 font-black">{spec.value}</span>
                                     </div>
                                 ))}
                             </div>
@@ -189,9 +189,9 @@ export default function ProductDetails() {
 
 function BenefitItem({ icon, text }: { icon: React.ReactNode; text: string }) {
     return (
-        <div className="flex flex-col items-center gap-2 rounded-2xl bg-white/5 p-4 text-center border border-white/5">
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 text-center border border-slate-100 shadow-sm">
             <div className="text-primary">{icon}</div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{text}</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{text}</span>
         </div>
     );
 }

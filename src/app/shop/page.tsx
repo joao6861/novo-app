@@ -94,31 +94,31 @@ export default function Shop() {
     });
 
     return (
-        <div className="min-h-screen bg-premium-dark">
+        <div className="min-h-screen bg-white">
             <Navbar />
 
             <main className="container mx-auto px-4 py-12">
                 <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <h1 className="text-4xl font-black tracking-tight text-white lg:text-5xl">
+                        <h1 className="text-4xl font-black tracking-tight text-slate-950 lg:text-5xl">
                             Catálogo de <span className="text-gradient">Peças</span>
                         </h1>
-                        <p className="mt-2 text-slate-400">
+                        <p className="mt-2 text-slate-500">
                             {filteredProducts.length} produtos encontrados
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                            <Input
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <input
                                 placeholder="Buscar peças..."
-                                className="w-full border-white/10 bg-white/5 pl-10 text-white lg:w-80"
+                                className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 lg:w-80 focus:border-primary outline-none transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Button variant="outline" className="gap-2 border-white/10 bg-white/5 text-white">
+                        <Button variant="outline" className="h-11 gap-2 border-slate-200 bg-white text-slate-900 hover:bg-slate-50">
                             <Filter className="h-4 w-4" /> Filtros
                         </Button>
                     </div>
@@ -138,8 +138,8 @@ export default function Shop() {
                                             key={cat}
                                             onClick={() => setSelectedCategory(cat)}
                                             className={`text-left rounded-lg px-3 py-2 text-sm font-bold transition-all ${selectedCategory === cat
-                                                    ? "bg-primary text-black"
-                                                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                                ? "bg-primary text-black"
+                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                                                 }`}
                                         >
                                             {cat}
@@ -200,38 +200,38 @@ export default function Shop() {
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
     return (
-        <Card className="glass group overflow-hidden border-none transition-all hover:scale-[1.02]">
+        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-md">
             <CardContent className="p-0">
-                <div className="relative aspect-square overflow-hidden bg-slate-900">
+                <div className="relative aspect-square overflow-hidden bg-slate-50">
                     <Link href={`/product/${product.id}`}>
                         <Image
                             src={product.image}
                             alt={product.name}
                             fill
-                            className="object-cover opacity-80 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            className="object-cover transition-transform duration-500 group-hover:scale-110 cursor-pointer"
                         />
                     </Link>
                 </div>
                 <div className="p-6">
-                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
-                        <span className="text-primary/60">{product.category}</span>
-                        <span className="text-slate-500">{product.brand}</span>
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                        <span className="text-primary">{product.category}</span>
+                        <span className="text-slate-400">{product.brand}</span>
                     </div>
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="mt-2 font-bold text-white transition-colors group-hover:text-primary cursor-pointer">
+                        <h3 className="mt-2 font-bold text-slate-900 text-sm h-10 line-clamp-2 transition-colors group-hover:text-primary cursor-pointer">
                             {product.name}
                         </h3>
                     </Link>
                     <div className="mt-4 flex items-center justify-between">
-                        <span className="text-xl font-black text-white">
+                        <span className="text-xl font-black text-slate-950">
                             R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
                         <Button
                             onClick={onAdd}
                             size="icon"
-                            className="h-10 w-10 rounded-full bg-white/5 hover:bg-primary hover:text-black transition-all"
+                            className="h-10 w-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-black transition-all border border-slate-100"
                         >
-                            <ShoppingCart className="h-4 w-4" />
+                            <ShoppingCart className="h-4 w-4 text-slate-600 group-hover:text-black" />
                         </Button>
                     </div>
                 </div>

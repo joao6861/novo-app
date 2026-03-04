@@ -23,7 +23,7 @@ export function Newsletter() {
                     src="/newsletter-bg.png"
                     alt="Newsletter Background Desktop"
                     fill
-                    className="hidden md:block object-cover object-center opacity-70"
+                    className="hidden md:block object-cover object-center opacity-40"
                     priority
                 />
                 {/* Mobile Background */}
@@ -31,37 +31,37 @@ export function Newsletter() {
                     src="/newsletter-bg-mobile.png"
                     alt="Newsletter Background Mobile"
                     fill
-                    className="block md:hidden object-cover object-center opacity-80"
+                    className="block md:hidden object-cover object-center opacity-50"
                     priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/80"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-white/80"></div>
             </div>
 
-            <div className="container relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-black/40 p-8 md:p-16 backdrop-blur-xl text-center">
-                <div className="mb-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary">
+            <div className="container relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-100 bg-white/70 p-8 md:p-16 backdrop-blur-xl text-center shadow-sm">
+                <div className="mb-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Send className="h-6 w-6" />
                 </div>
 
-                <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-5xl text-white">
+                <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter md:text-5xl text-slate-900">
                     Ofertas <span className="text-primary italic">Exclusivas</span>
                 </h2>
-                <p className="mx-auto mb-10 max-w-xl text-lg text-white/70">
+                <p className="mx-auto mb-10 max-w-xl text-lg text-slate-500">
                     Cadastre-se e seja o primeiro a receber novidades sobre peças de performance e cuidados automotivos.
                 </p>
 
                 <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
                     <Input
                         placeholder="Seu melhor e-mail"
-                        className="h-12 border-white/20 bg-white/5 text-white placeholder:text-white/30 focus:border-primary"
+                        className="h-12 border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-primary"
                         required
                         type="email"
                     />
-                    <Button type="submit" className="h-12 px-8 font-bold uppercase tracking-widest bg-primary hover:bg-primary/80 text-black">
+                    <Button type="submit" className="h-12 px-8 font-bold uppercase tracking-widest bg-primary hover:bg-primary/80 text-black shadow-lg shadow-primary/20">
                         Assinar
                     </Button>
                 </form>
 
-                <p className="mt-6 text-[10px] uppercase tracking-widest text-white/40">
+                <p className="mt-6 text-[10px] uppercase tracking-widest text-slate-400">
                     Ao se cadastrar você aceita nossos termos de uso e privacidade.
                 </p>
             </div>

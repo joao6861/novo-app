@@ -46,27 +46,27 @@ export function HeroSection() {
     };
 
     return (
-        <section className="relative overflow-hidden bg-premium-dark py-24 lg:py-32">
+        <section className="relative overflow-hidden bg-white py-16 lg:py-24">
             {/* Background Decor */}
-            <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-[120px] opacity-20 pointer-events-none">
+            <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-[120px] opacity-5 pointer-events-none">
                 <div className="h-[400px] w-[600px] bg-primary rounded-full" />
             </div>
 
             <div className="container relative z-10 mx-auto px-4 text-center">
                 <div className="mx-auto max-w-3xl">
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-md">
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 ">
                         <Zap className="h-4 w-4 text-primary fill-primary/20" />
-                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
+                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-600">
                             Encontre peças compatíveis instantaneamente
                         </span>
                     </div>
 
-                    <h1 className="mb-6 text-5xl font-black tracking-tight text-white lg:text-7xl">
+                    <h1 className="mb-6 text-5xl font-black tracking-tight text-slate-950 lg:text-7xl">
                         A Maior Loja de <br />
                         <span className="text-gradient">Auto Peças</span> do Brasil
                     </h1>
 
-                    <p className="mb-10 text-lg leading-relaxed text-slate-400 lg:text-xl">
+                    <p className="mb-10 text-lg leading-relaxed text-slate-500 lg:text-xl">
                         Peças de alta performance e manutenção para todos os veículos.
                         Entregamos em todo o território nacional com garantia e suporte especializado.
                     </p>
@@ -88,7 +88,7 @@ function FeatureIcon({ text }: { text: string }) {
     return (
         <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-accent" />
-            <span className="text-sm font-bold text-white/70 uppercase tracking-wider">
+            <span className="text-sm font-bold text-slate-600 uppercase tracking-wider">
                 {text}
             </span>
         </div>

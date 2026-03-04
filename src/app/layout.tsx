@@ -9,8 +9,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className="dark">
-      <body className="min-h-screen w-full bg-premium-dark text-white antialiased">
+    <html lang="pt-BR">
+      <body className="min-h-screen w-full bg-white text-slate-900 antialiased">
         <CartProvider>
           {children}
           <Toaster position="top-right" expand={false} richColors />

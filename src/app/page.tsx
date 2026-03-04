@@ -115,15 +115,47 @@ export default function Home() {
       {/* Plate Search Strip - High Visibility Area */}
       <PlateSearchStrip />
 
-      {/* Hero Content Section */}
-      <section className="relative z-10 py-12 px-4">
+      {/* Performance Section - PROMINENT POSITION */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <SectionHeader
+            title="Performance & Motor"
+            subtitle="Tudo para o seu projeto subir o nível."
+            link="/shop?category=performance"
+          />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PERFORMANCE_PRODUCTS.map((product) => (
+              <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Estética Section - PROMINENT POSITION */}
+      <section className="py-12 bg-slate-50/50">
+        <div className="container mx-auto px-4">
+          <SectionHeader
+            title="Estética Automotiva"
+            subtitle="Brilho e proteção com as melhores marcas."
+            link="/shop?category=estetica"
+          />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {ESTETICA_PRODUCTS.map((product) => (
+              <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Content Section - Moved down */}
+      <section className="relative z-10 py-16 px-4 bg-white">
         <div className="container mx-auto">
           <HeroSection />
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <section className="py-16">
+      {/* Trust Badges - Moved down */}
+      <section className="py-16 bg-slate-50/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <FeatureCard
@@ -150,46 +182,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Performance Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <SectionHeader
-            title="Performance & Motor"
-            subtitle="Tudo para o seu projeto subir o nível."
-            link="/shop?category=performance"
-          />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PERFORMANCE_PRODUCTS.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Estética Section */}
-      <section className="py-16 bg-white/5">
-        <div className="container mx-auto px-4">
-          <SectionHeader
-            title="Estética Automotiva"
-            subtitle="Brilho e proteção com as melhores marcas."
-            link="/shop?category=estetica"
-          />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {ESTETICA_PRODUCTS.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Banner Promocional Estático */}
-      <section className="py-16">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="glass-premium relative overflow-hidden rounded-3xl p-12 lg:p-20 text-center">
-            <h2 className="text-4xl font-black italic uppercase text-white md:text-6xl">
+          <div className="relative overflow-hidden rounded-3xl p-12 lg:p-20 text-center border border-slate-100 bg-slate-50/50 shadow-sm">
+            <h2 className="text-4xl font-black italic uppercase text-slate-900 md:text-6xl">
               Tureggon <span className="text-primary italic">Elite</span> Store
             </h2>
-            <p className="mt-6 text-lg text-white/50 max-w-2xl mx-auto">
+            <p className="mt-6 text-lg text-slate-500 max-w-2xl mx-auto">
               Seja bem-vindo à loja oficial Tureggon. Aqui você encontra a curadoria das melhores peças e produtos selecionados por quem respira cultura automotiva.
             </p>
           </div>
@@ -237,10 +237,10 @@ function SectionHeader({ title, subtitle, link }: { title: string; subtitle: str
   return (
     <div className="mb-10 flex items-end justify-between">
       <div>
-        <h2 className="text-2xl font-black uppercase tracking-tight text-white lg:text-4xl italic">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-slate-950 lg:text-4xl italic">
           {title}
         </h2>
-        <p className="mt-2 text-slate-400 text-sm md:text-base font-medium">
+        <p className="mt-2 text-slate-500 text-sm md:text-base font-medium">
           {subtitle}
         </p>
       </div>
@@ -255,12 +255,12 @@ function SectionHeader({ title, subtitle, link }: { title: string; subtitle: str
 
 function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <div className="flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+    <div className="flex items-start gap-4 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-primary/20 transition-colors">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
         {icon}
       </div>
       <div>
-        <h3 className="font-bold text-white uppercase tracking-tight text-sm">{title}</h3>
+        <h3 className="font-bold text-slate-900 uppercase tracking-tight text-sm">{title}</h3>
         <p className="text-xs text-slate-500 mt-1 leading-relaxed">{desc}</p>
       </div>
     </div>
@@ -269,14 +269,14 @@ function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: stri
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
   return (
-    <Card className="glass group overflow-hidden border-none transition-all hover:translate-y-[-4px]">
+    <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-md">
       <CardContent className="p-0">
-        <div className="relative aspect-square overflow-hidden bg-slate-900">
+        <div className="relative aspect-square overflow-hidden bg-slate-50">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-110"
+            className="object-cover transition-opacity duration-500 group-hover:scale-110"
           />
           {product.off && (
             <Badge className="absolute left-4 top-4 bg-accent text-black font-black uppercase tracking-tighter text-[10px]">
@@ -293,26 +293,26 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
           <span className="text-[10px] font-black uppercase tracking-widest text-primary">
             {product.category}
           </span>
-          <h3 className="mt-1 font-bold text-white text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary">
+          <h3 className="mt-1 font-bold text-slate-900 text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary">
             {product.name}
           </h3>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex flex-col">
               {product.oldPrice && (
-                <span className="text-[10px] text-white/30 line-through">
+                <span className="text-[10px] text-slate-400 line-through">
                   R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               )}
-              <span className="text-lg font-black text-white">
+              <span className="text-lg font-black text-slate-900">
                 R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </span>
             </div>
             <Button
               onClick={onAdd}
               size="icon"
-              className="h-10 w-10 rounded-xl bg-white/5 hover:bg-primary hover:text-black transition-all border border-white/10"
+              className="h-10 w-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-black transition-all border border-slate-100"
             >
-              <ShoppingCart className="h-4 w-4" />
+              <ShoppingCart className="h-4 w-4 text-slate-600 group-hover:text-black" />
             </Button>
           </div>
         </div>

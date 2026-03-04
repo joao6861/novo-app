@@ -28,7 +28,7 @@ export function Navbar() {
         </p>
       </div>
 
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-premium-dark/60 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 group">
@@ -96,14 +96,14 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+            <Button variant="ghost" size="icon" className="text-slate-600 hover:text-primary transition-colors">
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+            <Button variant="ghost" size="icon" className="text-slate-600 hover:text-primary transition-colors">
               <User className="h-5 w-5" />
             </Button>
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-white/70 hover:text-primary transition-colors">
+              <Button variant="ghost" size="icon" className="relative text-slate-600 hover:text-primary transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-black animate-in fade-in zoom-in">
@@ -112,7 +112,7 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button variant="ghost" size="icon" className="md:hidden text-slate-900">
               <Menu className="h-5 w-5" />
             </Button>
           </div>

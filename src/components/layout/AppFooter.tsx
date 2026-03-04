@@ -1,14 +1,14 @@
 export default function AppFooter() {
   return (
-    <footer className="bg-[#000915] text-center py-10 text-white">
-      <img src="/tureggon-logo.png" alt="Tureggon" className="mx-auto h-14 mb-4" />
+    <footer className="bg-slate-50 border-t border-slate-100 text-center py-10 text-slate-900">
+      <img src="/tureggon-logo.png" alt="Tureggon" className="mx-auto h-14 mb-4 grayscale opacity-80" />
 
-      <div className="text-green-400 text-sm mb-2">🟢 Sistema Online e Operacional</div>
+      <div className="text-emerald-600 text-xs font-bold mb-2 uppercase tracking-widest">🟢 Sistema Online e Operacional</div>
 
-      <p className="text-gray-400 text-sm">
+      <p className="text-slate-500 text-sm font-medium">
         © 2024 Tureggon. Todos os direitos reservados.
       </p>
-      <p className="text-gray-500 text-xs mt-2">
+      <p className="text-slate-400 text-xs mt-2 uppercase tracking-tighter">
         Consulta veicular inteligente e segura
       </p>
     </footer>
