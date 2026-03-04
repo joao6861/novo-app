@@ -20,7 +20,7 @@ export function PlateSearchStrip() {
     };
 
     return (
-        <div className="w-full bg-slate-950 py-4">
+        <div className="w-full bg-white py-4">
             <div className="container mx-auto px-4">
                 <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-slate-900 px-6 py-6 shadow-2xl md:px-8">
                     {/* Decorative background glow - softer for light mode */}
