@@ -147,51 +147,35 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hero Content Section - Moved down */}
-      <section className="relative z-10 py-16 px-4 bg-white">
-        <div className="container mx-auto">
-          <HeroSection />
-        </div>
-      </section>
-
-      {/* Trust Badges - Moved down */}
-      <section className="py-16 bg-slate-50/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <FeatureCard
-              icon={<ShieldCheck className="h-6 w-6 text-primary" />}
-              title="Compra Segura"
-              desc="Pagamentos e dados criptografados."
-            />
-            <FeatureCard
-              icon={<Truck className="h-6 w-6 text-primary" />}
-              title="Entrega Rápida"
-              desc="Enviamos para todo o Brasil via Jadlog/Azul."
-            />
-            <FeatureCard
-              icon={<Headphones className="h-6 w-6 text-primary" />}
-              title="Atendimento Pro"
-              desc="Equipe técnica especializada no WhatsApp."
-            />
-            <FeatureCard
-              icon={<Star className="h-6 w-6 text-primary" />}
-              title="Elite Rewards"
-              desc="Ganhe cashback em todas as compras."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Banner Promocional Estático */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="relative overflow-hidden rounded-3xl p-12 lg:p-20 text-center border border-slate-100 bg-slate-50/50 shadow-sm">
-            <h2 className="text-4xl font-black italic uppercase text-slate-900 md:text-6xl">
+      {/* Unified Brand & Trust Section - Simplified layout */}
+      <section className="py-20 bg-slate-50/50">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-black italic uppercase text-slate-900 md:text-5xl">
               Tureggon <span className="text-primary italic">Elite</span> Store
             </h2>
             <p className="mt-6 text-lg text-slate-500 max-w-2xl mx-auto">
-              Seja bem-vindo à loja oficial Tureggon. Aqui você encontra a curadoria das melhores peças e produtos selecionados por quem respira cultura automotiva.
+              Curadoria das melhores peças e produtos de alta performance. Entregamos em todo o Brasil com o suporte técnico de quem respira cultura automotiva.
             </p>
+
+            <div className="mt-12 flex flex-wrap justify-center gap-x-12 gap-y-6 border-t border-slate-200/60 pt-10">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-700">Compra Segura</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Truck className="h-5 w-5 text-primary" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-700">Entrega Rápida</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Headphones className="h-5 w-5 text-primary" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-700">Suporte Pro</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Star className="h-5 w-5 text-primary" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-700">Elite Rewards</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
