@@ -96,7 +96,7 @@ export function AppFooter() {
             </div>
 
             <Link
-              href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK/review"
+              href="https://www.google.com/maps/place/TUREGGON/@-28.1336936,-52.006782,6z/data=!3m1!4b1!4m6!3m5!1s0x94dcfb2b8bb6b5db:0xc19deb1a9509a901!8m2!3d-28.1336936!4d-52.006782!16s%2Fg%2F11nmgpmlpr?entry=ttu&g_ep=EgoyMDI2MDMwMi4wIKXMDSoASAFQAw%3D%3D"
               target="_blank"
               className="group flex flex-col items-center md:items-end gap-2"
             >
