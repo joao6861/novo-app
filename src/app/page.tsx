@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Navbar } from "@/components/layout/navbar";
-import { HeroSection } from "@/components/home/hero-section";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -219,14 +219,16 @@ export default function Home() {
 
 function SectionHeader({ title, subtitle, link }: { title: string; subtitle: string; link: string }) {
   return (
-    <div className="mb-10 flex items-end justify-between">
-      <div>
-        <h2 className="text-2xl font-black uppercase tracking-tight text-slate-950 lg:text-4xl italic">
+    <div className="mb-12 flex items-center justify-between">
+      <div className="relative inline-flex flex-col bg-primary px-8 py-5 rounded-[2.5rem] shadow-xl shadow-primary/20 border-b-4 border-black/10">
+        <h2 className="text-xl font-black uppercase tracking-tight text-black lg:text-3xl italic leading-tight">
           {title}
         </h2>
-        <p className="mt-2 text-slate-500 text-sm md:text-base font-medium">
+        <p className="mt-1 text-black/60 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
           {subtitle}
         </p>
+        {/* Balloon Tail Tip */}
+        <div className="absolute -bottom-2 left-10 h-0 w-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
       </div>
       <Link href={link}>
         <Button variant="link" className="text-primary font-bold uppercase tracking-widest flex items-center gap-2 group p-0 h-auto">
@@ -237,19 +239,7 @@ function SectionHeader({ title, subtitle, link }: { title: string; subtitle: str
   );
 }
 
-function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
-  return (
-    <div className="flex items-start gap-4 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-primary/20 transition-colors">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-bold text-slate-900 uppercase tracking-tight text-sm">{title}</h3>
-        <p className="text-xs text-slate-500 mt-1 leading-relaxed">{desc}</p>
-      </div>
-    </div>
-  );
-}
+
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
   return (
