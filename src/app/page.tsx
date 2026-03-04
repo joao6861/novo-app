@@ -101,7 +101,8 @@ const ESTETICA_PRODUCTS = [
 ];
 
 export default function Home() {
-  const { addToCart } = useCart();
+  const cart = useCart();
+  const addToCart = cart ? cart.addToCart : () => { };
 
   return (
     <main className="min-h-screen pb-12">

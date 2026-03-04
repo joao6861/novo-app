@@ -18,11 +18,20 @@ export function Newsletter() {
         <section className="relative overflow-hidden py-32 px-4 bg-black">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
+                {/* Desktop Background */}
                 <Image
                     src="/newsletter-bg.png"
-                    alt="Newsletter Background"
+                    alt="Newsletter Background Desktop"
                     fill
-                    className="object-cover object-center opacity-40 grayscale"
+                    className="hidden md:block object-cover object-center opacity-40 grayscale"
+                    priority
+                />
+                {/* Mobile Background */}
+                <Image
+                    src="/newsletter-bg-mobile.png"
+                    alt="Newsletter Background Mobile"
+                    fill
+                    className="block md:hidden object-cover object-center opacity-50 grayscale"
                     priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/80"></div>
