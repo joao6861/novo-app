@@ -20,7 +20,7 @@ export function Navbar() {
   const { totalItems } = useCart();
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full relative">
       {/* Announcement Bar */}
       <div className="w-full bg-accent py-1.5 px-4 text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black sm:text-xs">
@@ -28,20 +28,20 @@ export function Navbar() {
         </p>
       </div>
 
-      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl relative overflow-hidden">
-        {/* Extreme Left Mascot - Touching the edge */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-20 h-20 transition-transform hover:scale-110 duration-500 z-10 ml-0 md:-ml-2">
-          <Image
-            src="/turtle-mascot.png"
-            alt="Tureggon Mascot"
-            fill
-            className="object-contain"
-          />
-        </div>
+      {/* Extreme Left Mascot - Overlapping the green strip and header */}
+      <div className="absolute left-0 top-0 w-24 h-24 sm:w-28 sm:h-28 transition-transform hover:scale-110 duration-500 z-[60] ml-0 -mt-2">
+        <Image
+          src="/turtle-mascot.png"
+          alt="Tureggon Mascot"
+          fill
+          className="object-contain"
+        />
+      </div>
 
+      <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center group ml-16 md:ml-14">
+            <Link href="/" className="flex items-center group ml-20 md:ml-24">
               <Image
                 src="/logo-tureggon.png"
                 alt="Tureggon Logo"
