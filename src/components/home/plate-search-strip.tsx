@@ -60,7 +60,7 @@ export function PlateSearchStrip() {
                                     <input
                                         type="text"
                                         placeholder="PLACA (EX: ABC1234)"
-                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-black placeholder:text-slate-400 outline-none focus:ring-0"
+                                        className="h-11 w-full border-none bg-transparent pl-10 pr-4 text-base font-black uppercase tracking-widest text-black placeholder:text-black/60 outline-none focus:ring-0"
                                         value={plate}
                                         onChange={(e) => setPlate(e.target.value.toUpperCase())}
                                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
