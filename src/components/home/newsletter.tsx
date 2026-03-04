@@ -23,36 +23,36 @@ export function Newsletter() {
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                 {/* Bottom Left Turtle - Large Sticker */}
                 <div className="absolute -bottom-10 -left-10 w-64 h-64 md:w-[450px] md:h-[450px] opacity-100 transition-transform hover:scale-105 duration-700 rotate-[15deg]">
-                    <div className="relative w-full h-full p-2 bg-white/5 rounded-[3rem] backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden">
+                    <div className="relative w-full h-full p-4">
                         <Image
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-contain p-4"
+                            className="object-contain"
                         />
                     </div>
                 </div>
 
                 {/* Top Right Turtle - Floating Label Style */}
-                <div className="absolute top-10 -right-20 w-48 h-48 md:w-80 md:h-80 opacity-90 -rotate-12 transition-transform hover:-translate-y-6 duration-1000">
-                    <div className="relative w-full h-full p-2 bg-primary rounded-[2.5rem] shadow-[0_0_50px_rgba(48,255,0,0.3)] overflow-hidden border-4 border-black">
+                <div className="absolute top-0 -right-10 w-48 h-48 md:w-80 md:h-80 opacity-90 -rotate-12 transition-transform hover:-translate-y-6 duration-1000 z-20">
+                    <div className="relative w-full h-full p-4">
                         <Image
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-contain p-2"
+                            className="object-contain drop-shadow-[0_0_30px_rgba(48,255,0,0.4)]"
                         />
                     </div>
                 </div>
 
                 {/* Top Left (Small Profile) */}
-                <div className="absolute top-20 left-1/4 w-24 h-24 md:w-32 md:h-32 opacity-40 rotate-[45deg] hidden md:block transition-all hover:opacity-100 duration-500">
-                    <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/20">
+                <div className="absolute top-10 left-1/4 w-24 h-24 md:w-32 md:h-32 opacity-40 rotate-[45deg] hidden md:block transition-all hover:opacity-100 duration-500">
+                    <div className="relative w-full h-full">
                         <Image
                             src="/turtle-mascot.png"
                             alt="John Player Turtle"
                             fill
-                            className="object-contain p-1 grayscale hover:grayscale-0"
+                            className="object-contain grayscale hover:grayscale-0"
                         />
                     </div>
                 </div>
