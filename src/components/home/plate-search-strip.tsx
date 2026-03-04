@@ -39,6 +39,17 @@ export function PlateSearchStrip() {
                             <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-400 md:text-sm">
                                 Identificação instantânea de peças compatíveis para performance e manutenção.
                             </p>
+                            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
+                                    • Dados Técnicos
+                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
+                                    • Especificações
+                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
+                                    • Compatibilidade
+                                </span>
+                            </div>
                         </div>
 
                         {/* Search Input Area */}
