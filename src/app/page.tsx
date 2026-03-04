@@ -149,17 +149,17 @@ export default function Home() {
       </section>
 
       {/* Unified Brand & Trust Section - Simplified layout */}
-      <section className="py-20 bg-slate-50/50">
+      <section className="py-12 bg-slate-50/50">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl font-black italic uppercase text-slate-900 md:text-5xl">
               Tureggon <span className="text-primary italic">Elite</span> Store
             </h2>
-            <p className="mt-6 text-lg text-slate-500 max-w-2xl mx-auto">
+            <p className="mt-3 text-lg text-slate-500 max-w-2xl mx-auto">
               Curadoria das melhores peças e produtos de alta performance. Entregamos em todo o Brasil com o suporte técnico de quem respira cultura automotiva.
             </p>
 
-            <div className="mt-12 flex flex-wrap justify-center gap-x-12 gap-y-6 border-t border-slate-200/60 pt-10">
+            <div className="mt-8 flex flex-wrap justify-center gap-x-12 gap-y-6 border-t border-slate-200/60 pt-6">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-primary" />
                 <span className="text-xs font-black uppercase tracking-widest text-slate-700">Compra Segura</span>
