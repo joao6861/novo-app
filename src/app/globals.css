@@ -5,32 +5,37 @@
   --color-accent: #30FF00;
   --color-premium-dark: #020617;
   --color-premium-border: rgba(148, 163, 184, 0.12);
-  
+
   --font-sans: "Inter", "Geist Sans", sans-serif;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-none;
-  }
-
   body {
-    @apply bg-premium-dark text-white font-sans antialiased;
     background: radial-gradient(circle at top, #020617 0%, #020617 45%, #000000 100%);
+    color: white;
     min-height: 100vh;
+    font-family: var(--font-sans);
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
+
   .glass-premium {
-    @apply bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 shadow-2xl;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, #22d3ee, #2563eb);
   }
 }
