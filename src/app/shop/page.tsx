@@ -224,6 +224,9 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                             {product.name}
                         </h3>
                     </Link>
+                    <span className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Cód: #{product.id}
+                    </span>
 
                     {/* 2. Brand & Category */}
                     <div className="mt-1 flex items-center justify-between text-[10px] font-black uppercase tracking-widest opacity-60">

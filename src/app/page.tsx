@@ -266,6 +266,9 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
           <h3 className="font-bold text-slate-900 text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary leading-tight">
             {product.name}
           </h3>
+          <span className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Cód: #{product.id}
+          </span>
 
           {/* 2. Discount info (if exists) */}
           <div className="mt-2 h-5">
