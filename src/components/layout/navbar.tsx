@@ -30,22 +30,22 @@ export function Navbar() {
 
       <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-0 group">
-              <div className="relative w-16 h-16 transition-transform group-hover:scale-110 duration-500 -ml-2">
-                <Image
-                  src="/turtle-mascot.png"
-                  alt="Tureggon Mascot"
-                  fill
-                  className="object-contain"
-                />
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="relative w-14 h-14 transition-transform hover:scale-110 duration-500">
+              <Image
+                src="/turtle-mascot.png"
+                alt="Tureggon Mascot"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <Link href="/" className="flex items-center group">
               <Image
                 src="/logo-tureggon.png"
                 alt="Tureggon Logo"
                 width={180}
                 height={50}
-                className="h-10 w-auto object-contain brightness-110 -ml-1"
+                className="h-10 w-auto object-contain brightness-110"
                 priority
               />
             </Link>
