@@ -22,10 +22,10 @@ const BANNERS = [
         link: "/shop?category=performance",
     },
     {
-        title: "Brilho de Showroom",
-        subtitle: "Linha completa Vonixx e Lincoln para estética extrema.",
-        cta: "Ver Estética",
-        image: "https://images.unsplash.com/photo-1549399500-c44d07019f85?q=80&w=2000&auto=format&fit=crop",
+        title: "Blend Cleaner Wax",
+        subtitle: "Limpeza e proteção em um único produto para cores escuras.",
+        cta: "Comprar Agora",
+        image: "/banners/blend-cleaner-wax.png",
         link: "/shop?category=estetica",
     },
     {
