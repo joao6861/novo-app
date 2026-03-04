@@ -6,6 +6,20 @@ export function AppFooter() {
   return (
     <footer className="bg-black text-white pt-16 pb-8 border-t border-white/5">
       <div className="container mx-auto px-4">
+        {/* Logo Section - RESTORED */}
+        <div className="mb-12 text-center md:text-left">
+          <Image
+            src="/logo-tureggon.png"
+            alt="Tureggon Logo"
+            width={120}
+            height={35}
+            className="h-8 w-auto object-contain opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all sm:mx-0 mx-auto"
+          />
+          <p className="mt-2 text-[10px] uppercase tracking-[0.3em] font-bold text-slate-500">
+            Premium Performance & Care
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start text-center md:text-left">
 
           {/* 1. Meios de Pagamento */}
