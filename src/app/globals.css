@@ -40,8 +40,8 @@
   }
 
   .shadow-neon:hover {
-    /* Apaga o neon quando o mouse está em cima */
-    box-shadow: none;
+    /* Agora o neon fica VERDE quando o mouse está em cima */
+    box-shadow: 0 0 25px 5px rgba(48, 255, 0, 0.6), 0 0 50px 10px rgba(48, 255, 0, 0.3);
   }
 
   .text-gradient {
