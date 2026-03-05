@@ -56,13 +56,13 @@ export function Navbar() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Link href="/shop" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <NavigationMenuLink className={`${navigationMenuTriggerStyle()} text-primary hover:text-primary/80`}>
                       Todos os Produtos
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Categorias</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-primary hover:text-primary/80">Categorias</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-slate-950 border border-white/10">
                       <li className="row-span-3">
@@ -106,7 +106,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
               <Search className="h-5 w-5" />
             </Button>
             <a
@@ -114,15 +114,15 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
                 <Instagram className="h-5 w-5" />
               </Button>
             </a>
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-primary transition-colors">
+            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
               <User className="h-5 w-5" />
             </Button>
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-white/70 hover:text-primary transition-colors">
+              <Button variant="ghost" size="icon" className="relative text-primary hover:text-primary/80 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-black animate-in fade-in zoom-in">
@@ -131,7 +131,7 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" className="md:hidden text-white">
+            <Button variant="ghost" size="icon" className="md:hidden text-primary">
               <Menu className="h-5 w-5" />
             </Button>
           </div>
