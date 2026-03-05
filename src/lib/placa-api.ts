@@ -55,17 +55,19 @@ export async function consultarPlaca(placa: string): Promise<VehicleData | null>
   try {
     // Remove caracteres especiais e converte para maiúsculo
     const placaLimpa = placa.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
-    
+
     if (placaLimpa.length !== 7) {
       throw new Error('Placa inválida. Deve conter 7 caracteres.')
     }
 
     // Consulta API Brasil para dados básicos do veículo
-    const response = await fetch('https://placa-fipe.apibrasil.com.br/placa/consulta', {
+    // Endpoint: https://gateway.apibrasil.io/api/v2/consulta/veiculos
+    // Documentação: https://apibrasil.io/veiculos
+    const response = await fetch('https://gateway.apibrasil.io/api/v2/consulta/veiculos', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': '*/*',
+        'Authorization': `Bearer d4ecc0d3-35f1-46bb-8664-9041a329dd73`, // Chave fornecida pelo usuário
       },
       body: JSON.stringify({
         placa: placaLimpa
@@ -76,11 +78,27 @@ export async function consultarPlaca(placa: string): Promise<VehicleData | null>
       if (response.status === 404) {
         return null // Placa não encontrada
       }
-      throw new Error(`Erro na API: ${response.status}`)
+      const errorText = await response.text()
+      throw new Error(`Erro na APIBrasil: ${response.status} - ${errorText}`)
     }
 
-    const data: PlacaResponse = await response.json()
-    
+    const apiResult = await response.json()
+
+    // Mapeamento da estrutura da APIBrasil v2 para PlacaResponse
+    // A APIBrasil v2 retorna os dados dentro de um objeto 'body' ou similar, dependendo do retorno específico
+    const data: PlacaResponse = {
+      placa: placaLimpa,
+      marca: apiResult.body?.marca || apiResult.marca || 'N/A',
+      modelo: apiResult.body?.modelo || apiResult.modelo || 'N/A',
+      ano: apiResult.body?.ano || apiResult.ano || 'N/A',
+      anoModelo: apiResult.body?.ano_modelo || apiResult.anoModelo || 'N/A',
+      cor: apiResult.body?.cor || apiResult.cor || 'N/A',
+      municipio: apiResult.body?.municipio || apiResult.municipio || 'N/A',
+      uf: apiResult.body?.uf || apiResult.uf || 'N/A',
+      motor: apiResult.body?.motor || apiResult.motor || 'N/A',
+      ...apiResult.body
+    }
+
     // Busca informações técnicas no banco de dados
     const vehicleDB = await buscarVeiculoDB(
       data.marca || '',
@@ -133,12 +151,12 @@ export async function consultarPlaca(placa: string): Promise<VehicleData | null>
  */
 export function validarPlaca(placa: string): boolean {
   const placaLimpa = placa.replace(/[^A-Za-z0-9]/g, '').toUpperCase()
-  
+
   // Formato antigo: ABC1234 (3 letras + 4 números)
   const formatoAntigo = /^[A-Z]{3}[0-9]{4}$/
-  
+
   // Formato Mercosul: ABC1D23 (3 letras + 1 número + 1 letra + 2 números)
   const formatoMercosul = /^[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}$/
-  
+
   return formatoAntigo.test(placaLimpa) || formatoMercosul.test(placaLimpa)
 }

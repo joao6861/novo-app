@@ -23,31 +23,32 @@ export function Navbar() {
     <div className="flex flex-col w-full relative">
       {/* Announcement Bar */}
       <div className="w-full bg-accent py-1.5 px-4 text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black sm:text-xs">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black sm:text-xs pl-14 sm:pl-0">
           🚀 Frete Grátis para todo o Brasil em compras acima de R$ 499
         </p>
       </div>
 
       {/* Extreme Left Mascot - Overlapping the green strip and header */}
-      <div className="absolute left-6 top-0 w-24 h-24 sm:w-28 sm:h-28 transition-transform hover:scale-110 duration-500 z-[60] ml-0 -mt-2">
+      <div className="absolute left-[8px] sm:left-6 top-[2px] sm:top-0 w-20 h-20 sm:w-28 sm:h-28 transition-transform hover:scale-110 duration-500 z-[60]">
         <Image
           src="/turtle-mascot-transparent.png"
           alt="Tureggon Mascot"
           fill
           className="object-contain"
+          priority
         />
       </div>
 
       <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center group ml-20 md:ml-24">
+          <div className="flex items-center gap-8 w-auto overflow-visible">
+            <Link href="/" className="flex items-center group ml-14 md:ml-24">
               <Image
                 src="/logo-tureggon.png"
                 alt="Tureggon Logo"
                 width={220}
                 height={60}
-                className="h-12 md:h-14 w-auto object-contain brightness-110 transition-transform group-hover:scale-105 duration-300"
+                className="h-9 md:h-14 w-auto object-contain brightness-110 transition-transform group-hover:scale-105 duration-300"
                 priority
               />
             </Link>

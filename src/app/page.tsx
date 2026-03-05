@@ -124,7 +124,7 @@ export default function Home() {
             subtitle="Tudo para o seu projeto subir o nível."
             link="/shop?category=performance"
           />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
             {PERFORMANCE_PRODUCTS.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
             ))}
@@ -140,7 +140,7 @@ export default function Home() {
             subtitle="Brilho e proteção com as melhores marcas."
             link="/shop?category=estetica"
           />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
             {ESTETICA_PRODUCTS.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
             ))}
@@ -238,38 +238,38 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-4 flex flex-col flex-1">
+        <div className="p-2 sm:p-4 flex flex-col flex-1">
           {/* 1. Name */}
-          <h3 className="font-bold text-slate-900 text-sm line-clamp-2 h-10 transition-colors group-hover:text-primary leading-tight">
+          <h3 className="font-bold text-slate-900 text-[10px] sm:text-sm line-clamp-2 h-7 sm:h-10 transition-colors group-hover:text-primary leading-tight">
             {product.name}
           </h3>
-          <span className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="hidden sm:inline mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Cód: #{product.id}
           </span>
 
           {/* 2. Discount info (if exists) */}
-          <div className="mt-2 h-5">
+          <div className="mt-1 h-3 sm:h-5">
             {product.off && (
-              <span className="text-[11px] font-bold text-[#30FF00]">
+              <span className="text-[9px] sm:text-[11px] font-bold text-[#30FF00]">
                 -{product.off}% OFF
               </span>
             )}
           </div>
 
           {/* 3. Price Area */}
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-lg font-black text-slate-900">
+          <div className="mt-0.5 sm:mt-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
+            <span className="text-sm sm:text-lg font-black text-slate-900">
               R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
             {product.oldPrice && (
-              <span className="text-[11px] text-slate-400 line-through">
+              <span className="text-[8px] sm:text-[11px] text-slate-400 line-through">
                 R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </span>
             )}
           </div>
 
-          {/* 4. Rating Stars */}
-          <div className="mt-2 flex items-center gap-1">
+          {/* 4. Rating Stars - Hidden on mobile for space */}
+          <div className="hidden sm:flex mt-2 items-center gap-1">
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={12} className="fill-slate-200 text-slate-200" />
             ))}
@@ -277,10 +277,10 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
           </div>
 
           {/* 5. Buy Button (Bottom) */}
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-2 sm:pt-4">
             <Button
               onClick={onAdd}
-              className="w-full h-11 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
+              className="w-full h-8 sm:h-11 rounded-lg sm:rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[8px] sm:text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
             >
               COMPRAR
             </Button>
