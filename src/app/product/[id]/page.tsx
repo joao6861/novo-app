@@ -157,8 +157,7 @@ export default function ProductDetails() {
                                     handleAddToCart();
                                     router.push('/checkout');
                                 }}
-                                variant="outline"
-                                className="h-12 w-full rounded-xl border-slate-200 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-50"
+                                className="h-12 w-full rounded-xl bg-accent text-black font-black uppercase tracking-widest hover:bg-accent/90 transition-all hover:scale-[1.02] shadow-lg shadow-accent/20"
                             >
                                 Comprar Agora
                             </Button>

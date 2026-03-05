@@ -55,7 +55,7 @@ export default function CartPage() {
                     <h1 className="text-4xl font-black tracking-tight text-white lg:text-5xl uppercase">
                         Meu <span className="text-gradient">Carrinho</span>
                     </h1>
-                    <Badge className="bg-white/5 text-slate-400 border-white/10 rounded-lg px-3 py-1 text-sm font-bold">
+                    <Badge className="bg-white/5 text-slate-400 border border-white/10 rounded-lg px-3 py-1 text-sm font-bold">
                         {totalItems} ITENS
                     </Badge>
                 </div>
@@ -64,9 +64,12 @@ export default function CartPage() {
                     {/* Items List */}
                     <div className="lg:col-span-2 space-y-4">
                         {cart.map((item) => (
-                            <Card key={item.id} className="glass overflow-hidden border-none shadow-xl">
-                                <CardContent className="p-4 flex gap-6 sm:p-6">
-                                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-900 border border-white/5 sm:h-32 sm:w-32">
+                            <div
+                                key={item.id}
+                                className="rounded-2xl border border-white/8 bg-white/5 backdrop-blur-sm overflow-hidden shadow-xl"
+                            >
+                                <div className="p-4 flex gap-5 sm:p-6">
+                                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-900 border border-white/10 sm:h-28 sm:w-28">
                                         <Image
                                             src={item.image}
                                             alt={item.name}
@@ -78,58 +81,58 @@ export default function CartPage() {
                                     <div className="flex flex-1 flex-col justify-between">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
                                                     {item.category || "Auto Peças"}
                                                 </span>
-                                                <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
+                                                <h3 className="text-base font-bold text-white mt-0.5">
                                                     {item.name}
                                                 </h3>
                                             </div>
                                             <button
                                                 onClick={() => removeFromCart(item.id)}
-                                                className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                                                className="text-slate-600 hover:text-red-400 transition-colors p-1 ml-2 shrink-0"
                                             >
-                                                <Trash2 className="h-5 w-5" />
+                                                <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
 
-                                        <div className="flex flex-wrap items-end justify-between gap-4">
-                                            <div className="flex h-10 items-center gap-4 rounded-lg bg-white/5 border border-white/10 px-2">
+                                        <div className="flex flex-wrap items-end justify-between gap-4 mt-3">
+                                            <div className="flex h-9 items-center gap-3 rounded-lg bg-black/30 border border-white/10 px-3">
                                                 <button
                                                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                     className="text-slate-400 hover:text-white transition-colors"
                                                 >
-                                                    <Minus className="h-4 w-4" />
+                                                    <Minus className="h-3.5 w-3.5" />
                                                 </button>
-                                                <span className="min-w-[20px] text-center font-black text-white">{item.quantity}</span>
+                                                <span className="min-w-[20px] text-center font-black text-white text-sm">{item.quantity}</span>
                                                 <button
                                                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                     className="text-slate-400 hover:text-white transition-colors"
                                                 >
-                                                    <Plus className="h-4 w-4" />
+                                                    <Plus className="h-3.5 w-3.5" />
                                                 </button>
                                             </div>
 
                                             <div className="text-right">
-                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Subtotal</p>
-                                                <p className="text-xl font-black text-white">
+                                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Subtotal</p>
+                                                <p className="text-lg font-black text-white">
                                                     R$ {(item.price * item.quantity).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </div>
                         ))}
 
-                        <Link href="/shop" className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:opacity-80 transition-opacity">
+                        <Link href="/shop" className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:opacity-80 transition-opacity mt-4">
                             <ArrowLeft className="h-4 w-4" /> Continuar Comprando
                         </Link>
                     </div>
 
                     {/* Summary Sidebar */}
                     <div className="space-y-6">
-                        <Card className="glass-premium border-none p-6 shadow-2xl sticky top-28">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 shadow-2xl sticky top-28">
                             <h2 className="text-xl font-black text-white uppercase tracking-tight mb-6">Resumo do Pedido</h2>
 
                             <div className="space-y-4">
@@ -146,7 +149,7 @@ export default function CartPage() {
                                     <span className="text-primary">- R$ {(totalPrice * 0.05).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                                 </div>
 
-                                <Separator className="bg-white/5" />
+                                <Separator className="bg-white/10" />
 
                                 <div className="flex justify-between items-baseline py-2">
                                     <span className="text-lg font-black text-white uppercase tracking-tight">Total</span>
@@ -164,7 +167,7 @@ export default function CartPage() {
                                     </Button>
                                 </Link>
 
-                                <div className="pt-6 space-y-4">
+                                <div className="pt-6 space-y-3">
                                     <div className="flex items-center gap-3 text-[10px] font-black uppercase text-slate-500">
                                         <ShieldCheck className="h-4 w-4 text-primary" />
                                         Pagamento 100% Protegido
@@ -175,7 +178,7 @@ export default function CartPage() {
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </div>
                     </div>
                 </div>
             </main>
