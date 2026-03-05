@@ -223,26 +223,28 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
     <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px] flex flex-col h-full">
       <CardContent className="p-0 flex flex-col h-full">
         {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-slate-50">
+        <Link href={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-slate-50 block group-hover:opacity-90 transition-opacity">
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover transition-opacity duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
           {!product.off && (
             <Badge className="absolute left-4 top-4 bg-primary text-black font-black uppercase tracking-tighter text-[10px]">
               NOVO
             </Badge>
           )}
-        </div>
+        </Link>
 
         {/* Content Section */}
         <div className="p-2 sm:p-4 flex flex-col flex-1">
           {/* 1. Name */}
-          <h3 className="font-bold text-slate-900 text-[10px] sm:text-sm line-clamp-2 h-7 sm:h-10 transition-colors group-hover:text-primary leading-tight">
-            {product.name}
-          </h3>
+          <Link href={`/product/${product.id}`} className="block">
+            <h3 className="font-bold text-slate-900 text-[10px] sm:text-sm line-clamp-2 h-7 sm:h-10 transition-colors hover:underline group-hover:text-primary leading-tight">
+              {product.name}
+            </h3>
+          </Link>
           <span className="hidden sm:inline mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Cód: #{product.id}
           </span>
@@ -273,17 +275,18 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={12} className="fill-slate-200 text-slate-200" />
             ))}
-            <span className="ml-1 text-[10px] font-bold text-slate-400">(0)</span>
+            <span className="ml-1 text-[10px] font-bold text-slate-400">({product.rating ? Math.floor(Math.random() * 50) + 10 : 0})</span>
           </div>
 
           {/* 5. Buy Button (Bottom) */}
           <div className="mt-auto pt-2 sm:pt-4">
-            <Button
-              onClick={onAdd}
-              className="w-full h-8 sm:h-11 rounded-lg sm:rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[8px] sm:text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
-            >
-              COMPRAR
-            </Button>
+            <Link href={`/product/${product.id}`} className="block">
+              <Button
+                className="w-full h-8 sm:h-11 rounded-lg sm:rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[8px] sm:text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
+              >
+                COMPRAR
+              </Button>
+            </Link>
           </div>
         </div>
       </CardContent>

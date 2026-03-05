@@ -156,7 +156,14 @@ export default function ProductDetails() {
                                     <ShoppingCart className="mr-2 h-5 w-5" /> Adicionar ao Carrinho
                                 </Button>
                             </div>
-                            <Button variant="outline" className="h-12 w-full rounded-xl border-slate-200 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-50">
+                            <Button
+                                onClick={() => {
+                                    handleAddToCart();
+                                    router.push('/checkout');
+                                }}
+                                variant="outline"
+                                className="h-12 w-full rounded-xl border-slate-200 bg-white text-slate-900 font-black uppercase tracking-widest hover:bg-slate-50"
+                            >
                                 Comprar Agora
                             </Button>
                         </div>

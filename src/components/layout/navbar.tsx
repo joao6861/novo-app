@@ -107,9 +107,11 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
-              <Search className="h-5 w-5" />
-            </Button>
+            <Link href="/search">
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
+                <Search className="h-5 w-5" />
+              </Button>
+            </Link>
             <a
               href="https://www.instagram.com/tureggon_"
               target="_blank"
@@ -119,9 +121,11 @@ export function Navbar() {
                 <Instagram className="h-5 w-5" />
               </Button>
             </a>
-            <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
-              <User className="h-5 w-5" />
-            </Button>
+            <Link href="/login">
+              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
+                <User className="h-5 w-5" />
+              </Button>
+            </Link>
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative text-primary hover:text-primary/80 transition-colors">
                 <ShoppingCart className="h-5 w-5" />

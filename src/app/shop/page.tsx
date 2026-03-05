@@ -272,12 +272,13 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
 
                     {/* 6. Buy Button (Bottom) */}
                     <div className="mt-auto pt-5">
-                        <Button
-                            onClick={onAdd}
-                            className="w-full h-11 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
-                        >
-                            COMPRAR
-                        </Button>
+                        <Link href={`/product/${product.id}`} className="block">
+                            <Button
+                                className="w-full h-11 rounded-xl bg-[#30FF00] text-black font-black uppercase tracking-widest text-[11px] hover:bg-[#2ae600] transition-all border-b-2 border-black/10 shadow-lg shadow-[#30FF00]/10"
+                            >
+                                COMPRAR
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </CardContent>

@@ -25,6 +25,7 @@ export default function CheckoutPage() {
     const { cart, totalPrice, clearCart } = useCart();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("pix");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,32 +121,58 @@ export default function CheckoutPage() {
                             </div>
 
                             <Card className="glass border-none p-6 shadow-xl">
-                                <RadioGroup defaultValue="pix" className="space-y-4">
-                                    <div className="flex items-center space-x-4 rounded-xl border border-white/5 bg-white/5 p-4 transition-colors hover:border-primary/50">
-                                        <RadioGroupItem value="pix" id="pix" className="border-white/20 text-primary" />
-                                        <Label htmlFor="pix" className="flex flex-1 items-center justify-between cursor-pointer">
-                                            <div className="flex items-center gap-3">
-                                                <PixIcon className="h-5 w-5 text-primary" />
-                                                <div>
-                                                    <p className="font-bold text-white uppercase tracking-tight">Pix (5% de Desconto)</p>
-                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Liberação instantânea</p>
+                                <RadioGroup defaultValue="pix" value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
+                                    <div className={`flex flex-col rounded-xl border transition-colors ${paymentMethod === 'pix' ? 'border-primary/50 bg-white/10' : 'border-white/5 bg-white/5 hover:border-primary/30'} p-4`}>
+                                        <div className="flex items-center space-x-4">
+                                            <RadioGroupItem value="pix" id="pix" className="border-white/20 text-primary" />
+                                            <Label htmlFor="pix" className="flex flex-1 items-center justify-between cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <PixIcon className="h-5 w-5 text-primary" />
+                                                    <div>
+                                                        <p className="font-bold text-white uppercase tracking-tight">Pix (5% de Desconto)</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Liberação instantânea</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <Badge className="bg-primary/20 text-primary border-none text-[10px] uppercase font-black px-2 py-0.5 rounded">Melhor Opção</Badge>
-                                        </Label>
+                                                <Badge className="bg-primary/20 text-primary border-none text-[10px] uppercase font-black px-2 py-0.5 rounded">Melhor Opção</Badge>
+                                            </Label>
+                                        </div>
                                     </div>
 
-                                    <div className="flex items-center space-x-4 rounded-xl border border-white/5 bg-white/5 p-4 transition-colors hover:border-primary/50">
-                                        <RadioGroupItem value="card" id="card" className="border-white/20 text-primary" />
-                                        <Label htmlFor="card" className="flex flex-1 items-center justify-between cursor-pointer">
-                                            <div className="flex items-center gap-3">
-                                                <CreditCard className="h-5 w-5 text-slate-400" />
-                                                <div>
-                                                    <p className="font-bold text-white uppercase tracking-tight">Cartão de Crédito</p>
-                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Até 10x sem juros</p>
+                                    <div className={`flex flex-col rounded-xl border transition-colors ${paymentMethod === 'card' ? 'border-primary/50 bg-white/10' : 'border-white/5 bg-white/5 hover:border-primary/30'} p-4`}>
+                                        <div className="flex items-center space-x-4">
+                                            <RadioGroupItem value="card" id="card" className="border-white/20 text-primary" />
+                                            <Label htmlFor="card" className="flex flex-1 items-center justify-between cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <CreditCard className={`h-5 w-5 ${paymentMethod === 'card' ? 'text-primary' : 'text-slate-400'}`} />
+                                                    <div>
+                                                        <p className="font-bold text-white uppercase tracking-tight">Cartão de Crédito</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Até 10x sem juros</p>
+                                                    </div>
+                                                </div>
+                                            </Label>
+                                        </div>
+
+                                        {/* Dropdown Formulário Cartão de Crédito */}
+                                        {paymentMethod === 'card' && (
+                                            <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-1 gap-4 sm:grid-cols-2 animate-in slide-in-from-top-2 fade-in">
+                                                <div className="sm:col-span-2 space-y-2">
+                                                    <Label htmlFor="cc-number" className="text-[10px] font-black uppercase tracking-widest text-slate-500">Número do Cartão</Label>
+                                                    <Input id="cc-number" placeholder="0000 0000 0000 0000" className="border-white/10 bg-black/20 text-white" required={paymentMethod === 'card'} />
+                                                </div>
+                                                <div className="sm:col-span-2 space-y-2">
+                                                    <Label htmlFor="cc-name" className="text-[10px] font-black uppercase tracking-widest text-slate-500">Nome no Cartão</Label>
+                                                    <Input id="cc-name" placeholder="Como impresso no cartão" className="border-white/10 bg-black/20 text-white uppercase" required={paymentMethod === 'card'} />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="cc-exp" className="text-[10px] font-black uppercase tracking-widest text-slate-500">Validade</Label>
+                                                    <Input id="cc-exp" placeholder="MM/AA" className="border-white/10 bg-black/20 text-white" required={paymentMethod === 'card'} />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="cc-cvv" className="text-[10px] font-black uppercase tracking-widest text-slate-500">CVV</Label>
+                                                    <Input id="cc-cvv" type="password" placeholder="123" maxLength={4} className="border-white/10 bg-black/20 text-white" required={paymentMethod === 'card'} />
                                                 </div>
                                             </div>
-                                        </Label>
+                                        )}
                                     </div>
                                 </RadioGroup>
                             </Card>
