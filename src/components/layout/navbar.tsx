@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, User, Search, Menu, Instagram } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart, User, Search, Menu, Instagram, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
 import {
@@ -18,6 +19,26 @@ import {
 
 export function Navbar() {
   const { totalItems } = useCart();
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focar no input quando a busca abrir
+  useEffect(() => {
+    if (searchOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <div className="flex flex-col w-full relative">
@@ -107,38 +128,75 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link href="/search">
-              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
+            {/* Busca inline expansível */}
+            {searchOpen ? (
+              <form onSubmit={handleSearch} className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-200">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar produtos..."
+                    className="h-9 w-48 md:w-64 rounded-lg bg-white/10 border border-white/20 pl-9 pr-3 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-primary transition-all"
+                  />
+                </div>
+                <Button type="submit" size="sm" className="bg-primary text-black font-black h-9 px-3">
+                  Buscar
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-white h-9 w-9"
+                  onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </form>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary hover:text-primary/80 transition-colors"
+                onClick={() => setSearchOpen(true)}
+              >
                 <Search className="h-5 w-5" />
               </Button>
-            </Link>
-            <a
-              href="https://www.instagram.com/tureggon_"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </Button>
-            </a>
-            <Link href="/login">
-              <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative text-primary hover:text-primary/80 transition-colors">
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-black animate-in fade-in zoom-in">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon" className="md:hidden text-primary">
-              <Menu className="h-5 w-5" />
-            </Button>
+            )}
+
+            {!searchOpen && (
+              <>
+                <a
+                  href="https://www.instagram.com/tureggon_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
+                    <Instagram className="h-5 w-5" />
+                  </Button>
+                </a>
+                <Link href="/login">
+                  <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80 transition-colors">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/cart">
+                  <Button variant="ghost" size="icon" className="relative text-primary hover:text-primary/80 transition-colors">
+                    <ShoppingCart className="h-5 w-5" />
+                    {totalItems > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-black animate-in fade-in zoom-in">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="icon" className="md:hidden text-primary">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

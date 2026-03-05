@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import {
     ShoppingCart,
     ArrowLeft,
-    ShieldCheck,
     Truck,
     RotateCcw,
     Star
@@ -138,9 +137,6 @@ export default function ProductDetails() {
                             </p>
                         </div>
 
-                        <p className="mb-10 text-lg leading-relaxed text-slate-500">
-                            {product.description}
-                        </p>
 
                         <div className="mb-12 space-y-4">
                             <div className="flex items-center gap-4">
@@ -169,9 +165,8 @@ export default function ProductDetails() {
                         </div>
 
                         {/* Product Benefits */}
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <BenefitItem icon={<ShieldCheck className="h-4 w-4" />} text="12 Meses de Garantia" />
-                            <BenefitItem icon={<Truck className="h-4 w-4" />} text="Frete Grátis Sul/Sudeste" />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <BenefitItem icon={<Truck className="h-4 w-4" />} text="Frete Grátis acima de R$ 499" />
                             <BenefitItem icon={<RotateCcw className="h-4 w-4" />} text="7 Dias para Devolução" />
                         </div>
 
@@ -188,6 +183,11 @@ export default function ProductDetails() {
                                 ))}
                             </div>
                         </div>
+                    </div>
+                    {/* Descrição abaixo das fotos */}
+                    <div className="mt-6 rounded-2xl bg-slate-50 border border-slate-100 p-5">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Descrição</h3>
+                        <p className="text-base leading-relaxed text-slate-600">{product.description}</p>
                     </div>
                 </div>
             </main>

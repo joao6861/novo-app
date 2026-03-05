@@ -11,7 +11,9 @@ import {
     Plus,
     ArrowRight,
     ShoppingBag,
-    ArrowLeft
+    ArrowLeft,
+    ShieldCheck,
+    Truck
 } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";

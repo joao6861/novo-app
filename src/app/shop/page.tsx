@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
     Search,
-    X,
     Filter,
     ChevronDown,
-    ShoppingCart,
     LayoutGrid,
     List,
     Star
@@ -85,15 +82,42 @@ const ALL_PRODUCTS = [
     },
 ];
 
-export default function Shop() {
+function ShopContent() {
+    const searchParams = useSearchParams();
     const [selectedCategory, setSelectedCategory] = useState("Todos");
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortOrder, setSortOrder] = useState("relevancia");
+    const [showSortMenu, setShowSortMenu] = useState(false);
     const { addToCart } = useCart();
+
+    useEffect(() => {
+        const query = searchParams.get("q");
+        const category = searchParams.get("category");
+        if (query) setSearchTerm(query);
+        if (category) {
+            const found = CATEGORIES.find((c) => c.toLowerCase() === category.toLowerCase());
+            if (found) setSelectedCategory(found);
+        }
+    }, [searchParams]);
+
+    const SORT_LABELS: Record<string, string> = {
+        relevancia: "Relevância",
+        menor_preco: "Menor Preço",
+        maior_preco: "Maior Preço",
+        nome_az: "Nome A-Z",
+    };
 
     const filteredProducts = ALL_PRODUCTS.filter((p) => {
         const matchesCategory = selectedCategory === "Todos" || p.category === selectedCategory;
-        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch =
+            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.brand.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
+    }).sort((a, b) => {
+        if (sortOrder === "menor_preco") return a.price - b.price;
+        if (sortOrder === "maior_preco") return b.price - a.price;
+        if (sortOrder === "nome_az") return a.name.localeCompare(b.name);
+        return 0; // relevancia
     });
 
     return (
@@ -112,11 +136,11 @@ export default function Shop() {
                     </div>
 
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                        <div className="relative">
+                        <div className="relative shadow-neon-blue rounded-xl overflow-hidden">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <input
                                 placeholder="Buscar peças..."
-                                className="w-full h-11 rounded-xl border border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 lg:w-80 focus:border-primary outline-none transition-all"
+                                className="w-full h-11 border border-slate-200 bg-white pl-10 text-slate-900 placeholder:text-slate-400 lg:w-80 focus:border-primary outline-none transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -158,16 +182,22 @@ export default function Shop() {
                                 <p className="mt-2 text-xs text-slate-400 leading-relaxed">
                                     Fale com nossos especialistas agora mesmo via WhatsApp.
                                 </p>
-                                <Button className="mt-4 w-full bg-accent text-black font-black text-xs h-9">
-                                    CONTATO WHATSAPP
-                                </Button>
+                                <a
+                                    href="https://wa.me/5541997744692?text=Ol%C3%A1%2C+preciso+de+ajuda+com+uma+pe%C3%A7a!"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button className="mt-4 w-full bg-accent text-black font-black text-xs h-9">
+                                        CONTATO WHATSAPP
+                                    </Button>
+                                </a>
                             </div>
                         </div>
                     </aside>
 
                     {/* Product Grid */}
                     <div className="flex-1">
-                        <div className="mb-6 flex items-center justify-between border-b border-white/5 pb-6">
+                        <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-6">
                             <div className="flex items-center gap-4">
                                 <Button size="icon" variant="ghost" className="text-primary">
                                     <LayoutGrid className="h-5 w-5" />
@@ -176,9 +206,31 @@ export default function Shop() {
                                     <List className="h-5 w-5" />
                                 </Button>
                             </div>
-                            <Button variant="ghost" className="text-sm font-bold text-slate-400">
-                                Ordenar por: <span className="ml-2 text-white">Relevância</span> <ChevronDown className="ml-1 h-4 w-4" />
-                            </Button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowSortMenu((v) => !v)}
+                                    className="flex items-center gap-1 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors"
+                                >
+                                    Ordenar por: <span className="ml-1 text-slate-900 not-italic">{SORT_LABELS[sortOrder]}</span>
+                                    <ChevronDown className="ml-1 h-4 w-4" />
+                                </button>
+                                {showSortMenu && (
+                                    <div className="absolute right-0 top-8 z-20 min-w-[180px] rounded-xl border border-slate-100 bg-white shadow-xl py-1">
+                                        {Object.entries(SORT_LABELS).map(([key, label]) => (
+                                            <button
+                                                key={key}
+                                                onClick={() => { setSortOrder(key); setShowSortMenu(false); }}
+                                                className={`w-full text-left px-4 py-2 text-sm font-bold transition-colors ${sortOrder === key
+                                                    ? "text-primary bg-primary/5"
+                                                    : "text-slate-700 hover:bg-slate-50"
+                                                    }`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -204,7 +256,7 @@ export default function Shop() {
 
 function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
     return (
-        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px] flex flex-col h-full">
+        <Card className="group overflow-hidden border-slate-100 bg-white shadow-sm shadow-neon transition-all hover:translate-y-[-4px] flex flex-col h-full border">
             <CardContent className="p-0 flex flex-col h-full">
                 {/* Image Section */}
                 <div className="relative aspect-square overflow-hidden bg-slate-50">
@@ -236,7 +288,7 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                         <span>{product.brand}</span>
                     </div>
 
-                    {/* 3. Discount info (if exists) */}
+                    {/* 3. Discount info */}
                     <div className="mt-3 h-5">
                         {product.off && (
                             <span className="text-[11px] font-bold text-[#30FF00]">
@@ -255,11 +307,6 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                         <span className="text-xl font-black text-slate-950">
                             R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
-                        {product.oldPrice && (
-                            <span className="text-[11px] text-slate-400 line-through">
-                                R$ {product.oldPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </span>
-                        )}
                     </div>
 
                     {/* 5. Rating Stars */}
@@ -267,10 +314,9 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} size={14} className="fill-slate-200 text-slate-200" />
                         ))}
-                        <span className="ml-1 text-[11px] font-bold text-slate-400">(0)</span>
                     </div>
 
-                    {/* 6. Buy Button (Bottom) */}
+                    {/* 6. Buy Button */}
                     <div className="mt-auto pt-5">
                         <Link href={`/product/${product.id}`} className="block">
                             <Button
@@ -283,5 +329,17 @@ function ProductCard({ product, onAdd }: { product: any; onAdd: () => void }) {
                 </div>
             </CardContent>
         </Card>
+    );
+}
+
+export default function Shop() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        }>
+            <ShopContent />
+        </Suspense>
     );
 }

@@ -54,7 +54,7 @@ export function PlateSearchStrip() {
 
                         {/* Search Input Area */}
                         <div className="w-full lg:max-w-md">
-                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-white border border-slate-200 p-1.5 rounded-xl focus-within:border-primary/50 transition-all shadow-sm">
+                            <div className="relative flex flex-col gap-2 sm:flex-row sm:items-center bg-white border border-slate-200 p-1.5 rounded-xl shadow-neon-blue focus-within:border-primary/50 transition-all">
                                 <div className="relative flex-1">
                                     <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                                     <input
