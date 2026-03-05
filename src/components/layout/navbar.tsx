@@ -29,7 +29,7 @@ export function Navbar() {
       </div>
 
       {/* Extreme Left Mascot - Overlapping the green strip and header */}
-      <div className="absolute left-0 top-0 w-24 h-24 sm:w-28 sm:h-28 transition-transform hover:scale-110 duration-500 z-[60] ml-0 -mt-2">
+      <div className="absolute left-6 top-0 w-24 h-24 sm:w-28 sm:h-28 transition-transform hover:scale-110 duration-500 z-[60] ml-0 -mt-2">
         <Image
           src="/turtle-mascot-transparent.png"
           alt="Tureggon Mascot"
