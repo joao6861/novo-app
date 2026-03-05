@@ -60,18 +60,19 @@ export async function consultarPlaca(placa: string): Promise<VehicleData | null>
       throw new Error('Placa inválida. Deve conter 7 caracteres.')
     }
 
-    // Consulta API Brasil para dados básicos do veículo
-    // Endpoint: https://gateway.apibrasil.io/api/v2/consulta/veiculos
-    // Documentação: https://apibrasil.io/veiculos
-    const response = await fetch('https://gateway.apibrasil.io/api/v2/consulta/veiculos', {
+    // Novo endpoint e payload informado pelo usuário (APIBrasil v2)
+    const response = await fetch('https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer d4ecc0d3-35f1-46bb-8664-9041a329dd73`, // Chave fornecida pelo usuário
+        'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2dhdGV3YXkuYXBpYnJhc2lsLmlvL2FwaS9vYXV0aC9leGNoYW5nZSIsImlhdCI6MTc3MDc2MDAwOCwiZXhwIjoxODAyMjk2MDA4LCJuYmYiOjE3NzA3NjAwMDgsImp0aSI6IldKRVZUTDRyVlh2dWs5bEMiLCJzdWIiOiIxODQzMCIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjciLCJ1c2VyX2lkIjoxNjM2NCwiZW1haWwiOiJhcnR1ci51bWJlbGlub0BhcGlicmFzaWwuY29tLmJyIn0.9EEw71IKhXDyOHDRTPWHrafwg8WemIT3V_PyTIhwJ2Y`,
       },
       body: JSON.stringify({
-        placa: placaLimpa
-      })
+        tipo: "veiculos-dados-v1",
+        placa: placaLimpa,
+        homolog: process.env.NODE_ENV === "development" ? true : false // Se desenvolvimento não consome, senão consome
+      }),
+      cache: 'no-store'
     })
 
     if (!response.ok) {
@@ -79,24 +80,27 @@ export async function consultarPlaca(placa: string): Promise<VehicleData | null>
         return null // Placa não encontrada
       }
       const errorText = await response.text()
-      throw new Error(`Erro na APIBrasil: ${response.status} - ${errorText}`)
+      throw new Error(`Erro na APIBrasil (${response.status}): ${errorText}`)
     }
 
     const apiResult = await response.json()
+    // Pode vir como apiResult.dados ou apiResult diretamente. Ajustando.
+    const vehiclePayload = apiResult.dados || apiResult;
 
     // Mapeamento da estrutura da APIBrasil v2 para PlacaResponse
-    // A APIBrasil v2 retorna os dados dentro de um objeto 'body' ou similar, dependendo do retorno específico
     const data: PlacaResponse = {
       placa: placaLimpa,
-      marca: apiResult.body?.marca || apiResult.marca || 'N/A',
-      modelo: apiResult.body?.modelo || apiResult.modelo || 'N/A',
-      ano: apiResult.body?.ano || apiResult.ano || 'N/A',
-      anoModelo: apiResult.body?.ano_modelo || apiResult.anoModelo || 'N/A',
-      cor: apiResult.body?.cor || apiResult.cor || 'N/A',
-      municipio: apiResult.body?.municipio || apiResult.municipio || 'N/A',
-      uf: apiResult.body?.uf || apiResult.uf || 'N/A',
-      motor: apiResult.body?.motor || apiResult.motor || 'N/A',
-      ...apiResult.body
+      marca: vehiclePayload?.marca || 'N/A',
+      modelo: vehiclePayload?.modelo || vehiclePayload?.modelo_fipe || 'N/A',
+      ano: vehiclePayload?.ano || vehiclePayload?.ano_fabricacao || 'N/A',
+      anoModelo: vehiclePayload?.ano_modelo || 'N/A',
+      cor: vehiclePayload?.cor || 'N/A',
+      municipio: vehiclePayload?.municipio || 'N/A',
+      uf: vehiclePayload?.uf || 'N/A',
+      motor: vehiclePayload?.motor || vehiclePayload?.cilindrada || 'N/A',
+      chassi: vehiclePayload?.chassi || 'Oculto na API',
+      renavam: vehiclePayload?.renavam || 'Oculto na API',
+      ...vehiclePayload
     }
 
     // Busca informações técnicas no banco de dados

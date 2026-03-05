@@ -4,19 +4,19 @@ import React, { useState } from "react";
 import { Search, Car, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export function PlateSearchStrip() {
     const [plate, setPlate] = useState("");
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const handleSearch = async () => {
-        if (!plate.trim()) return;
+    const handleSearch = () => {
+        const cleanedPlate = plate.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        if (cleanedPlate.length !== 7) return; // Validação básica Br/Mercosul
+
         setLoading(true);
-        // Simulation of search logic
-        setTimeout(() => {
-            setLoading(false);
-            console.log("Searching for plate:", plate);
-        }, 1500);
+        router.push(`/vehicle/${cleanedPlate}`);
     };
 
     return (
