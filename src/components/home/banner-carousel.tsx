@@ -15,13 +15,6 @@ import Link from "next/link";
 
 const BANNERS = [
     {
-        title: "Projetos de Elite",
-        subtitle: "Transformamos o seu veículo com as melhores peças e cuidados técnicos do mercado.",
-        cta: "Ver Catálogo",
-        image: "/banners/custom-project.png",
-        link: "/shop?category=performance",
-    },
-    {
         title: "Performance Sem Limites",
         subtitle: "A maior variedade de peças para o seu projeto turbo ou aspirado.",
         cta: "Ver Performance",
@@ -29,11 +22,11 @@ const BANNERS = [
         link: "/shop?category=performance",
     },
     {
-        title: "Ronco Esportivo Inox",
-        subtitle: "Ponteiras e sistemas de exaustão de alta qualidade.",
-        cta: "Ver Escapamentos",
-        image: "https://images.unsplash.com/photo-1621259182978-f09e5e2ca1ff?q=80&w=2000&auto=format&fit=crop",
-        link: "/shop?category=escapamento",
+        title: "Estética de Elite",
+        subtitle: "Cuidados profissionais para quem valoriza cada detalhe do seu veículo.",
+        cta: "Ver Estética",
+        image: "/banners/car-care-detailing.png",
+        link: "/shop?category=estetica",
     },
 ];
 
