@@ -195,15 +195,17 @@ export default function Home() {
 function SectionHeader({ title, subtitle, link }: { title: string; subtitle: string; link: string }) {
   return (
     <div className="mb-12 flex items-center justify-between">
-      <div className="relative inline-flex flex-col bg-primary px-8 py-5 rounded-[2.5rem] shadow-xl shadow-primary/20 border-b-4 border-black/10">
-        <h2 className="text-xl font-black uppercase tracking-tight text-black lg:text-3xl italic leading-tight">
-          {title}
-        </h2>
-        <p className="mt-1 text-black/60 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
-          {subtitle}
-        </p>
-        {/* Balloon Tail Tip */}
-        <div className="absolute -bottom-2 left-10 h-0 w-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
+      <div className="group relative cursor-pointer">
+        <div className="relative inline-flex flex-col bg-primary/20 backdrop-blur-md px-8 py-5 rounded-[2.5rem] border border-primary/30 shadow-[0_0_15px_rgba(33,199,234,0.3)] transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-[1.03] group-hover:shadow-[0_0_25px_rgba(33,199,234,0.5)] group-hover:bg-primary/30">
+          <h2 className="text-xl font-black uppercase tracking-tight text-primary lg:text-3xl italic leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+            {title}
+          </h2>
+          <p className="mt-1 text-primary/80 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
+            {subtitle}
+          </p>
+          {/* Balloon Tail Tip */}
+          <div className="absolute -bottom-2 left-10 h-0 w-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary/40 transition-colors group-hover:border-t-primary/60" />
+        </div>
       </div>
       <Link href={link}>
         <Button variant="link" className="text-primary font-bold uppercase tracking-widest flex items-center gap-2 group p-0 h-auto">
