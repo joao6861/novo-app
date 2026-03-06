@@ -124,7 +124,7 @@ export default function Home() {
             subtitle="Tudo para o seu projeto subir o nível."
             link="/shop?category=performance"
           />
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-5 sm:gap-6">
             {PERFORMANCE_PRODUCTS.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
             ))}
@@ -140,7 +140,7 @@ export default function Home() {
             subtitle="Brilho e proteção com as melhores marcas."
             link="/shop?category=estetica"
           />
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-2 lg:grid-cols-5 sm:gap-6">
             {ESTETICA_PRODUCTS.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={() => addToCart(product)} />
             ))}
