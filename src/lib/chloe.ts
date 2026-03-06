@@ -19,7 +19,21 @@ export class ChloeClient {
     private storeSlug: string;
 
     constructor() {
-        this.baseUrl = process.env.NEXT_PUBLIC_CHLOE_API_URL || 'http://localhost:3001';
+        // Busca a URL da API do ambiente. Se não houver, tenta usar o domínio atual como base para inferir a API (comum em deploys VPS/Vercel)
+        this.baseUrl = process.env.NEXT_PUBLIC_CHLOE_API_URL || '';
+
+        // Se ainda estiver vazia e estivermos no navegador, tentamos uma heurística ou mantemos o padrão de desenvolvimento
+        if (!this.baseUrl && typeof window !== 'undefined') {
+            const host = window.location.hostname;
+            if (host === 'localhost' || host === '127.0.0.1') {
+                this.baseUrl = 'http://localhost:3001';
+            } else {
+                // Heurística para produção: assume que a API da Chloe está em um subdomínio ou porta específica
+                // Isso pode ser ajustado conforme a necessidade do usuário
+                this.baseUrl = `https://api.${host.replace('www.', '')}`;
+            }
+        }
+
         this.storeSlug = 'tureggon-elite';
     }
 
