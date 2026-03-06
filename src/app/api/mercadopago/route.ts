@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
                     address: {
                         zip_code: payer?.cep?.replace(/\D/g, "") || "",
                         street_name: payer?.endereco || "",
-                        street_number: payer?.numero ? Number(payer.numero) : 0,
+                        street_number: payer?.numero ? String(payer.numero) : "0",
                     },
                 },
                 back_urls: {
@@ -58,6 +58,28 @@ export async function POST(req: NextRequest) {
                 },
             },
         });
+
+        // Integração Chloe HQ: Notificar sobre a intenção de compra
+        try {
+            const { chloe } = await import("@/lib/chloe");
+            await chloe.sendOrder({
+                storeId: "tureggon-elite",
+                contact: {
+                    name: payer?.name || "Cliente Tureggon",
+                    email: payer?.email || "",
+                    phone: payer?.phone || "",
+                },
+                total: items.reduce((acc: number, item: any) => acc + (Number(item.price) * item.quantity), 0),
+                items: items.map((item: any) => ({
+                    name: item.name,
+                    sku: item.sku || `SKU-${item.id}`,
+                    price: Number(item.price),
+                    quantity: item.quantity
+                }))
+            });
+        } catch (chloeError) {
+            console.error("Erro silencioso na integração Chloe HQ:", chloeError);
+        }
 
         return NextResponse.json({
             id: result.id,
