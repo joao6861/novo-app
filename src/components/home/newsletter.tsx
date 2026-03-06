@@ -19,40 +19,40 @@ export function Newsletter() {
             {/* Background Gradient */}
             <div className="absolute inset-0 z-0 bg-gradient-to-br from-black via-slate-900 to-black opacity-90"></div>
 
-            {/* Mascot Composition - High-Performance Stickers */}
+            {/* Mascot Composition - New Turbo Turtles com fundo azul */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                {/* Bottom Left Turtle - Large Sticker */}
+                {/* Bottom Left Turtle - Large with blue bg */}
                 <div className="absolute -bottom-10 -left-10 w-64 h-64 md:w-[450px] md:h-[450px] opacity-100 transition-transform hover:scale-105 duration-700 rotate-[15deg]">
                     <div className="relative w-full h-full p-4">
                         <Image
-                            src="/turtle-mascot.png"
-                            alt="John Player Turtle"
+                            src="/turtle-mascot-bg-blue.png"
+                            alt="Turbo Turtle"
                             fill
                             className="object-contain"
                         />
                     </div>
                 </div>
 
-                {/* Top Right Turtle - Floating Label Style */}
+                {/* Top Right Turtle - Floating, with blue bg */}
                 <div className="absolute top-0 -right-10 w-48 h-48 md:w-80 md:h-80 opacity-90 -rotate-12 transition-transform hover:-translate-y-6 duration-1000 z-20">
                     <div className="relative w-full h-full p-4">
                         <Image
-                            src="/turtle-mascot.png"
-                            alt="John Player Turtle"
+                            src="/turtle-mascot-bg-blue.png"
+                            alt="Turbo Turtle"
                             fill
-                            className="object-contain drop-shadow-[0_0_30px_rgba(48,255,0,0.4)]"
+                            className="object-contain drop-shadow-[0_0_30px_rgba(0,120,255,0.5)]"
                         />
                     </div>
                 </div>
 
-                {/* Top Left (Small Profile) */}
-                <div className="absolute top-10 left-1/4 w-24 h-24 md:w-32 md:h-32 opacity-40 rotate-[45deg] hidden md:block transition-all hover:opacity-100 duration-500">
+                {/* Center small turtle - transparent */}
+                <div className="absolute top-10 left-1/4 w-24 h-24 md:w-32 md:h-32 opacity-30 rotate-[45deg] hidden md:block transition-all hover:opacity-80 duration-500">
                     <div className="relative w-full h-full">
                         <Image
-                            src="/turtle-mascot.png"
-                            alt="John Player Turtle"
+                            src="/turtle-mascot-transparent.png"
+                            alt="Turbo Turtle"
                             fill
-                            className="object-contain grayscale hover:grayscale-0"
+                            className="object-contain"
                         />
                     </div>
                 </div>

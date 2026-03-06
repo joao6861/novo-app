@@ -5,6 +5,7 @@ import { Search, Car, Zap, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlacaInfo, buscarVeiculosPorPlacaNaBase } from "@/lib/plate-utils";
+import Image from "next/image";
 
 export function HeroSection() {
     const [plate, setPlate] = useState("");
@@ -22,7 +23,6 @@ export function HeroSection() {
         setError(null);
 
         try {
-            // Simulando a chamada de API (a lógica real seria via fetch('/api/consulta-placa'))
             const res = await fetch("/api/consulta-placa", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -34,10 +34,7 @@ export function HeroSection() {
                 setError(data.message || "Erro ao consultar a placa.");
                 return;
             }
-
-            // Se der certo, redirecionamos para o resultado ou fazemos algo com o dado
             console.log("Plate data:", data);
-            // Aqui poderíamos emitir um evento ou setar um estado global
         } catch (e) {
             setError("Falha na conexão.");
         } finally {
@@ -52,9 +49,29 @@ export function HeroSection() {
                 <div className="h-[400px] w-[600px] bg-primary rounded-full" />
             </div>
 
+            {/* Turbo Turtle - canto superior direito */}
+            <div className="absolute right-0 top-0 w-48 h-48 md:w-72 md:h-72 pointer-events-none z-10 opacity-90 -rotate-6 translate-x-8 -translate-y-4 transition-transform hover:translate-y-0 duration-700">
+                <Image
+                    src="/turtle-mascot-transparent.png"
+                    alt="Turbo Turtle"
+                    fill
+                    className="object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+                />
+            </div>
+
+            {/* Tartaruga pequena - canto inferior esquerdo */}
+            <div className="absolute left-4 bottom-0 w-24 h-24 md:w-36 md:h-36 pointer-events-none z-10 opacity-20 rotate-12 hidden lg:block">
+                <Image
+                    src="/turtle-mascot-transparent.png"
+                    alt="Turbo Turtle mini"
+                    fill
+                    className="object-contain"
+                />
+            </div>
+
             <div className="container relative z-10 mx-auto px-4 text-center">
                 <div className="mx-auto max-w-3xl">
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 ">
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5">
                         <Zap className="h-4 w-4 text-primary fill-primary/20" />
                         <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-600">
                             Encontre peças compatíveis instantaneamente
@@ -70,8 +87,6 @@ export function HeroSection() {
                         Peças de alta performance e manutenção para todos os veículos.
                         Entregamos em todo o território nacional com garantia e suporte especializado.
                     </p>
-
-
 
                     <div className="flex flex-wrap justify-center gap-8">
                         <FeatureIcon text="Entrega Expressa" />

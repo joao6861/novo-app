@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export const metadata = {
     title: "Garagem Técnica - Tureggon Elite Store",
@@ -137,8 +138,12 @@ async function VehicleReport({ placa }: { placa: string }) {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* ═══ HEADER DO VEÍCULO ═══ */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-neon-blue relative overflow-hidden group">
-                {/* Background Decor */}
+                {/* Background Decor + Tartaruga */}
                 <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-primary/5 blur-3xl transition-all group-hover:bg-primary/10"></div>
+                {/* Turbo Turtle decorativa */}
+                <div className="absolute right-0 bottom-0 w-28 h-28 md:w-40 md:h-40 pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity duration-500 rotate-6">
+                    <Image src="/turtle-mascot-transparent.png" alt="Turbo Turtle" fill className="object-contain" />
+                </div>
 
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
                     <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm shadow-neon">

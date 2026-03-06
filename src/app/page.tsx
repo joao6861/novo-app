@@ -148,8 +148,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Unified Brand & Trust Section - Simplified layout */}
-      <section className="py-12 bg-slate-50/50">
+      {/* Unified Brand & Trust Section - com tartaruga decorativa */}
+      <section className="py-12 bg-slate-50/50 relative overflow-hidden">
+        {/* Tartaruga decorativa - direita */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-40 h-40 md:w-64 md:h-64 pointer-events-none opacity-20 rotate-12 hidden md:block">
+          <Image src="/turtle-mascot-transparent.png" alt="Turbo Turtle" fill className="object-contain" />
+        </div>
+        {/* Tartaruga decorativa - esquerda pequena */}
+        <div className="absolute left-2 bottom-0 w-20 h-20 md:w-32 md:h-32 pointer-events-none opacity-15 -rotate-6 hidden lg:block">
+          <Image src="/turtle-mascot-transparent.png" alt="Turbo Turtle" fill className="object-contain" />
+        </div>
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl font-black italic uppercase text-slate-900 md:text-5xl">
